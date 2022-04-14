@@ -2,10 +2,10 @@
 require('dotenv').config();
 
 const cdk = require('aws-cdk-lib');
-const { AwsContainersTfcWorkStack } = require('../lib/aws-containers-tfc-work-stack');
+const { Homework1 } = require('../lib/Homework1');
 
 const app = new cdk.App();
-new AwsContainersTfcWorkStack(app, 'AwsContainersTfcWorkStack', {
+new Homework1(app, 'hw1', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
