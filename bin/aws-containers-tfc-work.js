@@ -3,6 +3,7 @@ require('dotenv').config();
 
 const cdk = require('aws-cdk-lib');
 const { Homework1 } = require('../lib/Homework1');
+const { Homework2 } = require('../lib/Homework2');
 
 const app = new cdk.App();
 new Homework1(app, 'hw1', {
@@ -19,4 +20,9 @@ new Homework1(app, 'hw1', {
   // env: { account: '123456789012', region: 'us-east-1' },
 
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+});
+
+new Homework2(app, 'hw2', {
+  // github_connection_arn: Go to https://console.aws.amazon.com/codesuite/settings/connections to set up a connection to GitHub, fill up the ARN in .env
+  env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION, github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN, github_owner: process.env.CDK_GITHUB_OWNER, github_repo: process.env.CDK_GITHUB_REPO, github_url: process.env.CDK_GITHUB_URL },
 });
