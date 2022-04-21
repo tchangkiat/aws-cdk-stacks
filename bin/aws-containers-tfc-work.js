@@ -25,10 +25,10 @@ new Homework1(app, 'hw1', {
 
 new Homework2(app, 'hw2', {
   // github_connection_arn: Go to https://console.aws.amazon.com/codesuite/settings/connections to set up a connection to GitHub, fill up the ARN in .env
-  env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION, github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN, github_owner: process.env.CDK_GITHUB_OWNER, github_repo: process.env.CDK_GITHUB_REPO, github_url: process.env.CDK_GITHUB_URL },
+  env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION, github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN, github_owner: process.env.CDK_GITHUB_OWNER, github_repo: process.env.CDK_GITHUB_REPO },
 });
 
 new MultiArchPipeline(app, 'mapl', {
   // github_connection_arn: Go to https://console.aws.amazon.com/codesuite/settings/connections to set up a connection to GitHub, fill up the ARN in .env
-  env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION, github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN, github_owner: process.env.CDK_GITHUB_OWNER, github_repo: process.env.CDK_GITHUB_REPO, github_url: process.env.CDK_GITHUB_URL },
+  env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION, github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN, github_owner: process.env.CDK_GITHUB_OWNER, github_repo: process.env.CDK_GITHUB_REPO },
 });
