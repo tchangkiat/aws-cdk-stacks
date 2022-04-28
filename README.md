@@ -12,6 +12,14 @@
 - Complete the secrets module in the workshop: https://container-devsecops.awssecworkshops.com/
 - Add a stage to the pipeline to deploy to ECS on EC2 or Fargate
 
+## Cohort Training - Homework 3 (Homework3.js / hw3):
+- Using eksctl, create an EKS cluster with the following:
+- OIDC for IRSA
+- Managed Node Groups
+- Cluster Autoscaler
+- HPA
+- Refer to https://www.eksworkshop.com/beginner/080_scaling/
+
 # Useful Commands
 
 * `npm run test`         perform the jest unit tests
