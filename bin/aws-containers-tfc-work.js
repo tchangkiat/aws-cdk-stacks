@@ -5,7 +5,8 @@ const cdk = require('aws-cdk-lib');
 const { StandardVpc } = require('../lib/StandardVpc');
 const { Homework1 } = require('../lib/Homework1');
 const { Homework2 } = require('../lib/Homework2');
-const { Homework3 } = require('../lib/Homework3');
+const { EKS } = require('../lib/EKS');
+const { EKSSampleApp } = require('../lib/EKS-SampleApp');
 const { MultiArchPipeline } = require('../lib/MultiArchPipeline');
 
 const app = new cdk.App();
@@ -28,6 +29,10 @@ new MultiArchPipeline(app, 'mapl', {
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION, github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN, github_owner: process.env.CDK_GITHUB_OWNER, github_repo: process.env.CDK_GITHUB_REPO },
 });
 
-new Homework3(app, 'hw3', {
+new EKS(app, 'eks', {
+  env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION, access_key_id: process.env.CDK_AWS_ACCESS_KEY_ID, secret_access_key: process.env.CDK_AWS_SECRET_ACCESS_KEY },
+});
+
+new EKSSampleApp(app, 'eks-sample-app', {
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
 });
