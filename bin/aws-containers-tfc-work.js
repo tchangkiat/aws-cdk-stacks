@@ -30,7 +30,7 @@ new MultiArchPipeline(app, 'mapl', {
 });
 
 new EKS(app, 'eks', {
-  env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION, access_key_id: process.env.CDK_AWS_ACCESS_KEY_ID, secret_access_key: process.env.CDK_AWS_SECRET_ACCESS_KEY },
+  env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
 });
 
 new EKSSampleApp(app, 'eks-sample-app', {
