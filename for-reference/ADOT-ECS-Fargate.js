@@ -7,14 +7,9 @@ class OtelEcsFargateCdkStack extends Stack {
   constructor(scope, id, props) {
     super(scope, id, props);
 
-    //const executionRole = iam.Role.fromRoleArn(this,'executionrole','arn:',{});
-
-    //const taskRole = iam.Role.fromRoleArn(this,'taskrole','arn:',{});
-
     const executionRole = new iam.Role(this, "ecsTaskExecutionRole", {
       assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
     });
-
     executionRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName(
         "service-role/AmazonECSTaskExecutionRolePolicy"
@@ -24,13 +19,11 @@ class OtelEcsFargateCdkStack extends Stack {
     const taskRole = new iam.Role(this, "adotTaskRole", {
       assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
     });
-
     taskRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName(
         "AmazonPrometheusRemoteWriteAccess"
       )
     );
-
     taskRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName("AWSXrayWriteOnlyAccess")
     );

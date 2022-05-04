@@ -29,7 +29,7 @@ new MultiArchPipeline(app, 'mapl', {
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION, github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN, github_owner: process.env.CDK_GITHUB_OWNER, github_repo: process.env.CDK_GITHUB_REPO },
 });
 
-new EKS(app, 'eks', {
+new EKS(app, 'eks-cluster', {
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
 });
 
