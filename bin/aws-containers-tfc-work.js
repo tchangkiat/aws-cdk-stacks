@@ -6,7 +6,7 @@ const { StandardVpc } = require('../lib/StandardVpc');
 const { Homework1 } = require('../lib/Homework1');
 const { Homework2 } = require('../lib/Homework2');
 const { EKS } = require('../lib/EKS');
-const { EKSSampleApp } = require('../lib/EKS-SampleApp');
+const { AdotEcsFargate } = require('../lib/AdotEcsFargate');
 const { MultiArchPipeline } = require('../lib/MultiArchPipeline');
 
 const app = new cdk.App();
@@ -33,6 +33,6 @@ new EKS(app, 'eks-cluster', {
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
 });
 
-new EKSSampleApp(app, 'eks-sample-app', {
+new AdotEcsFargate(app, 'adot-ecs', {
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
 });

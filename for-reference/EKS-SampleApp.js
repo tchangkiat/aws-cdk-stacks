@@ -1,4 +1,5 @@
 const { Stack } = require("aws-cdk-lib");
+const iam = require("aws-cdk-lib/aws-iam");
 const eks = require("aws-cdk-lib/aws-eks");
 
 class EKSSampleApp extends Stack {
@@ -15,8 +16,16 @@ class EKSSampleApp extends Stack {
     // EKS
     // ----------------------------
 
+    const handlerRole = iam.Role.fromRoleArn(this, 'HandlerRole', 'arn');
+    const kubectlProvider = eks.KubectlProvider.fromKubectlProviderAttributes(this, 'KubectlProvider', {
+      functionArn: 'arn',
+      kubectlRoleArn: 'arn',
+      handlerRole,
+    });
+
     const cluster = eks.Cluster.fromClusterAttributes(this, "eks-cluster", {
       clusterName: "Demo",
+      kubectlProvider,
     });
 
     // ----------------------------
@@ -36,7 +45,7 @@ class EKSSampleApp extends Stack {
           spec: {
             replicas: 2,
             selector: {
-              matchaLabels: {
+              matchLabels: {
                 app: "sample-express-api",
               },
             },
