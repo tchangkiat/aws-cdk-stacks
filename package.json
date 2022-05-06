@@ -1,8 +1,8 @@
 {
-  "name": "aws-containers-tfc-work",
+  "name": "aws-cdk-templates",
   "version": "0.1.0",
   "bin": {
-    "aws-containers-tfc-work": "bin/aws-containers-tfc-work.js"
+    "aws-cdk-templates": "bin/aws-cdk-templates.js"
   },
   "scripts": {
     "build": "echo \"The build step is not required when using JavaScript!\" && exit 0",
