@@ -68,6 +68,6 @@ new CicdEc2(app, "cicd-ec2", {
     region: process.env.CDK_DEFAULT_REGION,
     github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN,
     github_owner: process.env.CDK_GITHUB_OWNER,
-    github_repo: process.env.CDK_GITHUB_REPO,
+    github_repo: process.env.CDK_GITHUB_REPO2,
   },
 });
