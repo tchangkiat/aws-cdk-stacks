@@ -48,7 +48,7 @@ new MultiArchPipeline(app, "mapl", {
   },
 });
 
-new EKS(app, "eks-cluster", {
+new EKS(app, "eks", {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,
