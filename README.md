@@ -14,8 +14,46 @@
 - Complete the secrets module in the workshop: https://container-devsecops.awssecworkshops.com/
 - Add a stage to the pipeline to deploy to ECS on EC2 or Fargate
 
-# Useful Commands
+# EKS
 
-- `cdk deploy` deploy this stack to your default AWS account/region
-- `cdk diff` compare deployed stack with current state
-- `cdk synth` emits the synthesized CloudFormation template
+Set up an EKS cluster with `cdk deploy eks`.
+
+## Installing AWS Load Balancer Controller
+
+Execute the following commands:
+
+```bash
+eksctl utils associate-iam-oidc-provider \
+    --region ap-southeast-1 \
+    --cluster $AWS_EKS_CLUSTER \
+    --approve
+
+curl -o iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.1/docs/install/iam_policy.json
+
+aws iam create-policy \
+ --policy-name AWSLoadBalancerControllerIAMPolicy \
+ --policy-document file://iam-policy.json
+
+eksctl create iamserviceaccount \
+--cluster=$AWS_EKS_CLUSTER \
+--namespace=kube-system \
+--name=aws-load-balancer-controller \
+--role-name=eks-$AWS_EKS_CLUSTER-aws-load-balancer-controller-role \
+--attach-policy-arn=arn:aws:iam::$AWS_ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy \
+--override-existing-serviceaccounts \
+--region ap-southeast-1 \
+--approve
+
+# You may get an "Unauthorized" error executing the 'eksctl create iamserviceaccount' above. The following 2 commands will create a Kubernetes service account and annotate it.
+
+kubectl create serviceaccount aws-load-balancer-controller -n kube-system
+
+kubectl annotate serviceaccount -n kube-system aws-load-balancer-controller \
+eks.amazonaws.com/role-arn=arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-$AWS_EKS_CLUSTER-aws-load-balancer-controller-role
+
+helm repo add eks https://aws.github.io/eks-charts
+
+kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=$AWS_EKS_CLUSTER --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
+```
