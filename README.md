@@ -25,33 +25,15 @@ Set up an EKS cluster with `cdk deploy eks`. For the commands below, the environ
 
 ## Configuring the bastion host
 
-1. Configure the AWS CLI.
+1. Log in to the bastion host with 'ec2-user' using SSH or EC2 Instance Connect.
+
+2. Configure the AWS CLI (region will be set by setup-bastion-host.sh automatically) and execute a script to setup bastion host.
 
 ```bash
 aws configure set aws_access_key_id {{ACCESS_KEY_ID}}
 aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
-aws configure set region {{REGION, e.g. ap-southeast-1}}
-aws configure set output json
-```
 
-2. Configure access to the EKS cluster with the following command. The complete command (with the role ARN) can be found in the CloudFormation output or IDE console (after running `cdk deploy eks`).
-
-```bash
-aws eks update-kubeconfig --name $AWS_EKS_CLUSTER --region $AWS_REGION --role-arn {{ARN of the role with 'system:masters' access in the EKS cluster}}
-```
-
-3. Execute the following commands to add ARN of the caller identity (AWS CLI) to aws-auth so that there will not be any error executing commands like `eksctl create iamserviceaccount`:
-
-```bash
-export AWS_IAM_USER_ARN=`aws sts get-caller-identity --query Arn --output text`
-
-export AWS_AUTH_MAP_USERS="mapUsers: '[{\"userarn\":\"${AWS_IAM_USER_ARN}\",\"username\":\"admin\",\"groups\":[\"system:masters\"]}]'"
-
-kubectl get -n kube-system configmap/aws-auth -o yaml > aws-auth.yml
-
-sed "s|mapUsers: '\[\]'|$AWS_AUTH_MAP_USERS|g" aws-auth.yml > aws-auth-patched.yml
-
-kubectl apply -f aws-auth-patched.yml
+./setup-bastion-host.sh
 ```
 
 ## Installing AWS Load Balancer Controller
