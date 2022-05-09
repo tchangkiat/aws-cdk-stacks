@@ -7,7 +7,8 @@ aws iam delete-policy \
 
 eksctl delete iamserviceaccount \
 --cluster=$AWS_EKS_CLUSTER \
---name=aws-load-balancer-controller
+--name=aws-load-balancer-controller \
+--namespace=kube-system
 
 kubectl delete serviceaccount aws-load-balancer-controller -n kube-system
 
