@@ -4,7 +4,9 @@ These are templates for various solutions in AWS.
 
 ## Setup
 
-1. Configure AWS CLI.
+1. Install npm packages with `npm install`.
+
+2. Configure AWS CLI in order to bootstrap your AWS account for the CDK.
 
 ```bash
 aws configure set aws_access_key_id {{ACCESS_KEY_ID}}
@@ -12,8 +14,6 @@ aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
 aws configure set region {{REGION, e.g. ap-southeast-1}}
 aws configure set output json
 ```
-
-2. Install npm packages with `npm install`.
 
 3. Bootstrap AWS account for CDK with `cdk bootstrap`.
 
@@ -40,40 +40,22 @@ aws eks update-kubeconfig --name $AWS_EKS_CLUSTER --region $AWS_REGION --role-ar
 
 ## Installing AWS Load Balancer Controller
 
-Execute the following commands:
+Execute the following commands in the bastion host to install:
 
 ```bash
-eksctl utils associate-iam-oidc-provider \
-    --region ap-southeast-1 \
-    --cluster $AWS_EKS_CLUSTER \
-    --approve
+curl -o install-load-balancer-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-templates/main/scripts/EKS/install-load-balancer-controller.sh
 
-curl -o iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.1/docs/install/iam_policy.json
+chmod +x install-load-balancer-controller.sh
 
-aws iam create-policy \
- --policy-name AWSLoadBalancerControllerIAMPolicy \
- --policy-document file://iam-policy.json
+./install-load-balancer-controller.sh
+```
 
-eksctl create iamserviceaccount \
---cluster=$AWS_EKS_CLUSTER \
---namespace=kube-system \
---name=aws-load-balancer-controller \
---role-name=eks-$AWS_EKS_CLUSTER-aws-load-balancer-controller-role \
---attach-policy-arn=arn:aws:iam::$AWS_ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy \
---override-existing-serviceaccounts \
---region ap-southeast-1 \
---approve
+Execute the following commands in the bastion host to remove:
 
-# You may get an "Unauthorized" error executing the 'eksctl create iamserviceaccount' above. The following 2 commands will create a Kubernetes service account and annotate it.
+```bash
+curl -o remove-load-balancer-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-templates/main/scripts/EKS/remove-load-balancer-controller.sh
 
-kubectl create serviceaccount aws-load-balancer-controller -n kube-system
+chmod +x remove-load-balancer-controller.sh
 
-kubectl annotate serviceaccount -n kube-system aws-load-balancer-controller \
-eks.amazonaws.com/role-arn=arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-$AWS_EKS_CLUSTER-aws-load-balancer-controller-role
-
-helm repo add eks https://aws.github.io/eks-charts
-
-kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
-
-helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=$AWS_EKS_CLUSTER --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
+./remove-load-balancer-controller.sh
 ```
