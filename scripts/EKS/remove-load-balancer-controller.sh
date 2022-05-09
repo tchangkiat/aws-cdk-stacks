@@ -2,7 +2,7 @@
 
 rm aws-load-balancer-controller-policy.json
 
-helm uninstall aws-load-balancer-controller
+helm uninstall aws-load-balancer-controller -n kube-system
 
 kubectl delete -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
 
