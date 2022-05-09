@@ -21,11 +21,13 @@ class EksLbCtrl extends Stack {
     const openIdConnectProviderArn =
       "arn:aws:iam::" +
       props.env.account +
-      ":oidc-provider/oidc.eks.ap-southeast-1.amazonaws.com/id/7E1E470E12F86624BADD480B6D53D436";
+      ":oidc-provider/oidc.eks.ap-southeast-1.amazonaws.com/id/1";
     const kubectlRoleArn =
       "arn:aws:iam::" +
       props.env.account +
-      ":role/eks-cluster-clusterMastersRoleEABFBB9C-XQM5VR5UEJCJ";
+      ":role/eks-" +
+      eksClusterName +
+      "-master";
 
     // ----------------------------
     // EKS
