@@ -1,22 +1,42 @@
 # AWS CDK Templates
 
-## Container TFC Cohort Training - Homework 1 (Homework1.js / hw1):
+These are templates for various solutions in AWS.
 
-- Write a CDK application that builds an ECS cluster and deploys 2 services to it.
-- The VPC should have at least 3 AZs.
-- One service should be Fargate based.
-- The other service should be EC2-based, using an active/standby CP.
-- Both should track 70% CPU utilization.
-- Demonstrate auto scaling using a load tester and validate with CW Metrics.
+## Setup
 
-## Container TFC Cohort Training - Homework 2 (Homework2.js / hw2):
+1. Configure AWS CLI.
 
-- Complete the secrets module in the workshop: https://container-devsecops.awssecworkshops.com/
-- Add a stage to the pipeline to deploy to ECS on EC2 or Fargate
+```bash
+aws configure set aws_access_key_id {{ACCESS_KEY_ID}}
+aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
+aws configure set region {{REGION, e.g. ap-southeast-1}}
+aws configure set output json
+```
+
+2. Install npm packages with `npm install`.
+
+3. Bootstrap AWS account for CDK with `cdk bootstrap`.
 
 # EKS
 
-Set up an EKS cluster with `cdk deploy eks`.
+Set up an EKS cluster with `cdk deploy eks`. For the commands below, the environment variables (starts wit '$') are already populated in the bastion host by the template.
+
+## Configuring the bastion host
+
+1. Configure the AWS CLI.
+
+```bash
+aws configure set aws_access_key_id {{ACCESS_KEY_ID}}
+aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
+aws configure set region {{REGION, e.g. ap-southeast-1}}
+aws configure set output json
+```
+
+2. Configure access to the EKS cluster with the following command. The complete command (with the role ARN) can be found in the CloudFormation output or IDE console (after running `cdk deploy eks`).
+
+```bash
+aws eks update-kubeconfig --name $AWS_EKS_CLUSTER --region $AWS_REGION --role-arn {{ARN of the role with 'system:masters' access in the EKS cluster}}
+```
 
 ## Installing AWS Load Balancer Controller
 
