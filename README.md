@@ -19,11 +19,11 @@ aws configure set output json
 
 4. Bootstrap AWS account for CDK with `cdk bootstrap`.
 
-# EKS
+## EKS
 
-Set up an EKS cluster with `cdk deploy eks`. For the commands below, the environment variables (starts wit '$') are already populated in the bastion host by the template.
+Deploy an EKS cluster with `cdk deploy eks`. For the commands below, the environment variables (starts wit '$') are already populated in the bastion host by the template.
 
-## Configuring the bastion host
+### Configuring the bastion host
 
 1. Log in to the bastion host with 'ec2-user' using SSH or EC2 Instance Connect.
 
@@ -36,7 +36,7 @@ aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
 ./setup-bastion-host.sh
 ```
 
-## Installing AWS Load Balancer Controller
+### Installing AWS Load Balancer Controller
 
 Execute the following commands in the bastion host to install:
 
