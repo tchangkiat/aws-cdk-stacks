@@ -6,7 +6,9 @@ These are templates for various solutions in AWS.
 
 1. Install npm packages with `npm install`.
 
-2. Configure AWS CLI in order to bootstrap your AWS account for the CDK.
+2. Rename 'sample.env' to '.env' and fill up all the values.
+
+3. Configure AWS CLI in order to bootstrap your AWS account for the CDK.
 
 ```bash
 aws configure set aws_access_key_id {{ACCESS_KEY_ID}}
@@ -15,7 +17,7 @@ aws configure set region {{REGION, e.g. ap-southeast-1}}
 aws configure set output json
 ```
 
-3. Bootstrap AWS account for CDK with `cdk bootstrap`.
+4. Bootstrap AWS account for CDK with `cdk bootstrap`.
 
 # EKS
 

@@ -20,7 +20,6 @@ new StandardVpc(app, "vpc", {
 });
 
 new MultiArchPipeline(app, "mapl", {
-  // github_connection_arn: Go to https://console.aws.amazon.com/codesuite/settings/connections to set up a connection to GitHub, fill up the ARN in .env
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,
@@ -45,7 +44,6 @@ new EKS(app, "eks", {
 });
 
 new CicdEcs(app, "cicd-ecs", {
-  // github_connection_arn: Go to https://console.aws.amazon.com/codesuite/settings/connections to set up a connection to GitHub, fill up the ARN in .env
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,
