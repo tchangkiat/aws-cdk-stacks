@@ -9,8 +9,6 @@ eksctl delete iamserviceaccount \
 --cluster=$AWS_EKS_CLUSTER \
 --name=aws-load-balancer-controller
 
-# You may get an "Unauthorized" error executing the 'eksctl create iamserviceaccount' above. The following 2 commands will create a Kubernetes service account and annotate it.
-
 kubectl delete serviceaccount aws-load-balancer-controller -n kube-system
 
 kubectl delete -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
