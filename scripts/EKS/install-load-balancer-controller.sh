@@ -21,13 +21,6 @@ eksctl create iamserviceaccount \
 --region ap-southeast-1 \
 --approve
 
-# You may get an "Unauthorized" error executing the 'eksctl create iamserviceaccount' above. The following 2 commands will create a Kubernetes service account and annotate it.
-
-kubectl create serviceaccount aws-load-balancer-controller -n kube-system
-
-kubectl annotate serviceaccount -n kube-system aws-load-balancer-controller \
-eks.amazonaws.com/role-arn=arn:aws:iam::$AWS_ACCOUNT_ID:role/eks-$AWS_EKS_CLUSTER-aws-load-balancer-controller
-
 helm repo add eks https://aws.github.io/eks-charts
 
 kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"

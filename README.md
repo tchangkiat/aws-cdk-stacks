@@ -40,6 +40,20 @@ aws configure set output json
 aws eks update-kubeconfig --name $AWS_EKS_CLUSTER --region $AWS_REGION --role-arn {{ARN of the role with 'system:masters' access in the EKS cluster}}
 ```
 
+3. Execute the following commands to add ARN of the caller identity (AWS CLI) to aws-auth so that there will not be any error executing commands like `eksctl create iamserviceaccount`:
+
+```bash
+export AWS_IAM_USER_ARN=`aws sts get-caller-identity --query Arn --output text`
+
+export AWS_AUTH_MAP_USERS="mapUsers: '[{\"userarn\":\"${AWS_IAM_USER_ARN}\",\"username\":\"admin\",\"groups\":[\"system:masters\"]}]'"
+
+kubectl get -n kube-system configmap/aws-auth -o yaml > aws-auth.yml
+
+sed "s|mapUsers: '\[\]'|$AWS_AUTH_MAP_USERS|g" aws-auth.yml > aws-auth-patched.yml
+
+kubectl apply -f aws-auth-patched.yml
+```
+
 ## Installing AWS Load Balancer Controller
 
 Execute the following commands in the bastion host to install:
