@@ -47,7 +47,7 @@ cdk deploy eks
 
 For the commands below, the environment variables (starts wit '$') are already populated in the bastion host.
 
-## Configuring the bastion host
+## Configure the bastion host
 
 1. Log in to the bastion host with 'ec2-user' using SSH or EC2 Instance Connect.
 
@@ -60,7 +60,7 @@ aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
 ./setup-bastion-host.sh
 ```
 
-## AWS Load Balancer Controller
+## Install AWS Load Balancer Controller
 
 Execute the following commands in the bastion host to install AWS Load Balancer Controller:
 
@@ -80,4 +80,22 @@ curl -o remove-load-balancer-controller.sh https://raw.githubusercontent.com/tch
 chmod +x remove-load-balancer-controller.sh
 
 ./remove-load-balancer-controller.sh
+```
+
+## Deploy Sample Application
+
+Execute the following commands in the bastion host to deploy the application:
+
+```bash
+curl https://raw.githubusercontent.com/tchangkiat/sample-express-api/master/k8s/deployment-eks.yaml -o sample-deployment.yaml
+
+sed -i "s|\[URL\]|${CONTAINER_IMAGE_URL}|g" sample-deployment.yaml
+
+kubectl apply -f sample-deployment.yaml
+```
+
+Execute the following commands in the bastion host to remove the application:
+
+```bash
+kubectl delete -f sample-deployment.yaml
 ```
