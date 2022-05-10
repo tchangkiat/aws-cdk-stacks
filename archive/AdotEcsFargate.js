@@ -112,8 +112,7 @@ class AdotEcsFargate extends Stack {
         command: ["--config=/etc/ecs/ecs-amp-xray.yaml"],
         environment: {
           REGION: "ap-southeast-1",
-          AWS_PROMETHEUS_ENDPOINT:
-            "https://aps-workspaces.ap-southeast-1.amazonaws.com/workspaces/ws-9644d556-9ec0-405b-bf97-3185965dd834/api/v1/remote_write",
+          AWS_PROMETHEUS_ENDPOINT: "[Replace with Prometheus Endpoint]",
         },
       }
     );
