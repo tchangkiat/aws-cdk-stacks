@@ -23,7 +23,15 @@ aws configure set output json
 
 4. Bootstrap AWS account for CDK with `cdk bootstrap`.
 
-# Multi-Architecture CodePipeline (MAPL)
+# Standard VPC
+
+```bash
+cdk deploy vpc
+```
+
+Deploy a VPC with a maximum of 3 public and 3 private subnets. A NAT gateway will also be provisioned in one of the public subnets.
+
+# Multi-Architecture Pipeline
 
 ```bash
 cdk deploy mapl
