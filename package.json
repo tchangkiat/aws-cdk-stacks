@@ -1,8 +1,8 @@
 {
-  "name": "aws-cdk-templates",
+  "name": "aws-cdk-stacks",
   "version": "0.1.0",
   "bin": {
-    "aws-cdk-templates": "bin/aws-cdk-templates.js"
+    "aws-cdk-stacks": "bin/aws-cdk-stacks.js"
   },
   "scripts": {
     "build": "echo \"The build step is not required when using JavaScript!\" && exit 0",

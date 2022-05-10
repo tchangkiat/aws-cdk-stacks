@@ -1,5 +1,5 @@
 {
-  "app": "node bin/aws-cdk-templates.js",
+  "app": "node bin/aws-cdk-stacks.js",
   "watch": {
     "include": ["**"],
     "exclude": [
