@@ -45,13 +45,13 @@ The pipeline will build Docker images for x86 and ARM64 architectures and store 
 cdk deploy eks
 ```
 
-The stack will provision a VPC (with public and private subnets), an EKS cluster, bastion host to manage the EKS cluster, a managed node group (with a launch template) and enable the Cluster Autoscaler for the managed nodegroup. For the commands below, the environment variables (starts wit '$') are already populated in the bastion host.
+The stack will provision a VPC (with public and private subnets and a NAT gateway), an EKS cluster, bastion host to manage the EKS cluster, a managed node group (with a launch template) and enable the Cluster Autoscaler for the managed nodegroup. For the commands below, the environment variables (starts wit '$') are already populated in the bastion host.
 
-## Configure the bastion host
+## Bastion Host Setup
 
 1. Log in to the bastion host with 'ec2-user' using SSH or EC2 Instance Connect.
 
-2. Configure the AWS CLI (region will be set by setup-bastion-host.sh automatically) and execute a script to setup bastion host.
+2. Configure the AWS CLI (region will be set by 'setup-bastion-host.sh' automatically) and execute a script to setup the bastion host:
 
 ```bash
 aws configure set aws_access_key_id {{ACCESS_KEY_ID}}
@@ -60,9 +60,11 @@ aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
 ./setup-bastion-host.sh
 ```
 
-## Install AWS Load Balancer Controller
+3. Test the connectivity to the cluster with any `kubectl` commands (e.g. `kubectl get svc`).
 
-Execute the following commands in the bastion host to install AWS Load Balancer Controller:
+## AWS Load Balancer Controller
+
+1. Execute the following commands in the bastion host to install AWS Load Balancer Controller:
 
 ```bash
 curl -o install-load-balancer-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-load-balancer-controller.sh
@@ -72,7 +74,7 @@ chmod +x install-load-balancer-controller.sh
 ./install-load-balancer-controller.sh
 ```
 
-Execute the following commands in the bastion host to remove AWS Load Balancer Controller:
+2. Execute the following commands in the bastion host to remove AWS Load Balancer Controller:
 
 ```bash
 curl -o remove-load-balancer-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-load-balancer-controller.sh
@@ -82,9 +84,9 @@ chmod +x remove-load-balancer-controller.sh
 ./remove-load-balancer-controller.sh
 ```
 
-## Deploy Sample Application
+## Sample Application
 
-Execute the following commands in the bastion host to deploy the application:
+1. Execute the following commands in the bastion host to deploy the application:
 
 ```bash
 curl https://raw.githubusercontent.com/tchangkiat/sample-express-api/master/k8s/deployment-eks.yaml -o sample-deployment.yaml
@@ -94,27 +96,27 @@ sed -i "s|\[URL\]|${CONTAINER_IMAGE_URL}|g" sample-deployment.yaml
 kubectl apply -f sample-deployment.yaml
 ```
 
-Execute the following commands in the bastion host to remove the application:
+2. Execute the following commands in the bastion host to remove the application:
 
 ```bash
 kubectl delete -f sample-deployment.yaml
 ```
 
-## Deploy the Metrics Server and configure Horizontal Pod Autoscaler (HPA)
+## Metrics Server and Horizontal Pod Autoscaler (HPA)
 
-Execute the following command in the bastion host to deploy the Metrics Server:
+1. Execute the following command in the bastion host to deploy the Metrics Server:
 
 ```bash
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.1/components.yaml
 ```
 
-The above deployment may take minutes to complete. Check the status with this command:
+2. The above deployment may take minutes to complete. Check the status with this command:
 
 ```bash
 kubectl get apiservice v1beta1.metrics.k8s.io -o json | jq '.status'
 ```
 
-Assuming that the sample application was deployed, execute the following command to configure HPA for the deployment:
+3. Assuming that the sample application was deployed, execute the following command to configure HPA for the deployment:
 
 ```bash
 kubectl autoscale deployment sample-express-api -n sample \
@@ -123,13 +125,13 @@ kubectl autoscale deployment sample-express-api -n sample \
     --max=10
 ```
 
-Check the details of HPA:
+4. Check the details of HPA:
 
 ```bash
 kubectl get hpa -n sample
 ```
 
-Remove the HPA and Metrics Server with these commands:
+5. Remove the HPA and Metrics Server with these commands:
 
 ```bash
 kubectl delete hpa sample-express-api -n sample
