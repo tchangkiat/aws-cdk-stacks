@@ -45,7 +45,7 @@ The pipeline will build Docker images for x86 and ARM64 architectures and store 
 cdk deploy eks
 ```
 
-For the commands below, the environment variables (starts wit '$') are already populated in the bastion host.
+The stack will provision a VPC (with public and private subnets), an EKS cluster, bastion host to manage the EKS cluster, a managed node group (with a launch template) and enable the Cluster Autoscaler for the managed nodegroup. For the commands below, the environment variables (starts wit '$') are already populated in the bastion host.
 
 ## Configure the bastion host
 
@@ -98,4 +98,41 @@ Execute the following commands in the bastion host to remove the application:
 
 ```bash
 kubectl delete -f sample-deployment.yaml
+```
+
+## Deploy the Metrics Server and configure Horizontal Pod Autoscaler (HPA)
+
+Execute the following command in the bastion host to deploy the Metrics Server:
+
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.1/components.yaml
+```
+
+The above deployment may take minutes to complete. Check the status with this command:
+
+```bash
+kubectl get apiservice v1beta1.metrics.k8s.io -o json | jq '.status'
+```
+
+Assuming that the sample application was deployed, execute the following command to configure HPA for the deployment:
+
+```bash
+kubectl autoscale deployment sample-express-api -n sample \
+    --cpu-percent=50 \
+    --min=1 \
+    --max=10
+```
+
+Check the details of HPA:
+
+```bash
+kubectl get hpa -n sample
+```
+
+Remove the HPA and Metrics Server with these commands:
+
+```bash
+kubectl delete hpa sample-express-api -n sample
+
+kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.1/components.yaml
 ```
