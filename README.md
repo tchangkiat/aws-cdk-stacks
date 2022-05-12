@@ -6,6 +6,13 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 
 > ❗ You need to be aware of the resources created and costs associated with these resources for each stack.
 
+# Table of Content
+
+- [Initial Setup](#initial-setup)
+- [Standard VPC](#standard-vpc)
+- [Multi-Architecture Pipeline](#multi-architecture-pipeline)
+- [Elastic Kubernetes Service (EKS)](#elastic-kubernetes-service-eks)
+
 # Initial Setup
 
 1. Install npm packages with `npm install`.
@@ -45,7 +52,9 @@ The pipeline will build Docker images for x86 and ARM64 architectures and store 
 cdk deploy eks
 ```
 
-The stack will provision a VPC (with public and private subnets and a NAT gateway), an EKS cluster, bastion host to manage the EKS cluster, a managed node group (with a launch template) and enable the Cluster Autoscaler for the managed nodegroup. For the commands below, the environment variables (starts wit '$') are already populated in the bastion host.
+The stack will provision a VPC (with public and private subnets and a NAT gateway), an EKS cluster, bastion host to manage the EKS cluster, a managed node group (with a launch template) and enable the Cluster Autoscaler for the managed nodegroup.
+
+The commands listed in the sections under EKS should be executed in the bastion host, unless otherwise stated. Some environment variables (e.g. AWS_REGION, AWS_ACCOUNT_ID, AWS_EKS_CLUSTER) are already populated in the bastion host.
 
 ## Bastion Host Setup
 
@@ -64,7 +73,7 @@ aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
 
 ## AWS Load Balancer Controller
 
-1. Execute the following commands in the bastion host to install AWS Load Balancer Controller:
+1. Install AWS Load Balancer Controller.
 
 ```bash
 curl -o install-load-balancer-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-load-balancer-controller.sh
@@ -74,7 +83,7 @@ chmod +x install-load-balancer-controller.sh
 ./install-load-balancer-controller.sh
 ```
 
-2. Execute the following commands in the bastion host to remove AWS Load Balancer Controller:
+2. Remove AWS Load Balancer Controller.
 
 ```bash
 curl -o remove-load-balancer-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-load-balancer-controller.sh
@@ -90,7 +99,7 @@ chmod +x remove-load-balancer-controller.sh
 
 > ❗ Prerequisites #2: Install AWS Load Balancer Controller.
 
-1. Execute the following commands in the bastion host to deploy the application:
+1. Deploy the application.
 
 ```bash
 curl https://raw.githubusercontent.com/tchangkiat/sample-express-api/master/eks/deployment.yaml -o sample-deployment.yaml
@@ -100,7 +109,7 @@ sed -i "s|\[URL\]|${CONTAINER_IMAGE_URL}|g" sample-deployment.yaml
 kubectl apply -f sample-deployment.yaml
 ```
 
-2. Execute the following commands in the bastion host to remove the application:
+2. Remove the application.
 
 ```bash
 kubectl delete -f sample-deployment.yaml
@@ -108,7 +117,7 @@ kubectl delete -f sample-deployment.yaml
 
 ## Metrics Server and Horizontal Pod Autoscaler (HPA)
 
-1. Execute the following command in the bastion host to deploy the Metrics Server:
+1. Deploy the Metrics Server:
 
 ```bash
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.1/components.yaml
@@ -129,13 +138,13 @@ kubectl autoscale deployment sample-express-api -n sample \
     --max=10
 ```
 
-4. Check the details of HPA:
+4. Check the details of HPA.
 
 ```bash
 kubectl get hpa -n sample
 ```
 
-5. Remove the HPA and Metrics Server with these commands:
+5. Remove the HPA and Metrics Server.
 
 ```bash
 kubectl delete hpa sample-express-api -n sample
@@ -213,4 +222,16 @@ argocd app sync nginx
 
 ```bash
 kubectl get svc -n nginx | awk '{print $4}'
+```
+
+10. Remove Argo CD and Nginx.
+
+```bash
+argocd app delete nginx -y
+
+kubectl delete -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.3.3/manifests/install.yaml
+
+kubectl delete ns nginx
+
+kubectl delete ns argocd
 ```
