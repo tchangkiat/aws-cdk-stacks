@@ -151,9 +151,11 @@ Credit: [EKS Workshop](https://www.eksworkshop.com/intermediate/290_argocd/)
 
 ```bash
 kubectl create namespace argocd
+
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.3.3/manifests/install.yaml
 
 sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-arm64
+
 sudo chmod +x /usr/local/bin/argocd
 ```
 
