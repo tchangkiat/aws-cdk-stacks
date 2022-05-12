@@ -86,6 +86,8 @@ chmod +x remove-load-balancer-controller.sh
 
 ## Sample Application
 
+> ❗ Prerequisites: deployed the Multi-Architecture Pipeline using `cdk deploy mapl`. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
+
 1. Execute the following commands in the bastion host to deploy the application:
 
 ```bash
