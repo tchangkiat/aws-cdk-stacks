@@ -11,6 +11,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 - [Initial Setup](#initial-setup)
 - [Standard VPC](#standard-vpc)
 - [Multi-Architecture Pipeline](#multi-architecture-pipeline)
+- [Elastic Container Service (ECS)](#elastic-container-service-ecs)
 - [Elastic Kubernetes Service (EKS)](#elastic-kubernetes-service-eks)
   - [Bastion Host Setup](#bastion-host-setup)
   - [AWS Load Balancer Controller](#aws-load-balancer-controller)
@@ -51,6 +52,14 @@ cdk deploy mapl
 ```
 
 The pipeline will build Docker images for x86 and ARM64 architectures and store them in Elastic Container Registry (ECR). A Docker manifest will also be built and uploaded to the registry so that the Docker images for the respective architectures can be retrieved automatically with the 'latest' tag.
+
+# Elastic Container Service (ECS)
+
+```bash
+cdk deploy ecs
+```
+
+A new VPC with a NAT gateway and a new ECS cluster will be created. The ECS cluster contains an active and passive EC2 Auto-Scaling Groups (ASGs) which scale on 70% CPU utilization. An Application Load Balancer (ALB) will be used to balance traffic to the ASGs via an ECS service. A similar workload will also be created using Fargate. A CloudWatch dashboard will be created to visualize both workloads (EC2 and Fargate).
 
 # Elastic Kubernetes Service (EKS)
 
@@ -291,7 +300,7 @@ chmod +x setup-app-mesh.sh
 
 > ❗ Modify your source code to use the AWS X-Ray SDK. This was already done for the [Sample Application](#sample-application).
 
-1. Update App Mesh Controller to enable X-Ray so that the X-Ray Daemon will be injected into the Pods automatically
+1. Update App Mesh Controller to enable X-Ray so that the X-Ray Daemon container will be injected into the Pods automatically
 
 ```bash
 helm upgrade -i appmesh-controller eks/appmesh-controller --namespace appmesh-system --set region=$AWS_REGION --set serviceAccount.create=false --set serviceAccount.name=appmesh-controller --set tracing.enabled=true --set tracing.provider=x-ray
