@@ -1,10 +1,10 @@
 # AWS CDK Stacks
 
-This repository contains stacks for various solutions in AWS. These stacks are used for Proof-of-Concept and demonstration.
+This repository contains stacks for various solutions in AWS. These stacks are used for Proof-of-Concept (POC) and demonstration.
 
 > ❗ These stacks are not suitable for production - necessary modifications should be made if you are using it for production. E.g. enable encryption, switch from burst to standard EC2 family, increase EBS capacity and EKS nodes, etc.
 
-> ❗ You need to be aware of the resources created and costs associated with these resources for each stack.
+> ❗ You need to be aware of the resources created for each stack and the costs associated with these resources.
 
 # Table of Content
 
@@ -12,6 +12,12 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 - [Standard VPC](#standard-vpc)
 - [Multi-Architecture Pipeline](#multi-architecture-pipeline)
 - [Elastic Kubernetes Service (EKS)](#elastic-kubernetes-service-eks)
+  - [Bastion Host Setup](#bastion-host-setup)
+  - [AWS Load Balancer Controller](#aws-load-balancer-controller)
+  - [Sample Application](#sample-application)
+  - [Metrics Server and Horizontal Pod Autoscaler (HPA)](#metrics-server-and-horizontal-pod-autoscaler-hpa)
+  - [Argo CD](#argo-cd)
+  - [AWS App Mesh](#aws-app-mesh)
 
 # Initial Setup
 
@@ -252,11 +258,11 @@ kubectl delete ns nginx
 kubectl delete ns argocd
 ```
 
-## App Mesh
+## AWS App Mesh
 
 ### Setup
 
-1. Install App Mesh Controller.
+1. Install AWS App Mesh Controller.
 
 ```bash
 curl -o install-app-mesh-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-app-mesh-controller.sh
@@ -268,7 +274,7 @@ chmod +x install-app-mesh-controller.sh
 
 2. As the [Sample Application](#sample-application) is used for the following App Mesh setup, please set it up first before proceeding.
 
-3. Set up App Mesh.
+3. Generate the necessary manifest and set up App Mesh.
 
 ```bash
 curl -o setup-app-mesh.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/setup-app-mesh.sh
@@ -281,7 +287,7 @@ chmod +x setup-app-mesh.sh
 
 4. After App Mesh resources are set up, execute `kubectl rollout restart deployment sample-express-api -n sample` to restart the deployment. Verify if the Envoy proxy container is injected into each Pod of the deployment with `kubectl describe pod <Pod Name> -n sample`.
 
-### AWS X-Ray Integration
+### [Optional] AWS X-Ray Integration
 
 > ❗ Modify your source code to use the AWS X-Ray SDK (this was already done for the sample application).
 
@@ -306,7 +312,7 @@ chmod +x remove-app-mesh.sh
 ./remove-app-mesh.sh
 ```
 
-2. Remove App Mesh Controller
+2. Remove AWS App Mesh Controller
 
 ```bash
 curl -o remove-app-mesh-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-app-mesh-controller.sh
