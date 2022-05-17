@@ -238,7 +238,7 @@ kubectl delete ns argocd
 
 ## App Mesh
 
-1. Install App Mesh Controller
+1. Install App Mesh Controller.
 
 ```bash
 curl -o install-app-mesh-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-app-mesh-controller.sh
@@ -248,7 +248,17 @@ chmod +x install-app-mesh-controller.sh
 ./install-app-mesh-controller.sh
 ```
 
-2. Uninstall App Mesh Controller
+2. Set up App Mesh. The sample application will be used as an example, so you need to set up the sample application above first.
+
+```bash
+curl -o setup-app-mesh.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/setup-app-mesh.sh
+
+chmod +x setup-app-mesh.sh
+
+./setup-app-mesh.sh sample-express-api sample 8000 80
+```
+
+3. Remove App Mesh Controller.
 
 ```bash
 curl -o remove-app-mesh-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-app-mesh-controller.sh
