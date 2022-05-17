@@ -73,6 +73,8 @@ aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
 
 ## AWS Load Balancer Controller
 
+### Setup
+
 1. Install AWS Load Balancer Controller.
 
 ```bash
@@ -83,7 +85,9 @@ chmod +x install-load-balancer-controller.sh
 ./install-load-balancer-controller.sh
 ```
 
-2. Remove AWS Load Balancer Controller.
+### Clean Up
+
+1. Remove AWS Load Balancer Controller.
 
 ```bash
 curl -o remove-load-balancer-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-load-balancer-controller.sh
@@ -99,6 +103,8 @@ chmod +x remove-load-balancer-controller.sh
 
 > ❗ Prerequisites #2: Install AWS Load Balancer Controller.
 
+### Setup
+
 1. Deploy the application.
 
 ```bash
@@ -109,13 +115,17 @@ sed -i "s|\[URL\]|${CONTAINER_IMAGE_URL}|g" sample-deployment.yaml
 kubectl apply -f sample-deployment.yaml
 ```
 
-2. Remove the application.
+### Clean Up
+
+1. Remove the application.
 
 ```bash
 kubectl delete -f sample-deployment.yaml
 ```
 
 ## Metrics Server and Horizontal Pod Autoscaler (HPA)
+
+### Setup
 
 1. Deploy the Metrics Server:
 
@@ -144,7 +154,9 @@ kubectl autoscale deployment sample-express-api -n sample \
 kubectl get hpa -n sample
 ```
 
-5. Remove the HPA and Metrics Server.
+### Clean Up
+
+1. Remove the HPA and Metrics Server.
 
 ```bash
 kubectl delete hpa sample-express-api -n sample
@@ -155,6 +167,8 @@ kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/dow
 ## Argo CD
 
 Credit: [EKS Workshop](https://www.eksworkshop.com/intermediate/290_argocd/)
+
+### Setup
 
 1. Setup Argo CD and install Argo CD CLI.
 
@@ -224,7 +238,9 @@ argocd app sync nginx
 kubectl get svc -n nginx | awk '{print $4}'
 ```
 
-10. Remove Argo CD and Nginx.
+### Clean Up
+
+1. Remove Argo CD and Nginx.
 
 ```bash
 argocd app delete nginx -y
@@ -238,6 +254,8 @@ kubectl delete ns argocd
 
 ## App Mesh
 
+### Setup
+
 1. Install App Mesh Controller.
 
 ```bash
@@ -248,7 +266,9 @@ chmod +x install-app-mesh-controller.sh
 ./install-app-mesh-controller.sh
 ```
 
-2. Set up App Mesh. The sample application will be used as an example, so you need to set up the sample application above first.
+2. As the [Sample Application](#sample-application) is used for the following App Mesh setup, please set it up first before proceeding.
+
+3. Set up App Mesh.
 
 ```bash
 curl -o setup-app-mesh.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/setup-app-mesh.sh
@@ -259,9 +279,24 @@ chmod +x setup-app-mesh.sh
 ./setup-app-mesh.sh sample-express-api sample 8000 80
 ```
 
-3. After App Mesh resources are set up, execute `kubectl rollout restart deployment sample-express-api -n sample` to restart the deployment. Verify if the Envoy proxy container is injected into each Pod of the deployment with `kubectl describe pod <pod name> -n sample`.
+4. After App Mesh resources are set up, execute `kubectl rollout restart deployment sample-express-api -n sample` to restart the deployment. Verify if the Envoy proxy container is injected into each Pod of the deployment with `kubectl describe pod <Pod Name> -n sample`.
 
-4. Remove App Mesh setup of the sample application.
+### AWS X-Ray Integration
+
+> ❗ Modify your source code to use the AWS X-Ray SDK (this was already done for the sample application).
+
+1. Integrates with AWS X-Ray.
+
+```bash
+# Update the App Mesh Controller to enable X-Ray so that the X-Ray Daemon will be added automatically in the Pods
+helm upgrade -i appmesh-controller eks/appmesh-controller --namespace appmesh-system --set region=$AWS_REGION --set serviceAccount.create=false --set serviceAccount.name=appmesh-controller --set tracing.enabled=true --set tracing.provider=x-ray
+```
+
+2. After App Mesh resources are set up, execute `kubectl rollout restart deployment sample-express-api -n sample` to restart the deployment. Verify if the X-Ray Daemon container is injected into each Pod of the deployment with `kubectl describe pod <Pod Name> -n sample`.
+
+### Clean Up
+
+1. Remove App Mesh setup of the sample application.
 
 ```bash
 curl -o remove-app-mesh.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-app-mesh.sh
@@ -271,7 +306,7 @@ chmod +x remove-app-mesh.sh
 ./remove-app-mesh.sh
 ```
 
-5. Remove App Mesh Controller.
+2. Remove App Mesh Controller
 
 ```bash
 curl -o remove-app-mesh-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-app-mesh-controller.sh
