@@ -255,10 +255,13 @@ curl -o setup-app-mesh.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-s
 
 chmod +x setup-app-mesh.sh
 
+# Command format is ./setup-app-mesh.sh <application name> <namespace> <container port> <port>
 ./setup-app-mesh.sh sample-express-api sample 8000 80
 ```
 
-3. Remove App Mesh Controller.
+3. After App Mesh resources are set up, execute `kubectl rollout restart deployment sample-express-api -n sample` to restart the deployment. Verify if the Envoy proxy container is injected into each Pod of the deployment with `kubectl describe pod <pod name> -n sample`.
+
+4. Remove App Mesh Controller.
 
 ```bash
 curl -o remove-app-mesh-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-app-mesh-controller.sh
