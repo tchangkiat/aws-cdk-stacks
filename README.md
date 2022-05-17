@@ -289,12 +289,11 @@ chmod +x setup-app-mesh.sh
 
 ### [Optional] AWS X-Ray Integration
 
-> ❗ Modify your source code to use the AWS X-Ray SDK (this was already done for the sample application).
+> ❗ Modify your source code to use the AWS X-Ray SDK. This was already done for the [Sample Application](#sample-application).
 
-1. Integrates with AWS X-Ray.
+1. Update App Mesh Controller to enable X-Ray so that the X-Ray Daemon will be injected into the Pods automatically
 
 ```bash
-# Update the App Mesh Controller to enable X-Ray so that the X-Ray Daemon will be added automatically in the Pods
 helm upgrade -i appmesh-controller eks/appmesh-controller --namespace appmesh-system --set region=$AWS_REGION --set serviceAccount.create=false --set serviceAccount.name=appmesh-controller --set tracing.enabled=true --set tracing.provider=x-ray
 ```
 
