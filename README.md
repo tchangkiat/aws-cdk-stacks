@@ -235,3 +235,25 @@ kubectl delete ns nginx
 
 kubectl delete ns argocd
 ```
+
+## App Mesh
+
+1. Install App Mesh Controller
+
+```bash
+curl -o install-app-mesh-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-app-mesh-controller.sh
+
+chmod +x install-app-mesh-controller.sh
+
+./install-app-mesh-controller.sh
+```
+
+2. Uninstall App Mesh Controller
+
+```bash
+curl -o remove-app-mesh-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-app-mesh-controller.sh
+
+chmod +x remove-app-mesh-controller.sh
+
+./remove-app-mesh-controller.sh
+```
