@@ -18,4 +18,4 @@ kubectl delete -f "appmesh/mesh.yaml"
 
 kubectl delete -f "appmesh/namespace.yaml"
 
-rm –rf appmesh
+sudo rm –r appmesh
