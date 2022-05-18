@@ -203,7 +203,7 @@ sudo chmod +x /usr/local/bin/argocd
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
 ```
 
-3. Get the load balancer host name (1-2 minutes after executing #3).
+3. Get the load balancer host name (1-2 minutes after executing #2).
 
 ```bash
 export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq --raw-output '.status.loadBalancer.ingress[0].hostname'`
@@ -317,7 +317,8 @@ curl -o remove-app-mesh.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-
 
 chmod +x remove-app-mesh.sh
 
-./remove-app-mesh.sh
+# Command format is ./remove-app-mesh.sh <namespace>
+./remove-app-mesh.sh sample
 ```
 
 2. Remove AWS App Mesh Controller
