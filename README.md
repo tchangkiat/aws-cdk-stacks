@@ -318,7 +318,7 @@ curl -o remove-app-mesh.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-
 chmod +x remove-app-mesh.sh
 
 # Command format is ./remove-app-mesh.sh <namespace>
-./remove-app-mesh.sh sample
+./remove-app-mesh.sh sample-express-api sample
 ```
 
 2. Remove AWS App Mesh Controller
