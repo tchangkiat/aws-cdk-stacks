@@ -184,7 +184,7 @@ cat <<EOF >>appmesh/proxy-iam-policy.json
           "Statement": [
             {
               "Effect": "Allow",
-              "Action": ["appmesh:StreamAggregatedResources"],
+              "Action": ["appmesh:StreamAggregatedResources", "appmesh:*", "xray:*", "acm:ExportCertificate", "acm-pca:GetCertificateAuthorityCertificate", "logs:*"],
               "Resource": "*"
             }
           ]
