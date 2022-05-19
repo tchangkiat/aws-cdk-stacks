@@ -49,7 +49,7 @@ spec:
         protocol: http
   serviceDiscovery:
     dns:
-      hostname: $1-virtual-node.$2.svc.cluster.local
+      hostname: $1.$2.svc.cluster.local
 EOF
 
 cat <<EOF >>appmesh/virtual-router.yaml
