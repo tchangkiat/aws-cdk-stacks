@@ -158,12 +158,12 @@ spec:
       labels:
         app.kubernetes.io/name: $1-gateway
     spec:
-      serviceAccountName: $1-envoy-proxies
+      serviceAccountName: $1
       securityContext:
         fsGroup: 65534
       containers:
         - name: envoy
-          image: envoyproxy/envoy:v1.21-latest
+          image: public.ecr.aws/appmesh/aws-appmesh-envoy:v1.22.0.0-prod
           ports:
             - containerPort: 8088
 EOF
