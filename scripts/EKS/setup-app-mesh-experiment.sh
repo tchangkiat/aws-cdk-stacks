@@ -218,4 +218,4 @@ kubectl apply -f "appmesh/virtual-gateway.yaml"
 
 aws cloudformation create-stack --stack-name AppMeshProxyPolicy-$AWS_EKS_CLUSTER-$2-mesh --template-body file://appmesh/proxy-iam-policy.json --capabilities CAPABILITY_NAMED_IAM
 
-eksctl create iamserviceaccount --cluster $AWS_EKS_CLUSTER --namespace $2 --name $1 --attach-policy-arn arn:aws:iam::$AWS_ACCOUNT_ID:policy/AppMeshProxyAuth-$AWS_EKS_CLUSTER-$2-mesh --attach-policy-arn arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess --override-existing-serviceaccounts --approve
+eksctl create iamserviceaccount --cluster $AWS_EKS_CLUSTER --namespace $2 --name $1 --attach-policy-arn arn:aws:iam::$AWS_ACCOUNT_ID:policy/AppMeshProxy-$AWS_EKS_CLUSTER-$2-mesh --attach-policy-arn arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess --override-existing-serviceaccounts --approve

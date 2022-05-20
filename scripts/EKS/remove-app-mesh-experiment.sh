@@ -8,7 +8,7 @@ eksctl delete iamserviceaccount \
 --name=$1 \
 --namespace=$2
 
-aws cloudformation delete-stack --stack-name AppMeshProxyAuthPolicy-$AWS_EKS_CLUSTER-$2-mesh
+aws cloudformation delete-stack --stack-name AppMeshProxyPolicy-$AWS_EKS_CLUSTER-$2-mesh
 
 kubectl delete -f "appmesh/virtual-gateway.yaml"
 
