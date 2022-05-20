@@ -62,7 +62,7 @@ metadata:
 spec:
   listeners:
     - portMapping:
-        port: $4
+        port: $3
         protocol: http
   routes:
     - name: $1-virtual-node-route
