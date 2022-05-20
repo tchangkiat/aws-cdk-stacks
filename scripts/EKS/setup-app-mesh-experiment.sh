@@ -171,20 +171,24 @@ EOF
 cat <<EOF >>appmesh/proxy-iam-policy.json
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Enable proxy authorization for App Mesh injector to add the sidecar containers to any pod deployed with a label specified",
   "Resources": {
-    "AppMeshProxyAuthPolicy": {
+    "AppMeshProxyPolicy": {
       "Type": "AWS::IAM::ManagedPolicy",
       "Properties": {
-        "ManagedPolicyName": "AppMeshProxyAuth-$AWS_EKS_CLUSTER-$2-mesh",
-        "Description": "Enable proxy authorization for App Mesh injector to add the sidecar containers to any pod deployed with a label specified",
+        "ManagedPolicyName": "AppMeshProxy-$AWS_EKS_CLUSTER-$2-mesh",
         "Path": "/",
         "PolicyDocument": {
           "Version": "2012-10-17",
           "Statement": [
             {
               "Effect": "Allow",
-              "Action": ["appmesh:*", "xray:*", "acm:ExportCertificate", "acm-pca:GetCertificateAuthorityCertificate", "logs:*"],
+              "Action": [
+                "appmesh:*",
+                "xray:*",
+                "acm:ExportCertificate",
+                "acm-pca:GetCertificateAuthorityCertificate",
+                "logs:*"
+              ],
               "Resource": "*"
             }
           ]
@@ -193,8 +197,8 @@ cat <<EOF >>appmesh/proxy-iam-policy.json
     }
   },
   "Outputs": {
-    "AppMeshProxyAuthPolicyArn": {
-      "Value": { "Ref": "AppMeshProxyAuthPolicy" }
+    "AppMeshProxyPolicyAn": {
+      "Value": { "Ref": "AppMeshProxyPolicy" }
     }
   }
 }
@@ -212,6 +216,6 @@ kubectl apply -f "appmesh/virtual-service.yaml"
 
 kubectl apply -f "appmesh/virtual-gateway.yaml"
 
-aws cloudformation create-stack --stack-name AppMeshProxyAuthPolicy-$AWS_EKS_CLUSTER-$2-mesh --template-body file://appmesh/proxy-iam-policy.json --capabilities CAPABILITY_NAMED_IAM
+aws cloudformation create-stack --stack-name AppMeshProxyPolicy-$AWS_EKS_CLUSTER-$2-mesh --template-body file://appmesh/proxy-iam-policy.json --capabilities CAPABILITY_NAMED_IAM
 
 eksctl create iamserviceaccount --cluster $AWS_EKS_CLUSTER --namespace $2 --name $1 --attach-policy-arn arn:aws:iam::$AWS_ACCOUNT_ID:policy/AppMeshProxyAuth-$AWS_EKS_CLUSTER-$2-mesh --attach-policy-arn arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess --override-existing-serviceaccounts --approve
