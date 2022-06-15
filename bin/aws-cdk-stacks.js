@@ -8,7 +8,7 @@ const { ECS } = require("../lib/ECS");
 const { EKS } = require("../lib/EKS");
 const { CicdEcs } = require("../lib/CICD-ECS");
 const { CicdEc2 } = require("../lib/CICD-EC2");
-const { LambdaApiGateway } = require("../lib/LambdaAPIGateway");
+const { ApiGateway } = require("../lib/ApiGateway");
 
 const app = new cdk.App();
 
@@ -63,7 +63,7 @@ new CicdEc2(app, "cicd-ec2", {
   },
 });
 
-new LambdaApiGateway(app, "lambda-api", {
+new ApiGateway(app, "api-gateway", {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,
