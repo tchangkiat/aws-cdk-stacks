@@ -9,6 +9,7 @@ const { EKS } = require("../lib/EKS");
 const { CicdEcs } = require("../lib/CICD-ECS");
 const { CicdEc2 } = require("../lib/CICD-EC2");
 const { ApiGateway } = require("../lib/ApiGateway");
+const { TransitGateway } = require("../lib/TransitGateway");
 
 const app = new cdk.App();
 
@@ -64,6 +65,13 @@ new CicdEc2(app, "cicd-ec2", {
 });
 
 new ApiGateway(app, "api-gateway", {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION,
+  },
+});
+
+new TransitGateway(app, "transit-gateway", {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,
