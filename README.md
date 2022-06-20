@@ -47,7 +47,9 @@ Deploy a VPC with a maximum of 3 public and 3 private subnets. A NAT gateway wil
 
 # Pipeline for CDK
 
-> ❗ Prerequisite: Generate a GitHub Personal Access Token and create a plaintext secret `github-token` in AWS Secrets Manager to store the token. If you forget this step, you will face an `Internal Failure` error when deploying this stack.
+> ❗ Prerequisite 1: Generate a GitHub Personal Access Token and create a plaintext secret `github-token` in AWS Secrets Manager to store the token. If you did not follow this prerequisite, you will encounter an `Internal Failure` error when deploying this stack.
+
+> ❗ Prerequisite 2: After deploying the pipeline, add ALL the environment variables (found in your .env file) in the CodeBuild project which starts with `cdkpipelinePipelineBuildsyn-`. If you did not follow this prerequisite, you will encounter an `TypeError: Cannot read property 'length' of undefined` error when the CodeBuild project is being executed.
 
 ```bash
 cdk deploy cdk-pipeline
