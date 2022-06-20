@@ -14,17 +14,20 @@ const { CdkPipeline } = require("../lib/CdkPipeline");
 
 const app = new cdk.App();
 
+const account = process.env.CDK_DEFAULT_ACCOUNT;
+const region = process.env.CDK_DEFAULT_REGION;
+
 new StandardVpc(app, "vpc", {
   env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
+    account,
+    region,
   },
 });
 
 new MultiArchPipeline(app, "mapl", {
   env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
+    account,
+    region,
     github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN,
     github_owner: process.env.CDK_GITHUB_OWNER,
     github_repo: process.env.CDK_GITHUB_REPO,
@@ -33,22 +36,22 @@ new MultiArchPipeline(app, "mapl", {
 
 new ECS(app, "ecs", {
   env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
+    account,
+    region,
   },
 });
 
 new EKS(app, "eks", {
   env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
+    account,
+    region,
   },
 });
 
 new CicdEcs(app, "cicd-ecs", {
   env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
+    account,
+    region,
     github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN,
     github_owner: process.env.CDK_GITHUB_OWNER,
     github_repo: process.env.CDK_GITHUB_REPO,
@@ -57,8 +60,8 @@ new CicdEcs(app, "cicd-ecs", {
 
 new CicdEc2(app, "cicd-ec2", {
   env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
+    account,
+    region,
     github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN,
     github_owner: process.env.CDK_GITHUB_OWNER,
     github_repo: process.env.CDK_GITHUB_REPO2,
@@ -67,21 +70,21 @@ new CicdEc2(app, "cicd-ec2", {
 
 new ApiGateway(app, "api-gateway", {
   env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
+    account,
+    region,
   },
 });
 
 new TransitGateway(app, "transit-gateway", {
   env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
+    account,
+    region,
   },
 });
 
 new CdkPipeline(app, "cdk-pipeline", {
   env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
+    account,
+    region,
   },
 });
