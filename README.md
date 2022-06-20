@@ -45,6 +45,16 @@ cdk deploy vpc
 
 Deploy a VPC with a maximum of 3 public and 3 private subnets. A NAT gateway will also be provisioned in one of the public subnets.
 
+# Pipeline for CDK
+
+> ❗ Prerequisite: Generate a GitHub Personal Access Token and create a plaintext secret `github-token` in AWS Secrets Manager to store the token. If you forget this step, you will face an `Internal Failure` error when deploying this stack.
+
+```bash
+cdk deploy cdk-pipeline
+```
+
+Deploy a pipeline to automate the deployment of CDK stacks whenever there is a code change.
+
 # Multi-Architecture Pipeline
 
 ```bash
@@ -114,9 +124,9 @@ chmod +x remove-load-balancer-controller.sh
 
 ## Sample Application
 
-> ❗ Prerequisites #1: Deploy the Multi-Architecture Pipeline using `cdk deploy mapl`. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
+> ❗ Prerequisite #1: Deploy the Multi-Architecture Pipeline using `cdk deploy mapl`. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
 
-> ❗ Prerequisites #2: Install AWS Load Balancer Controller.
+> ❗ Prerequisite #2: Install AWS Load Balancer Controller.
 
 ### Setup
 
