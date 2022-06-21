@@ -11,6 +11,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 - [Initial Setup](#initial-setup)
 - [Pipeline for CDK Stacks](#pipeline-for-cdk-stacks)
 - [Standard VPC](#standard-vpc)
+- [Transit Gateway](#transit-gateway)
 - [Multi-Architecture Pipeline](#multi-architecture-pipeline)
 - [Elastic Container Service (ECS)](#elastic-container-service-ecs)
 - [Elastic Kubernetes Service (EKS)](#elastic-kubernetes-service-eks)
