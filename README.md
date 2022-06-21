@@ -60,6 +60,22 @@ cdk deploy vpc
 
 Deploy a VPC with a maximum of 3 public and 3 private subnets. A NAT gateway will also be provisioned in one of the public subnets.
 
+# Transit Gateway
+
+```bash
+cdk deploy transit-gateway
+```
+
+Deploy an egress VPC with Transit Gateway. VPN-related resources are deployed for VPN connection between the Transit Gateway and the simulated customer's on-prem environment. Comment away the code in the section `VPN` of `TransitGateway.js` if VPN is not required.
+
+## Establish VPN connection from the Transit Gateway to a simulated customer on-prem environment
+
+> ❗ Prerequisite 1: Create 2 secrets in AWS Secrets Manager: `tgw-poc-psk1` and `tgw-poc-psk2`. Plaintext values of the respective secrets should be `{"psk":"tgw.poc.psk1"}` and `{"psk":"tgw.poc.psk2"}`.
+
+> ❗ Prerequisite 2: Un-comment the code in the section `VPN` of `TransitGateway.js`.
+
+> ❗ Prerequisite 3: Follow step 4 and 5 in the following article to deploy an EC2 instance with strongSwan to establish a Site-to-Site VPN -> [Simulating Site-to-Site VPN Customer Gateways Using strongSwan](https://aws.amazon.com/blogs/networking-and-content-delivery/simulating-site-to-site-vpn-customer-gateways-strongswan/). The Elastic IP allocation ID can be found in the output of the CDK stack. It is required for a parameter of the CloudFormation template found in the article.
+
 # Multi-Architecture Pipeline
 
 ```bash
