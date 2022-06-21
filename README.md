@@ -9,6 +9,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 # Table of Content
 
 - [Initial Setup](#initial-setup)
+- [Pipeline for CDK Stacks](#pipeline-for-cdk-stacks)
 - [Standard VPC](#standard-vpc)
 - [Multi-Architecture Pipeline](#multi-architecture-pipeline)
 - [Elastic Container Service (ECS)](#elastic-container-service-ecs)
@@ -37,15 +38,7 @@ aws configure set output json
 
 4. Bootstrap AWS account for CDK with `cdk bootstrap`.
 
-# Standard VPC
-
-```bash
-cdk deploy vpc
-```
-
-Deploy a VPC with a maximum of 3 public and 3 private subnets. A NAT gateway will also be provisioned in one of the public subnets.
-
-# Pipeline for CDK
+# Pipeline for CDK Stacks
 
 > ❗ Prerequisite 1: Generate a GitHub Personal Access Token and create a plaintext secret `github-token` in AWS Secrets Manager to store the token. If you did not follow this prerequisite, you will encounter an `Internal Failure` error when deploying this stack.
 
@@ -58,6 +51,14 @@ cdk deploy cdk-pipeline
 ```
 
 Deploy a pipeline to automate the deployment of CDK stacks whenever there is a code change.
+
+# Standard VPC
+
+```bash
+cdk deploy vpc
+```
+
+Deploy a VPC with a maximum of 3 public and 3 private subnets. A NAT gateway will also be provisioned in one of the public subnets.
 
 # Multi-Architecture Pipeline
 
