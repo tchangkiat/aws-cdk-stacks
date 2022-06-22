@@ -86,6 +86,8 @@ Deploy an egress VPC with Transit Gateway. VPN-related resources are deployed fo
 
 4. Add a route to `20.0.0.0/16` in the route table of the public subnet of `tgw-poc-customer-vpc` in order to route ping requests from instances in `30.0.0.0/16` to instances in `20.0.0.0/16`.
 
+5. Create a Transit Gateway Association and Propagation in the Transit Gateway Route Table for the VPN Transit Gateway attachment. Once you completed this step successfully, you should see a route `30.0.0.0/16` propagated in the Transit Gateway Route Table. Note: this step could not be automated because there is no way to retrieve the VPN Transit Gateway attachment and then create an association and propagation programmatically.
+
 # Multi-Architecture Pipeline
 
 ```bash
