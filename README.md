@@ -71,19 +71,20 @@ Deploy an egress VPC with Transit Gateway. VPN-related resources are deployed fo
 
 ## Establish VPN connection from the Transit Gateway to a simulated customer on-prem environment
 
-> ❗ Prerequisite 1: Create 2 secrets in AWS Secrets Manager: `tgw-poc-psk1` and `tgw-poc-psk2`. Plaintext values of the respective secrets should be `{"psk":"tgw.poc.psk1"}` and `{"psk":"tgw.poc.psk2"}`.
+1. Create 2 secrets in AWS Secrets Manager: `tgw-poc-psk1` and `tgw-poc-psk2`. Plaintext values of the respective secrets should be `{"psk":"tgw.poc.psk1"}` and `{"psk":"tgw.poc.psk2"}`.
 
-> ❗ Prerequisite 2: Un-comment the code in the section `VPN` of `TransitGateway.js`.
+2. Un-comment the code in the section `VPN` of `TransitGateway.js`.
 
-> ❗ Prerequisite 3: Follow section 4 and 5 in the following article to deploy an EC2 instance with strongSwan to establish a Site-to-Site VPN -> [Simulating Site-to-Site VPN Customer Gateways Using strongSwan](https://aws.amazon.com/blogs/networking-and-content-delivery/simulating-site-to-site-vpn-customer-gateways-strongswan/).<br/><br/>
-> Below are the values to fill up some of the parameters of the CloudFormation template used in the article above (for the other parameters, follow the instructions in the section 5 of the article):
->
-> - Name of secret in AWS Secrets Manager for VPN Tunnel 1 Pre-Shared Key: `tgw-poc-psk1`
-> - Name of secret in AWS Secrets Manager for VPN Tunnel 2 Pre-Shared Key: `tgw-poc-psk2`
-> - VPC ID: select `tgw-poc-customer-vpc`
-> - VPC CIDR Block: `30.0.0.0/16`
-> - Subnet ID for VPN Gateway: select `tgw-poc-customer-vpc/PublicSubnet1`
-> - Elastic IP Address Allocation ID: can be found in the output of the CDK stack. The value should start with `eipalloc-`
+3. Follow section 4 and 5 in the following article to deploy an EC2 instance with strongSwan to establish a Site-to-Site VPN -> [Simulating Site-to-Site VPN Customer Gateways Using strongSwan](https://aws.amazon.com/blogs/networking-and-content-delivery/simulating-site-to-site-vpn-customer-gateways-strongswan/).<br/><br/> Below are the values to fill up some of the parameters of the CloudFormation template used in the article above (for the other parameters, follow the instructions in the section 5 of the article):
+
+   - Name of secret in AWS Secrets Manager for VPN Tunnel 1 Pre-Shared Key: `tgw-poc-psk1`
+   - Name of secret in AWS Secrets Manager for VPN Tunnel 2 Pre-Shared Key: `tgw-poc-psk2`
+   - VPC ID: select `tgw-poc-customer-vpc`
+   - VPC CIDR Block: `30.0.0.0/16`
+   - Subnet ID for VPN Gateway: select `tgw-poc-customer-vpc/PublicSubnet1`
+   - Elastic IP Address Allocation ID: can be found in the output of the CDK stack. The value should start with `eipalloc-`
+
+4. Add a route to `20.0.0.0/16` in the route table of the public subnet of `tgw-poc-customer-vpc` in order to route ping requests from instances in `30.0.0.0/16` to instances in `20.0.0.0/16`.
 
 # Multi-Architecture Pipeline
 
