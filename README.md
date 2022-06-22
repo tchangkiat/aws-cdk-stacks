@@ -63,11 +63,13 @@ Deploy a VPC with a maximum of 3 public and 3 private subnets. A NAT gateway wil
 
 # Transit Gateway
 
+![Transit Gateway Architecture](./diagrams/TransitGateway.jpg)
+
 ```bash
 cdk deploy transit-gateway
 ```
 
-Deploy an egress VPC with Transit Gateway. VPN-related resources are deployed for VPN connection between the Transit Gateway and the simulated customer's on-prem environment. Comment away the code in the section `VPN` of `TransitGateway.js` if VPN is not required.
+Deploy an egress VPC solution with Transit Gateway. VPN-related resources are deployed for the VPN connection between the Transit Gateway and the simulated customer's on-prem environment. Comment away the code in the section `VPN` of `TransitGateway.js` if the VPN connection is not required.
 
 ## Establish VPN connection from the Transit Gateway to a simulated customer on-prem environment
 
