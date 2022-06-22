@@ -75,7 +75,15 @@ Deploy an egress VPC with Transit Gateway. VPN-related resources are deployed fo
 
 > ❗ Prerequisite 2: Un-comment the code in the section `VPN` of `TransitGateway.js`.
 
-> ❗ Prerequisite 3: Follow step 4 and 5 in the following article to deploy an EC2 instance with strongSwan to establish a Site-to-Site VPN -> [Simulating Site-to-Site VPN Customer Gateways Using strongSwan](https://aws.amazon.com/blogs/networking-and-content-delivery/simulating-site-to-site-vpn-customer-gateways-strongswan/). The Elastic IP allocation ID can be found in the output of the CDK stack. It is required for a parameter of the CloudFormation template found in the article.
+> ❗ Prerequisite 3: Follow section 4 and 5 in the following article to deploy an EC2 instance with strongSwan to establish a Site-to-Site VPN -> [Simulating Site-to-Site VPN Customer Gateways Using strongSwan](https://aws.amazon.com/blogs/networking-and-content-delivery/simulating-site-to-site-vpn-customer-gateways-strongswan/).<br/><br/>
+> Below are the values to fill up some of the parameters of the CloudFormation template used in the article above (for the other parameters, follow the instructions in the section 5 of the article):
+>
+> - Name of secret in AWS Secrets Manager for VPN Tunnel 1 Pre-Shared Key: `tgw-poc-psk1`
+> - Name of secret in AWS Secrets Manager for VPN Tunnel 2 Pre-Shared Key: `tgw-poc-psk2`
+> - VPC ID: select `tgw-poc-customer-vpc`
+> - VPC CIDR Block: `30.0.0.0/16`
+> - Subnet ID for VPN Gateway: select `tgw-poc-customer-vpc/PublicSubnet1`
+> - Elastic IP Address Allocation ID: can be found in the output of the CDK stack. The value should start with `eipalloc-`
 
 # Multi-Architecture Pipeline
 
