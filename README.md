@@ -90,7 +90,20 @@ Deploy an egress VPC solution with Transit Gateway. VPN-related resources are de
 
 5. Create a Transit Gateway Association and Propagation in the Transit Gateway Route Table for the VPN Transit Gateway attachment. Once you completed this step successfully, you should see a route `30.0.0.0/16` propagated in the Transit Gateway Route Table. Note: this step cannot be automated because there is no way to retrieve the VPN Transit Gateway attachment and then create an association and propagation programmatically.
 
-> ❗ The connection may take a few minutes to be established after completing step 5.
+> ❗ The connection between `tgw-poc-vpc-1` and `tgw-poc-customer-vpc` will be established in a few minutes after completing step 5.
+
+## Testing the network connectivity
+
+1. Connect to `tgw-poc-demo-instance` and `tgw-poc-demo-instance-2` using Session Manager
+
+2. Use `ifconfig` in the instances to retrieve the private IP addresses
+
+3. Ping each other using the private IP addresses - e.g. `ping 30.0.0.30` in `tgw-poc-demo-instance`
+
+4. You should receive similar results as those below:
+
+- `tgw-poc-demo-instance`: 64 bytes from 30.0.0.30: icmp_seq=1 ttl=253 time=2.49 ms
+- `tgw-poc-demo-instance-2`: 64 bytes from 20.0.0.20: icmp_seq=1 ttl=252 time=3.52 ms
 
 # Multi-Architecture Pipeline
 
