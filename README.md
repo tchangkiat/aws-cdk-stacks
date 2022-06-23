@@ -86,7 +86,9 @@ Deploy an egress VPC solution with Transit Gateway. VPN-related resources are de
    - Subnet ID for VPN Gateway: select `tgw-poc-customer-vpc/PublicSubnet1`
    - Elastic IP Address Allocation ID: can be found in the output of the CDK stack. The value should start with `eipalloc-`
 
-4. Add a route to `20.0.0.0/16` in the route table (Target: Instance > infra-vpngw-test) of the public subnet of `tgw-poc-customer-vpc` in order to route ping requests from instances in `30.0.0.0/16` to instances in `20.0.0.0/16`.
+> ❗ Wait until the VPN Gateway (EC2 Instance) is created and verify that both IPSec tunnels are 'UP' (Site-to-Site VPN Connections > tgw-poc-vpn > Tunnel details), before proceeding to step 4 and 5. This will take a few minutes.
+
+4. Add a route to `20.0.0.0/16` in the route table (Target: Instance > infra-vpngw-test) of the private subnet of `tgw-poc-customer-vpc` in order to route ping requests from instances in `tgw-poc-customer-vpc/PrivateSubnet1` to instances in `tgw-poc-vpc-1/PrivateSubnet1`.
 
 5. Create a Transit Gateway Association and Propagation in the Transit Gateway Route Table for the VPN Transit Gateway attachment. Once you completed this step successfully, you should see a route `30.0.0.0/16` propagated in the Transit Gateway Route Table. Note: this step cannot be automated because there is no way to retrieve the VPN Transit Gateway attachment and then create an association and propagation programmatically.
 
@@ -98,11 +100,11 @@ Deploy an egress VPC solution with Transit Gateway. VPN-related resources are de
 
 2. Use `ifconfig` in the instances to retrieve the private IP addresses
 
-3. Ping each other using the private IP addresses - e.g. `ping 30.0.0.30` in `tgw-poc-demo-instance`
+3. Ping each other using the private IP addresses - e.g. `ping 30.0.1.30` in `tgw-poc-demo-instance`
 
 4. You should receive similar results as those below:
 
-- `tgw-poc-demo-instance`: 64 bytes from 30.0.0.30: icmp_seq=1 ttl=253 time=2.49 ms
+- `tgw-poc-demo-instance`: 64 bytes from 30.0.1.30: icmp_seq=1 ttl=253 time=2.49 ms
 - `tgw-poc-demo-instance-2`: 64 bytes from 20.0.0.20: icmp_seq=1 ttl=252 time=3.52 ms
 
 # Multi-Architecture Pipeline
