@@ -18,6 +18,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [Bastion Host Setup](#bastion-host-setup)
   - [AWS Load Balancer Controller](#aws-load-balancer-controller)
   - [Sample Application](#sample-application)
+  - [Container Insights](#container-insights)
   - [Metrics Server and Horizontal Pod Autoscaler (HPA)](#metrics-server-and-horizontal-pod-autoscaler-hpa)
   - [Argo CD](#argo-cd)
   - [AWS App Mesh](#aws-app-mesh)
@@ -198,6 +199,32 @@ kubectl apply -f sample-deployment.yaml
 
 ```bash
 kubectl delete -f sample-deployment.yaml
+```
+
+## Container Insights
+
+### Setup
+
+1. Install Container Insights.
+
+```bash
+curl -o install-container-insights.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-container-insights.sh
+
+chmod +x install-container-insights.sh
+
+./install-container-insights.sh
+```
+
+### Clean Up
+
+1. Remove Container Insights.
+
+```bash
+curl -o remove-container-insights.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-container-insights.sh
+
+chmod +x remove-container-insights.sh
+
+./remove-container-insights.sh
 ```
 
 ## Metrics Server and Horizontal Pod Autoscaler (HPA)
