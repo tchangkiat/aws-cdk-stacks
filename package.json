@@ -9,11 +9,11 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "aws-cdk": "2.41.0"
+    "aws-cdk": "2.44.0"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.41.0",
-    "constructs": "^10.1.96",
-    "dotenv": "^16.0.2"
+    "aws-cdk-lib": "2.44.0",
+    "constructs": "^10.1.117",
+    "dotenv": "^16.0.3"
   }
 }
