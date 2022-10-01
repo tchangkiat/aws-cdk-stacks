@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "aws-cdk-lib": "2.44.0",
+    "cdk-karpenter": "^2.2.0",
     "constructs": "^10.1.117",
     "dotenv": "^16.0.3"
   }
