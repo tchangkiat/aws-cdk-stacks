@@ -5,12 +5,12 @@ class StandardVPC extends Construct {
   constructor(scope, id, props = {}) {
     super(scope, id);
 
-    const vpc = new ec2.Vpc(this, "vpc", {
+    return new ec2.Vpc(this, "vpc", {
       cidr: props.cidr || "10.0.0.0/16",
-      maxAZs: props.maxAZs || 3,
+      maxAzs: props.maxAzs || 3,
       natGateways: props.natGateways || 1,
       vpcName: props.vpcName || "standard",
-      subnetConfiguration: [
+      subnetConfiguration: props.subnetConfiguration || [
         {
           cidrMask: props.cidrMask || 24,
           name: "Public",
