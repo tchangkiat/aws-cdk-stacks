@@ -9,7 +9,7 @@ class ManagedNodeGroup extends Construct {
 
     const eksNodeRole = new iam.Role(this, id + "-node-role", {
       assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
-      roleName: props.prefix + props.cluster.clusterName + "-" + id + "-node",
+      roleName: props.cluster.clusterName + "-" + id + "-node",
     });
     eksNodeRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSWorkerNodePolicy")
@@ -36,8 +36,7 @@ class ManagedNodeGroup extends Construct {
       this,
       id + "-launch-template",
       {
-        launchTemplateName:
-          props.prefix + props.cluster.clusterName + "/" + props.name,
+        launchTemplateName: props.cluster.clusterName + "/" + props.name,
         launchTemplateData: {
           blockDeviceMappings: [
             {
@@ -56,8 +55,7 @@ class ManagedNodeGroup extends Construct {
               tags: [
                 {
                   key: "Name",
-                  value:
-                    props.prefix + props.cluster.clusterName + "/" + props.name,
+                  value: props.cluster.clusterName + "/" + props.name,
                 },
               ],
             },
@@ -67,11 +65,7 @@ class ManagedNodeGroup extends Construct {
                 {
                   key: "Name",
                   value:
-                    props.prefix +
-                    props.cluster.clusterName +
-                    "/" +
-                    props.name +
-                    "/volume",
+                    props.cluster.clusterName + "/" + props.name + "/volume",
                 },
               ],
             },
