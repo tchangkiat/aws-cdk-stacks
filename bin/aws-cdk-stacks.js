@@ -11,6 +11,7 @@ const { CicdEc2 } = require("../lib/CICD-EC2");
 const { ApiGateway } = require("../lib/ApiGateway");
 const { TransitGateway } = require("../lib/TransitGateway");
 const { CdkPipeline } = require("../lib/CdkPipeline");
+const { Autoscaler } = require("../Constants");
 
 const app = new cdk.App();
 
@@ -46,6 +47,14 @@ new EKS(app, "eks", {
     account,
     region,
   },
+});
+
+new EKS(app, "eks-ca", {
+  env: {
+    account,
+    region,
+  },
+  autoscaler: Autoscaler.ClusterAutoscaler,
 });
 
 new CicdEcs(app, "cicd-ecs", {
