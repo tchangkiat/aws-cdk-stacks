@@ -371,29 +371,11 @@ class ClusterAutoscaler extends Construct {
       ],
     });
 
-    const autoscalerStmt = new iam.PolicyStatement();
-    autoscalerStmt.addResources("*");
-    autoscalerStmt.addActions(
-      "autoscaling:DescribeAutoScalingGroups",
-      "autoscaling:DescribeAutoScalingInstances",
-      "autoscaling:DescribeLaunchConfigurations",
-      "autoscaling:DescribeTags",
-      "autoscaling:SetDesiredCapacity",
-      "autoscaling:TerminateInstanceInAutoScalingGroup",
-      "ec2:DescribeLaunchTemplateVersions"
-    );
-    const autoscalerPolicy = new iam.Policy(this, "cluster-autoscaler-policy", {
-      policyName: this.cluster.clusterName + "-ClusterAutoscalerPolicy",
-      statements: [autoscalerStmt],
-    });
-
     const clusterName = new CfnJson(this, "clusterName", {
       value: this.cluster.clusterName,
     });
 
     for (var ng of this.nodeGroups) {
-      autoscalerPolicy.attachToRole(ng.role);
-
       Tags.of(ng).add(`k8s.io/cluster-autoscaler/${clusterName}`, "owned", {
         applyToLaunchedInstances: true,
       });
