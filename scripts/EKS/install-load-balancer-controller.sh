@@ -26,3 +26,13 @@ helm repo add eks https://aws.github.io/eks-charts
 kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
 
 helm upgrade -i aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=$AWS_EKS_CLUSTER --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
+
+# Add toleration to deployment
+
+kubectl get deployment aws-load-balancer-controller -n kube-system -o yaml > aws-load-balancer-controller.yaml
+
+sed $'s/terminationGracePeriodSeconds: 10/terminationGracePeriodSeconds: 10\\\n      tolerations:\\\n      - effect: "NoSchedule"\\\n        key: "CriticalAddonsOnly"\\\n        operator: "Exists"/g' aws-load-balancer-controller.yaml > aws-load-balancer-controller-patched.yaml
+
+kubectl apply -f aws-load-balancer-controller-patched.yaml
+
+kubectl rollout restart deployment aws-load-balancer-controller -n kube-system
