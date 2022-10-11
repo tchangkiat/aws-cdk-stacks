@@ -94,6 +94,7 @@ class ManagedNodeGroup extends Construct {
         version: launchTemplate.attrLatestVersionNumber,
       },
       taints: props.taints || [],
+      tags: props.tags || {},
     });
   }
 }
