@@ -47,12 +47,12 @@ class ManagedNodeGroup extends Construct {
               deviceName: "/dev/xvda",
               ebs: {
                 deleteOnTermination: true,
-                volumeSize: 20,
+                volumeSize: 30,
                 volumeType: "gp3",
               },
             },
           ],
-          instanceType: props.instanceType || "m5.large",
+          instanceType: props.instanceType || "t3.xlarge",
           tagSpecifications: [
             {
               resourceType: "instance",
