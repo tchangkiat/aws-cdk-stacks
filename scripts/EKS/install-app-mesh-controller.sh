@@ -15,4 +15,6 @@ helm repo update
 helm upgrade -i appmesh-controller eks/appmesh-controller --namespace appmesh-system --set region=$AWS_REGION --set serviceAccount.create=false --set serviceAccount.name=appmesh-controller \
     --set tolerations[0].key=CriticalAddonsOnly \
     --set tolerations[0].operator=Exists \
-    --set tolerations[0].effect=NoSchedule
+    --set tolerations[0].effect=NoSchedule \
+    --set image.repository=public.ecr.aws/appmesh/appmesh-controller \
+    --set image.tag=v1.7.0-linux_arm64

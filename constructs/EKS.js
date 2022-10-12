@@ -47,7 +47,7 @@ class ManagedNodeGroup extends Construct {
               },
             },
           ],
-          instanceType: props.instanceType || "t3.xlarge",
+          instanceType: props.instanceType || "m6g.xlarge",
           tagSpecifications: [
             {
               resourceType: "instance",
@@ -77,7 +77,7 @@ class ManagedNodeGroup extends Construct {
     );
 
     return this.cluster.addNodegroupCapacity(id, {
-      amiType: props.amiType || eks.NodegroupAmiType.BOTTLEROCKET_X86_64,
+      amiType: props.amiType || eks.NodegroupAmiType.BOTTLEROCKET_ARM_64,
       capacityType: props.capacityType || eks.CapacityType.ON_DEMAND,
       desiredSize: props.desiredSize || 0,
       minSize: props.minSize || 0,
@@ -98,7 +98,8 @@ class ClusterAutoscaler extends Construct {
   constructor(scope, id, props = {}) {
     super(scope, id);
 
-    const eksClusterAutoscalerVersion = "v1.25.0";
+    // Best practice: Cluster Autoscaler version must match the Kubernetes control plane version
+    const eksClusterAutoscalerVersion = "v1.23.0";
 
     this.cluster = props.cluster;
 
