@@ -106,7 +106,6 @@ class ClusterAutoscaler extends Construct {
     const eksClusterAutoscalerVersion = "v1.25.0";
 
     this.cluster = props.cluster;
-    this.nodeGroups = props.nodeGroups;
 
     new eks.KubernetesManifest(this, "cluster-autoscaler", {
       cluster: this.cluster,
@@ -371,12 +370,10 @@ class ClusterAutoscaler extends Construct {
         },
       ],
     });
+  }
 
-    const clusterName = new CfnJson(this, "clusterName", {
-      value: this.cluster.clusterName,
-    });
-
-    for (var ng of this.nodeGroups) {
+  addNodeGroups(clusterName, nodeGroups) {
+    for (var ng of nodeGroups) {
       Tags.of(ng).add(`k8s.io/cluster-autoscaler/${clusterName}`, "owned", {
         applyToLaunchedInstances: true,
       });
