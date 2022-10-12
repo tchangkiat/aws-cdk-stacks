@@ -33,6 +33,8 @@ class Karpenter extends Construct {
           "AmazonEC2ContainerRegistryReadOnly"
         ),
         ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMManagedInstanceCore"),
+        ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMPatchAssociation"),
+        ManagedPolicy.fromAwsManagedPolicyName("AWSXRayDaemonWriteAccess"),
         ManagedPolicy.fromAwsManagedPolicyName("CloudWatchAgentServerPolicy"),
       ],
       roleName: this.cluster.clusterName + "-karpenter-node",

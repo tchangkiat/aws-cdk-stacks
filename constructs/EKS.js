@@ -14,27 +14,22 @@ class ManagedNodeGroup extends Construct {
     const eksNodeRole = new iam.Role(this, id + "-node-role", {
       assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
       roleName: this.cluster.clusterName + "-" + id + "-node",
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKS_CNI_Policy"),
+        iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSWorkerNodePolicy"),
+        iam.ManagedPolicy.fromAwsManagedPolicyName(
+          "AmazonEC2ContainerRegistryReadOnly"
+        ),
+        iam.ManagedPolicy.fromAwsManagedPolicyName(
+          "AmazonSSMManagedInstanceCore"
+        ),
+        iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMPatchAssociation"),
+        iam.ManagedPolicy.fromAwsManagedPolicyName("AWSXRayDaemonWriteAccess"),
+        iam.ManagedPolicy.fromAwsManagedPolicyName(
+          "CloudWatchAgentServerPolicy"
+        ),
+      ],
     });
-    eksNodeRole.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSWorkerNodePolicy")
-    );
-    eksNodeRole.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName(
-        "AmazonEC2ContainerRegistryReadOnly"
-      )
-    );
-    eksNodeRole.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName("CloudWatchAgentServerPolicy")
-    );
-    eksNodeRole.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMManagedInstanceCore")
-    );
-    eksNodeRole.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKS_CNI_Policy")
-    );
-    eksNodeRole.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMPatchAssociation")
-    );
 
     const launchTemplate = new ec2.CfnLaunchTemplate(
       this,
