@@ -42,7 +42,13 @@ class ManagedNodeGroup extends Construct {
               deviceName: "/dev/xvda",
               ebs: {
                 deleteOnTermination: true,
-                volumeSize: 30,
+                volumeType: "gp3",
+              },
+            },
+            {
+              deviceName: "/dev/xvdb",
+              ebs: {
+                deleteOnTermination: true,
                 volumeType: "gp3",
               },
             },
