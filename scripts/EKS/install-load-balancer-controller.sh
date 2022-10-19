@@ -8,17 +8,17 @@ eksctl utils associate-iam-oidc-provider \
 curl -o aws-load-balancer-controller-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.1/docs/install/iam_policy.json
 
 aws iam create-policy \
- --policy-name eks-$AWS_EKS_CLUSTER-aws-load-balancer-controller \
+ --policy-name $AWS_EKS_CLUSTER-aws-load-balancer-controller \
  --policy-document file://aws-load-balancer-controller-policy.json
 
 eksctl create iamserviceaccount \
 --cluster=$AWS_EKS_CLUSTER \
 --namespace=kube-system \
 --name=aws-load-balancer-controller \
---role-name=eks-$AWS_EKS_CLUSTER-aws-load-balancer-controller \
---attach-policy-arn=arn:aws:iam::$AWS_ACCOUNT_ID:policy/eks-$AWS_EKS_CLUSTER-aws-load-balancer-controller \
+--role-name=$AWS_EKS_CLUSTER-aws-load-balancer-controller \
+--attach-policy-arn=arn:aws:iam::$AWS_ACCOUNT_ID:policy/$AWS_EKS_CLUSTER-aws-load-balancer-controller \
 --override-existing-serviceaccounts \
---region ap-southeast-1 \
+--region $AWS_REGION \
 --approve
 
 helm repo add eks https://aws.github.io/eks-charts
