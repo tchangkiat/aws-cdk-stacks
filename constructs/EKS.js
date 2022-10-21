@@ -24,10 +24,14 @@ class ManagedNodeGroup extends Construct {
           "AmazonSSMManagedInstanceCore"
         ),
         iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMPatchAssociation"),
+        // For X-Ray Daemon to send logs to X-Ray
         iam.ManagedPolicy.fromAwsManagedPolicyName("AWSXRayDaemonWriteAccess"),
+        // For nodes to send logs and metrics to CloudWatch (Container Insights)
         iam.ManagedPolicy.fromAwsManagedPolicyName(
           "CloudWatchAgentServerPolicy"
         ),
+        // For EBS CSI to provision EBS volumes
+        iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEBSCSIDriverPolicy"),
       ],
     });
 

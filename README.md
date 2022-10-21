@@ -19,6 +19,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [AWS Load Balancer Controller](#aws-load-balancer-controller)
   - [Sample Application](#sample-application)
   - [Container Insights](#container-insights)
+  - [Prometheus and Grafana](#prometheus-and-grafana)
   - [Metrics Server and Horizontal Pod Autoscaler (HPA)](#metrics-server-and-horizontal-pod-autoscaler-hpa)
   - [Argo CD](#argo-cd)
   - [AWS App Mesh](#aws-app-mesh)
@@ -233,6 +234,32 @@ curl -o remove-container-insights.sh https://raw.githubusercontent.com/tchangkia
 chmod +x remove-container-insights.sh
 
 ./remove-container-insights.sh
+```
+
+## Prometheus and Grafana
+
+### Setup
+
+1. Install Prometheus and Grafana.
+
+```bash
+curl -o install-prometheus-grafana.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-prometheus-grafana.sh
+
+chmod +x install-prometheus-grafana.sh
+
+./install-prometheus-grafana.sh
+```
+
+### Clean Up
+
+1. Remove Prometheus and Grafana.
+
+```bash
+curl -o remove-prometheus-grafana.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-prometheus-grafana.sh
+
+chmod +x remove-prometheus-grafana.sh
+
+./remove-prometheus-grafana.sh
 ```
 
 ## Metrics Server and Horizontal Pod Autoscaler (HPA)

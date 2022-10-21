@@ -34,8 +34,12 @@ class Karpenter extends Construct {
         ),
         ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMManagedInstanceCore"),
         ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMPatchAssociation"),
+        // For X-Ray Daemon to send logs to X-Ray
         ManagedPolicy.fromAwsManagedPolicyName("AWSXRayDaemonWriteAccess"),
+        // For nodes to send logs and metrics to CloudWatch (Container Insights)
         ManagedPolicy.fromAwsManagedPolicyName("CloudWatchAgentServerPolicy"),
+        // For EBS CSI to provision EBS volumes
+        ManagedPolicy.fromAwsManagedPolicyName("AmazonEBSCSIDriverPolicy"),
       ],
       roleName: this.cluster.clusterName + "-karpenter-node",
     });
