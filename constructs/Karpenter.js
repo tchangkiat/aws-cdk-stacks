@@ -39,7 +39,11 @@ class Karpenter extends Construct {
         // For nodes to send logs and metrics to CloudWatch (Container Insights)
         ManagedPolicy.fromAwsManagedPolicyName("CloudWatchAgentServerPolicy"),
         // For EBS CSI to provision EBS volumes
-        ManagedPolicy.fromAwsManagedPolicyName("AmazonEBSCSIDriverPolicy"),
+        ManagedPolicy.fromManagedPolicyArn(
+          this,
+          "ebs-csi-driver-policy",
+          "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+        ),
       ],
       roleName: this.cluster.clusterName + "-karpenter-node",
     });

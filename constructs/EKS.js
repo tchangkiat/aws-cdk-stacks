@@ -31,7 +31,11 @@ class ManagedNodeGroup extends Construct {
           "CloudWatchAgentServerPolicy"
         ),
         // For EBS CSI to provision EBS volumes
-        iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEBSCSIDriverPolicy"),
+        iam.ManagedPolicy.fromManagedPolicyArn(
+          this,
+          "ebs-csi-driver-policy",
+          "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+        ),
       ],
     });
 
