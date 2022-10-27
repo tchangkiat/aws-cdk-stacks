@@ -75,6 +75,6 @@ helm install grafana grafana/grafana \
 
 sleep 10
 
-export granfa_elb=$(kubectl get svc -n grafana grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
+export granfa_elb="$(kubectl get svc -n grafana grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
 echo "export granfa_elb=$(kubectl get svc -n grafana grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')" >> /home/ec2-user/.bashrc
 echo "Grafana Dashboard URL: http://$granfa_elb"
