@@ -23,6 +23,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [Metrics Server and Horizontal Pod Autoscaler (HPA)](#metrics-server-and-horizontal-pod-autoscaler-hpa)
   - [Argo CD](#argo-cd)
   - [AWS App Mesh](#aws-app-mesh)
+  - [Amazon EMR on EKS](#amazon-emr-on-eks)
 
 # Initial Setup
 
@@ -453,4 +454,30 @@ curl -o remove-app-mesh-controller.sh https://raw.githubusercontent.com/tchangki
 chmod +x remove-app-mesh-controller.sh
 
 ./remove-app-mesh-controller.sh
+```
+
+## Amazon EMR on EKS
+
+### Setup
+
+1. Create IAM role and policy, S3 bucket and EMR virtual cluster.
+
+```bash
+curl -o setup-emr-on-eks.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/setup-emr-on-eks.sh
+
+chmod +x setup-emr-on-eks.sh
+
+./setup-emr-on-eks.sh
+```
+
+### Clean Up
+
+1. Remove IAM role and policy, S3 bucket and EMR virtual cluster.
+
+```bash
+curl -o remove-emr-on-eks.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-emr-on-eks.sh
+
+chmod +x remove-emr-on-eks.sh
+
+./remove-emr-on-eks.sh
 ```
