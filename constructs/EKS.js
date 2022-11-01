@@ -61,7 +61,7 @@ class ManagedNodeGroup extends Construct {
               },
             },
           ],
-          instanceType: props.instanceType || "m6g.xlarge",
+          instanceType: props.instanceType || "m6g.large",
           tagSpecifications: [
             {
               resourceType: "instance",
