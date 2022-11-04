@@ -347,7 +347,6 @@ class ClusterAutoscaler extends Construct {
                       "--node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/" +
                         this.cluster.clusterName,
                       "--balance-similar-node-groups",
-                      "--skip-nodes-with-system-pods=false",
                     ],
                     volumeMounts: [
                       {
