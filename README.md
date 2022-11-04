@@ -241,7 +241,17 @@ chmod +x remove-container-insights.sh
 
 ### Setup
 
-1. Install Prometheus and Grafana.
+1. Install EBS CSI Driver.
+
+```bash
+curl -o install-ebs-csi-driver.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-ebs-csi-driver.sh
+
+chmod +x install-ebs-csi-driver.sh
+
+./install-ebs-csi-driver.sh
+```
+
+2. Install Prometheus and Grafana.
 
 ```bash
 curl -o install-prometheus-grafana.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-prometheus-grafana.sh
@@ -261,6 +271,16 @@ curl -o remove-prometheus-grafana.sh https://raw.githubusercontent.com/tchangkia
 chmod +x remove-prometheus-grafana.sh
 
 ./remove-prometheus-grafana.sh
+```
+
+2. Remove EBS CSI Driver.
+
+```bash
+curl -o remove-ebs-csi-driver.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-ebs-csi-driver.sh
+
+chmod +x remove-ebs-csi-driver.sh
+
+./remove-ebs-csi-driver.sh
 ```
 
 ## Metrics Server and Horizontal Pod Autoscaler (HPA)
