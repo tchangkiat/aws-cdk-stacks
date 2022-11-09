@@ -17,6 +17,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 - [Elastic Kubernetes Service (EKS)](#elastic-kubernetes-service-eks)
   - [Bastion Host Setup](#bastion-host-setup)
   - [AWS Load Balancer Controller](#aws-load-balancer-controller)
+  - [AWS EBS CSI Driver](#aws-ebs-csi-driver)
   - [Sample Application](#sample-application)
   - [Container Insights](#container-insights)
   - [Prometheus and Grafana](#prometheus-and-grafana)
@@ -44,11 +45,11 @@ aws configure set output json
 
 # Pipeline for CDK Stacks
 
-> ❗ Prerequisite 1: Generate a GitHub Personal Access Token and create a plaintext secret `github-token` in AWS Secrets Manager to store the token. If you did not follow this prerequisite, you will encounter an `Internal Failure` error when deploying this stack.
+> ❗ Prerequisite #1: Generate a GitHub Personal Access Token and create a plaintext secret `github-token` in AWS Secrets Manager to store the token. If you did not follow this prerequisite, you will encounter an `Internal Failure` error when deploying this stack.
 
-> ❗ Prerequisite 2: After deploying the pipeline, add ALL the environment variables (found in your .env file) in the CodeBuild project which starts with `cdkpipelinePipelineBuildsyn-`. If you did not follow this prerequisite, you will encounter an `TypeError: Cannot read property 'length' of undefined` error when the CodeBuild project is being executed.
+> ❗ Prerequisite #2: After deploying the pipeline, add ALL the environment variables (found in your .env file) in the CodeBuild project which starts with `cdkpipelinePipelineBuildsyn-`. If you did not follow this prerequisite, you will encounter an `TypeError: Cannot read property 'length' of undefined` error when the CodeBuild project is being executed.
 
-> ❗ Prerequisite 3: Grant the necessary permissions to the service role used by the CodeBuild project which starts with `cdkpipelinePipelineBuildsyn-`. If you did not follow this prerequisite, you will encounter errors which mention that you do not have permissions to create certain stacks - apparently `npx cdk synth` helps to check whether there are enough permissions to create the stacks.
+> ❗ Prerequisite #3: Grant the necessary permissions to the service role used by the CodeBuild project which starts with `cdkpipelinePipelineBuildsyn-`. If you did not follow this prerequisite, you will encounter errors which mention that you do not have permissions to create certain stacks - apparently `npx cdk synth` helps to check whether there are enough permissions to create the stacks.
 
 ```bash
 cdk deploy cdk-pipeline
@@ -185,6 +186,32 @@ chmod +x remove-load-balancer-controller.sh
 ./remove-load-balancer-controller.sh
 ```
 
+## AWS EBS CSI Driver
+
+### Setup
+
+1. Install AWS EBS CSI Driver.
+
+```bash
+curl -o install-ebs-csi-driver.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-ebs-csi-driver.sh
+
+chmod +x install-ebs-csi-driver.sh
+
+./install-ebs-csi-driver.sh
+```
+
+### Clean Up
+
+1. Remove AWS EBS CSI Driver.
+
+```bash
+curl -o remove-ebs-csi-driver.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-ebs-csi-driver.sh
+
+chmod +x remove-ebs-csi-driver.sh
+
+./remove-ebs-csi-driver.sh
+```
+
 ## Sample Application
 
 > ❗ Prerequisite #1: Deploy the Multi-Architecture Pipeline using `cdk deploy mapl`. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
@@ -239,19 +266,11 @@ chmod +x remove-container-insights.sh
 
 ## Prometheus and Grafana
 
+> ❗ Prerequisite: Install [AWS EBS CSI Driver](#aws-ebs-csi-driver) first.
+
 ### Setup
 
-1. Install EBS CSI Driver.
-
-```bash
-curl -o install-ebs-csi-driver.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-ebs-csi-driver.sh
-
-chmod +x install-ebs-csi-driver.sh
-
-./install-ebs-csi-driver.sh
-```
-
-2. Install Prometheus and Grafana.
+1. Install Prometheus and Grafana.
 
 ```bash
 curl -o install-prometheus-grafana.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-prometheus-grafana.sh
@@ -271,16 +290,6 @@ curl -o remove-prometheus-grafana.sh https://raw.githubusercontent.com/tchangkia
 chmod +x remove-prometheus-grafana.sh
 
 ./remove-prometheus-grafana.sh
-```
-
-2. Remove EBS CSI Driver.
-
-```bash
-curl -o remove-ebs-csi-driver.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-ebs-csi-driver.sh
-
-chmod +x remove-ebs-csi-driver.sh
-
-./remove-ebs-csi-driver.sh
 ```
 
 ## Metrics Server and Horizontal Pod Autoscaler (HPA)
