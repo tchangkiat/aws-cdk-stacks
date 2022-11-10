@@ -70,6 +70,18 @@ class ManagedNodeGroup extends Construct {
                   key: "Name",
                   value: this.cluster.clusterName + "/" + this.nodeGroupName,
                 },
+                {
+                  key: "eks-cost-cluster",
+                  value: this.cluster.clusterName,
+                },
+                {
+                  key: "eks-cost-workload",
+                  value: "Proof-of-Concept",
+                },
+                {
+                  key: "eks-cost-team",
+                  value: "tck",
+                },
               ],
             },
             {
@@ -82,6 +94,18 @@ class ManagedNodeGroup extends Construct {
                     "/" +
                     this.nodeGroupName +
                     "/volume",
+                },
+                {
+                  key: "eks-cost-cluster",
+                  value: this.cluster.clusterName,
+                },
+                {
+                  key: "eks-cost-workload",
+                  value: "Proof-of-Concept",
+                },
+                {
+                  key: "eks-cost-team",
+                  value: "tck",
                 },
               ],
             },
