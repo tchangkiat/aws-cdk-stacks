@@ -1,0 +1,67 @@
+jupyterhub:
+  singleuser:
+    image:
+      name: <NOTEBOOK_IMAGE>
+      tag: <NOTEBOOK_IMAGE_TAG>
+    cpu:
+      limit: 2
+      guarantee: 1
+    memory:
+      limit: 4G
+      guarantee: 2G
+    extraEnv:
+      DASK_GATEWAY__CLUSTER__OPTIONS__IMAGE: "{JUPYTER_IMAGE_SPEC}"
+  proxy:
+    secretToken: "<SECRET_TOKEN>"
+  hub:
+    config:
+      Authenticator:
+        admin_users:
+          - admin
+      DummyAuthenticator:
+        password: <PASSWORD>
+      JupyterHub:
+        authenticator_class: dummy
+    services:
+      dask-gateway:
+        apiToken: "<API_TOKEN>"
+
+dask-gateway:
+  gateway:
+    nodeSelector:
+      karpenter.sh/provisioner-name: on-demand-daskhub
+    backend:
+      scheduler:
+        extraPodConfig:
+          nodeSelector:
+            karpenter.sh/provisioner-name: on-demand-daskhub
+      worker:
+        extraPodConfig:
+          nodeSelector:
+            karpenter.sh/provisioner-name: spot-daskhub
+    extraConfig:
+      optionHandler: |
+        from dask_gateway_server.options import Options, Integer, Float, String
+        def option_handler(options):
+            if ":" not in options.image:
+                raise ValueError("When specifying an image you must also provide a tag")
+            return {
+                "worker_cores": options.worker_cores,
+                "worker_memory": int(options.worker_memory * 2 ** 30),
+                "image": options.image,
+            }
+        c.Backend.cluster_options = Options(
+            Float("worker_cores", default=0.8, min=0.8, max=4.0, label="Worker Cores"),
+            Float("worker_memory", default=3.3, min=1, max=8, label="Worker Memory (GiB)"),
+            String("image", default="pangeo/base-notebook:<NOTEBOOK_IMAGE_TAG>", label="Image"),
+            handler=option_handler,
+        )
+    auth:
+      jupyterhub:
+        apiToken: "<API_TOKEN>"
+  controller:
+    nodeSelector:
+      karpenter.sh/provisioner-name: on-demand-daskhub
+  traefik:
+    nodeSelector:
+      karpenter.sh/provisioner-name: on-demand-daskhub
