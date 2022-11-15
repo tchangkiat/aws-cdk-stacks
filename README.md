@@ -532,7 +532,15 @@ chmod +x install-daskhub.sh
 ./install-daskhub.sh
 ```
 
-2. Follow the instructions detailed in the section "Run a Jupyter notebook to perform a large-scale geospatial analysis on Dask" in [the article](https://aws.amazon.com/blogs/publicsector/analyze-terabyte-scale-geospatial-datasets-with-dask-and-jupyter-on-aws/) if you need a sample notebook to demonstrate the scalability of EKS + Karpenter.
+2. Use the URL, username and password shared in the terminal (example below) to access JupyterHub.
+
+```bash
+JupyterHub URL: <randomly generated string>.<region>.elb.amazonaws.com
+JupyterHub Username: jovyan / admin
+JupyterHub Password: <generated password>
+```
+
+3. Follow the instructions detailed in the section "Run a Jupyter notebook to perform a large-scale geospatial analysis on Dask" in [the article](https://aws.amazon.com/blogs/publicsector/analyze-terabyte-scale-geospatial-datasets-with-dask-and-jupyter-on-aws/) if you need a sample notebook to demonstrate the scalability of EKS + Karpenter.
 
 ### Clean Up
 

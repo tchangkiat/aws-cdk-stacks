@@ -119,5 +119,9 @@ helm repo update
 helm upgrade --install daskhub dask/daskhub --values=daskhub.yaml
 
 echo ""
+echo ""
+echo "JupyterHub URL: http://"`kubectl get svc | grep 'amazonaws.com' | awk {'print $4'}`
 echo "JupyterHub Username: jovyan / admin"
 echo "JupyterHub Password: ${DASKHUB_PASSWORD}"
+echo ""
+echo ""
