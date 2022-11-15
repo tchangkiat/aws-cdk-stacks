@@ -14,11 +14,11 @@ sed "s|<SECRET_TOKEN>|$DASKHUB_SECRET_TOKEN|g" -i daskhub.yaml
 sed "s|<API_TOKEN>|$DASKHUB_API_TOKEN|g" -i daskhub.yaml
 sed "s|<PASSWORD>|$DASKHUB_PASSWORD|g" -i daskhub.yaml
 
-cat <<EOF >>spot-provisioner-daskhub.yaml
+cat <<EOF >>daskhub-spot-provisioner.yaml
 apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
-  name: spot-daskhub
+  name: daskhub-spot
 spec:
   consolidation:
     enabled: true
@@ -56,19 +56,19 @@ spec:
     securityGroupSelector:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
     tags:
-        Name: ${AWS_EKS_CLUSTER}/karpenter/spot-daskhub
+        Name: ${AWS_EKS_CLUSTER}/karpenter/daskhub-spot
         eks-cost-cluster: ${AWS_EKS_CLUSTER}
         eks-cost-workload: Proof-of-Concept
         eks-cost-team: tck
 EOF
 
-kubectl apply -f spot-provisioner-daskhub.yaml
+kubectl apply -f daskhub-spot-provisioner.yaml
 
-cat <<EOF >>on-demand-provisioner-daskhub.yaml
+cat <<EOF >>daskhub-on-demand-provisioner.yaml
 apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
-  name: on-demand-daskhub
+  name: daskhub-on-demand
 spec:
   consolidation:
     enabled: true
@@ -106,13 +106,13 @@ spec:
     securityGroupSelector:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
     tags:
-        Name: ${AWS_EKS_CLUSTER}/karpenter/on-demand-daskhub
+        Name: ${AWS_EKS_CLUSTER}/karpenter/daskhub-on-demand
         eks-cost-cluster: ${AWS_EKS_CLUSTER}
         eks-cost-workload: Proof-of-Concept
         eks-cost-team: tck
 EOF
 
-kubectl apply -f on-demand-provisioner-daskhub.yaml
+kubectl apply -f daskhub-on-demand-provisioner.yaml
 
 helm repo add dask https://helm.dask.org/
 helm repo update

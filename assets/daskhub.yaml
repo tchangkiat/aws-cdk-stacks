@@ -29,16 +29,16 @@ jupyterhub:
 dask-gateway:
   gateway:
     nodeSelector:
-      karpenter.sh/provisioner-name: on-demand-daskhub
+      karpenter.sh/provisioner-name: daskhub-on-demand
     backend:
       scheduler:
         extraPodConfig:
           nodeSelector:
-            karpenter.sh/provisioner-name: on-demand-daskhub
+            karpenter.sh/provisioner-name: daskhub-on-demand
       worker:
         extraPodConfig:
           nodeSelector:
-            karpenter.sh/provisioner-name: spot-daskhub
+            karpenter.sh/provisioner-name: daskhub-spot
     extraConfig:
       optionHandler: |
         from dask_gateway_server.options import Options, Integer, Float, String
@@ -61,7 +61,7 @@ dask-gateway:
         apiToken: "<API_TOKEN>"
   controller:
     nodeSelector:
-      karpenter.sh/provisioner-name: on-demand-daskhub
+      karpenter.sh/provisioner-name: daskhub-on-demand
   traefik:
     nodeSelector:
-      karpenter.sh/provisioner-name: on-demand-daskhub
+      karpenter.sh/provisioner-name: daskhub-on-demand
