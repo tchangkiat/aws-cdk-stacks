@@ -25,6 +25,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [Argo CD](#argo-cd)
   - [AWS App Mesh](#aws-app-mesh)
   - [Amazon EMR on EKS](#amazon-emr-on-eks)
+  - [Dask + Jupyter on EKS](#dask--jupyter-on-eks)
 
 # Initial Setup
 
@@ -510,3 +511,39 @@ chmod +x remove-emr-on-eks.sh
 
 ./remove-emr-on-eks.sh
 ```
+
+## Dask + Jupyter on EKS
+
+Credit: [Analyze terabyte-scale geospatial datasets with Dask and Jupyter on AWS](https://aws.amazon.com/blogs/publicsector/analyze-terabyte-scale-geospatial-datasets-with-dask-and-jupyter-on-aws/)
+
+> ❗ Note: This setup is tested with Karpenter only.
+
+> ❗ Prerequisite: Install [AWS EBS CSI Driver](#aws-ebs-csi-driver).
+
+### Setup
+
+1. Install Dask, Jupyter and create Karpenter provisioners.
+
+```bash
+curl -o install-daskhub.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-daskhub.sh
+
+chmod +x install-daskhub.sh
+
+./install-daskhub.sh
+```
+
+2. Follow the instructions detailed in the section "Run a Jupyter notebook to perform a large-scale geospatial analysis on Dask" in [the article](https://aws.amazon.com/blogs/publicsector/analyze-terabyte-scale-geospatial-datasets-with-dask-and-jupyter-on-aws/) if you need a sample notebook to demonstrate the scalability of EKS + Karpenter.
+
+### Clean Up
+
+1. Remove Dask, Jupyter and Karpenter provisioners.
+
+```bash
+curl -o remove-daskhub.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-daskhub.sh
+
+chmod +x remove-daskhub.sh
+
+./remove-daskhub.sh
+```
+
+2. Check if there are any related pods remain in the 'default' namespace (e.g. jupyter-\<username\>) and remove them with `kubectl delete pod <pod-name>`.
