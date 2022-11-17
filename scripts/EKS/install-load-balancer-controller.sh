@@ -1,7 +1,7 @@
 #!/bin/bash
 
 eksctl utils associate-iam-oidc-provider \
-    --region ap-southeast-1 \
+    --region $AWS_REGION \
     --cluster $AWS_EKS_CLUSTER \
     --approve
 

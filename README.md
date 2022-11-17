@@ -16,6 +16,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 - [Elastic Container Service (ECS)](#elastic-container-service-ecs)
 - [Elastic Kubernetes Service (EKS)](#elastic-kubernetes-service-eks)
   - [Bastion Host Setup](#bastion-host-setup)
+  - [Karpenter](#karpenter)
   - [AWS Load Balancer Controller](#aws-load-balancer-controller)
   - [AWS EBS CSI Driver](#aws-ebs-csi-driver)
   - [Sample Application](#sample-application)
@@ -160,6 +161,32 @@ aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
 ```
 
 3. Test the connectivity to the cluster with any `kubectl` commands (e.g. `kubectl get svc`).
+
+## Karpenter
+
+### Setup
+
+1. Install Karpenter.
+
+```bash
+curl -o install-karpenter.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-karpenter.sh
+
+chmod +x install-karpenter.sh
+
+./install-karpenter.sh
+```
+
+### Clean Up
+
+1. Remove Karpenter.
+
+```bash
+curl -o remove-karpenter.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-karpenter.sh
+
+chmod +x remove-karpenter.sh
+
+./remove-karpenter.sh
+```
 
 ## AWS Load Balancer Controller
 
