@@ -131,21 +131,26 @@ A new VPC with a NAT gateway and a new ECS cluster will be created. The ECS clus
 
 # Elastic Kubernetes Service (EKS)
 
-Provision a cluster with Karpenter configured:
+Provision a cluster:
 
 ```bash
 cdk deploy eks
 ```
 
-Provisioned a cluster with Cluster Autoscaler configured:
+Provision a cluster with Cluster Autoscaler configured:
 
 ```bash
 cdk deploy eks-ca
 ```
 
-The stack will provision a VPC (with public and private subnets and a NAT gateway), an EKS cluster, a bastion host to manage the EKS cluster, 1-2 managed node groups (depending on whether Cluster Autoscaler or Karpenter is configured).
+The stack will create the following resources:
 
-The commands listed in the sections under EKS should be executed in the bastion host, unless otherwise stated. Some environment variables (e.g. AWS_REGION, AWS_ACCOUNT_ID, AWS_EKS_CLUSTER) are already populated in the bastion host.
+1. A VPC with public and private subnets and a NAT gateway
+2. An EKS cluster with 1 managed node group (or 2 if Cluster Autoscaler is configured)
+3. A bastion host to manage the EKS cluster
+4. The necessary IAM roles and policies
+
+The commands listed in the sections under EKS should be executed in the bastion host. Some environment variables (e.g. AWS_REGION, AWS_ACCOUNT_ID, AWS_EKS_CLUSTER) are already populated in the bastion host.
 
 ## Bastion Host Setup
 
