@@ -332,7 +332,7 @@ chmod +x remove-prometheus-grafana.sh
 1. Deploy the Metrics Server:
 
 ```bash
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.1/components.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 ```
 
 2. The above deployment may take minutes to complete. Check the status with this command:
@@ -363,7 +363,7 @@ kubectl get hpa -n sample
 ```bash
 kubectl delete hpa sample-express-api -n sample
 
-kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.1/components.yaml
+kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 ```
 
 ## Argo CD
