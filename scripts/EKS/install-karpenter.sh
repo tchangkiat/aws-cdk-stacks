@@ -63,6 +63,9 @@ spec:
     - key: "karpenter.sh/capacity-type"
       operator: In
       values: ["spot"]
+    - key: "karpenter.k8s.aws/instance-generation"
+      operator: Gt
+      values: ["3"]
 
   limits:
     resources:

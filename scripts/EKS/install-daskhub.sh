@@ -33,6 +33,12 @@ spec:
     - key: "karpenter.sh/capacity-type"
       operator: In
       values: ["spot"]
+    - key: "karpenter.k8s.aws/instance-generation"
+      operator: Gt
+      values: ["3"]
+    - key: "karpenter.k8s.aws/instance-size"
+      operator: NotIn
+      values: ["micro", "small", "medium"]
 
   limits:
     resources:
@@ -83,6 +89,12 @@ spec:
     - key: "karpenter.sh/capacity-type"
       operator: In
       values: ["on-demand"]
+    - key: "karpenter.k8s.aws/instance-generation"
+      operator: Gt
+      values: ["3"]
+    - key: "karpenter.k8s.aws/instance-size"
+      operator: NotIn
+      values: ["micro", "small", "medium"]
 
   limits:
     resources:
@@ -117,6 +129,8 @@ kubectl apply -f daskhub-on-demand-provisioner.yaml
 helm repo add dask https://helm.dask.org/
 helm repo update
 helm upgrade --install daskhub dask/daskhub --values=daskhub.yaml
+
+sleep 10
 
 echo ""
 echo ""
