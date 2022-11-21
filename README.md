@@ -150,9 +150,9 @@ The stack will create the following resources:
 3. A bastion host to manage the EKS cluster
 4. The necessary IAM roles and policies
 
-The commands listed in the sections under EKS should be executed in the bastion host. Some environment variables (e.g. AWS_REGION, AWS_ACCOUNT_ID, AWS_EKS_CLUSTER) are already populated in the bastion host.
+Please set up the bastion host first. The commands listed in the sections under EKS should be executed in the bastion host. Some environment variables (e.g. AWS_REGION, AWS_ACCOUNT_ID, AWS_EKS_CLUSTER) are already populated in the bastion host.
 
-## Bastion Host Setup
+## Bastion Host
 
 1. Log in to the bastion host with 'ec2-user' using SSH or EC2 Instance Connect.
 
@@ -548,9 +548,9 @@ chmod +x remove-emr-on-eks.sh
 
 Credit: [Analyze terabyte-scale geospatial datasets with Dask and Jupyter on AWS](https://aws.amazon.com/blogs/publicsector/analyze-terabyte-scale-geospatial-datasets-with-dask-and-jupyter-on-aws/)
 
-> ❗ Note: This setup is tested with Karpenter only.
+> ❗ Prerequisite #1: Install [Karpenter](#karpenter).
 
-> ❗ Prerequisite: Install [AWS EBS CSI Driver](#aws-ebs-csi-driver).
+> ❗ Prerequisite #2: Install [AWS EBS CSI Driver](#aws-ebs-csi-driver).
 
 ### Setup
 
