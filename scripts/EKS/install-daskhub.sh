@@ -20,8 +20,7 @@ kind: Provisioner
 metadata:
   name: daskhub-spot
 spec:
-  consolidation:
-    enabled: true
+  ttlSecondsAfterEmpty: 30
 
   requirements:
     - key: "karpenter.k8s.aws/instance-category"
@@ -76,8 +75,7 @@ kind: Provisioner
 metadata:
   name: daskhub-on-demand
 spec:
-  consolidation:
-    enabled: true
+  ttlSecondsAfterEmpty: 30
 
   requirements:
     - key: "karpenter.k8s.aws/instance-category"
