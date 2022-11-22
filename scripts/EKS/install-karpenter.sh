@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export KARPENTER_VERSION=v0.19.0
+export KARPENTER_VERSION=v0.19.2
 export AWS_DEFAULT_REGION="${AWS_REGION}"
 export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
 export CLUSTER_ENDPOINT="$(aws eks describe-cluster --name ${AWS_EKS_CLUSTER} --query "cluster.endpoint" --output text)"
