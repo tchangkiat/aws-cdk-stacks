@@ -1,13 +1,17 @@
-const { Aws } = require("aws-cdk-lib");
+const { Aws, CfnJson, Duration } = require("aws-cdk-lib");
 const {
   CfnInstanceProfile,
   ManagedPolicy,
-  Policy,
+  OpenIdConnectPrincipal,
   PolicyStatement,
   Role,
   ServicePrincipal,
 } = require("aws-cdk-lib/aws-iam");
+const { HelmChart } = require("aws-cdk-lib/aws-eks");
 const { Construct } = require("constructs");
+const { Rule } = require("aws-cdk-lib/aws-events");
+const { SqsQueue } = require("aws-cdk-lib/aws-events-targets");
+const { Queue } = require("aws-cdk-lib/aws-sqs");
 
 class Karpenter extends Construct {
   constructor(scope, id, props) {
@@ -16,6 +20,50 @@ class Karpenter extends Construct {
     this.cluster = props.cluster;
     this.namespace = props.namespace ?? "karpenter";
     this.version = props.version;
+
+    this.interruptionQueue = new Queue(this, "InterruptionQueue", {
+      queueName: this.cluster.clusterName,
+      retentionPeriod: Duration.minutes(5),
+    });
+
+    this.interruptionQueue.addToResourcePolicy(
+      new PolicyStatement({
+        actions: ["sqs:SendMessage"],
+        principals: [
+          new ServicePrincipal("events.amazonaws.com"),
+          new ServicePrincipal("sqs.amazonaws.com"),
+        ],
+      })
+    );
+
+    [
+      new Rule(this, "ScheduledChangeRule", {
+        eventPattern: {
+          source: ["aws.ec2"],
+          detailType: ["EC2 Instance Scheduled Change"],
+        },
+      }),
+      new Rule(this, "SpotInterruptionRule", {
+        eventPattern: {
+          source: ["aws.ec2"],
+          detailType: ["EC2 Spot Instance Interruption Warning"],
+        },
+      }),
+      new Rule(this, "RebalanceRule", {
+        eventPattern: {
+          source: ["aws.ec2"],
+          detailType: ["EC2 Instance Rebalance Recommendation"],
+        },
+      }),
+      new Rule(this, "InstanceStateChangeRule", {
+        eventPattern: {
+          source: ["aws.ec2"],
+          detailType: ["EC2 Instance State-change Notification"],
+        },
+      }),
+    ].forEach((rule) => {
+      rule.addTarget(new SqsQueue(this.interruptionQueue));
+    });
 
     /*
      * We create a node role for Karpenter managed nodes, alongside an instance profile for the EC2
@@ -33,7 +81,6 @@ class Karpenter extends Construct {
           "AmazonEC2ContainerRegistryReadOnly"
         ),
         ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMManagedInstanceCore"),
-        ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMPatchAssociation"),
         // For X-Ray Daemon to send logs to X-Ray
         ManagedPolicy.fromAwsManagedPolicyName("AWSXRayDaemonWriteAccess"),
         // For nodes to send logs and metrics to CloudWatch (Container Insights)
@@ -48,85 +95,104 @@ class Karpenter extends Construct {
       roleName: this.cluster.clusterName + "-karpenter-node",
     });
 
-    const instanceProfile = new CfnInstanceProfile(this, "InstanceProfile", {
-      roles: [this.nodeRole.roleName],
-      instanceProfileName: `${this.cluster.clusterName}`, // Must be specified to avoid CFN error
-    });
-
     this.cluster.awsAuth.addRoleMapping(this.nodeRole, {
       username: "system:node:{{EC2PrivateDNSName}}",
       groups: ["system:bootstrappers", "system:nodes"],
     });
 
-    /**
-     * For the Karpenter controller to be able to talk to the AWS APIs, we need to set up a few
-     * resources which will allow the Karpenter controller to use IAM Roles for Service Accounts
-     */
-    const namespace = this.cluster.addManifest("namespace", {
-      apiVersion: "v1",
-      kind: "Namespace",
-      metadata: {
-        name: this.namespace,
-      },
+    const instanceProfile = new CfnInstanceProfile(this, "InstanceProfile", {
+      roles: [this.nodeRole.roleName],
+      instanceProfileName: `${this.cluster.clusterName}`, // Must be specified to avoid CFN error
     });
 
-    const serviceAccount = this.cluster.addServiceAccount("karpenter", {
-      namespace: this.namespace,
-    });
-    serviceAccount.node.addDependency(namespace);
-
-    new Policy(this, "ControllerPolicy", {
-      roles: [serviceAccount.role],
+    const controllerPolicy = new ManagedPolicy(this, "ControllerPolicy", {
       statements: [
         new PolicyStatement({
           actions: [
             "ec2:CreateLaunchTemplate",
-            "ec2:DeleteLaunchTemplate",
             "ec2:CreateFleet",
             "ec2:RunInstances",
             "ec2:CreateTags",
-            "iam:PassRole",
             "ec2:TerminateInstances",
+            "ec2:DeleteLaunchTemplate",
             "ec2:DescribeLaunchTemplates",
             "ec2:DescribeInstances",
             "ec2:DescribeSecurityGroups",
             "ec2:DescribeSubnets",
+            "ec2:DescribeImages",
             "ec2:DescribeInstanceTypes",
             "ec2:DescribeInstanceTypeOfferings",
             "ec2:DescribeAvailabilityZones",
+            "ec2:DescribeSpotPriceHistory",
             "ssm:GetParameter",
+            "pricing:GetProducts",
           ],
           resources: ["*"],
+        }),
+        new PolicyStatement({
+          actions: [
+            "sqs:DeleteMessage",
+            "sqs:GetQueueUrl",
+            "sqs:GetQueueAttributes",
+            "sqs:ReceiveMessage",
+          ],
+          resources: [this.interruptionQueue.queueArn],
+        }),
+        new PolicyStatement({
+          actions: ["iam:PassRole"],
+          resources: [this.nodeRole.roleArn],
         }),
       ],
     });
 
-    this.chart = this.cluster.addHelmChart("karpenter", {
+    const conditions = new CfnJson(this, "ConditionPlainJson", {
+      value: {
+        [`${this.cluster.openIdConnectProvider.openIdConnectProviderIssuer}:aud`]:
+          "sts.amazonaws.com",
+        [`${this.cluster.openIdConnectProvider.openIdConnectProviderIssuer}:sub`]:
+          "system:serviceaccount:karpenter:karpenter",
+      },
+    });
+    const principal = new OpenIdConnectPrincipal(
+      this.cluster.openIdConnectProvider
+    ).withConditions({
+      StringEquals: conditions,
+    });
+
+    this.controllerRole = new Role(this, "ControllerRole", {
+      assumedBy: principal,
+      description: `This is the IAM role Karpenter uses to allocate compute for ${this.cluster.clusterName}`,
+    });
+    this.controllerRole.addManagedPolicy(controllerPolicy);
+
+    this.chart = new HelmChart(this, "KarpenterHelmChart", {
       // This one is important, if we don't ask helm to wait for resources to become available, the
       // subsequent creation of karpenter resources will fail.
       wait: true,
       chart: "karpenter",
       release: "karpenter",
-      repository: "https://charts.karpenter.sh",
+      repository: "oci://public.ecr.aws/karpenter/karpenter",
+      cluster: this.cluster,
       namespace: this.namespace,
-      version: this.version ?? undefined,
-      createNamespace: false,
+      version: this.version ?? "v0.19.2",
+      createNamespace: true,
+      timeout: Duration.minutes(15),
       values: {
         serviceAccount: {
-          create: false,
-          name: serviceAccount.serviceAccountName,
           annotations: {
-            "eks.amazonaws.com/role-arn": serviceAccount.role.roleArn,
+            "eks.amazonaws.com/role-arn": this.controllerRole.roleArn,
           },
         },
-        clusterName: this.cluster.clusterName,
-        clusterEndpoint: this.cluster.clusterEndpoint,
-        aws: {
-          defaultInstanceProfile: instanceProfile.ref,
+        settings: {
+          aws: {
+            clusterName: this.cluster.clusterName,
+            clusterEndpoint: this.cluster.clusterEndpoint,
+            interruptionQueueName: this.interruptionQueue.queueName,
+            defaultInstanceProfile: instanceProfile.ref,
+          },
         },
       },
     });
-    this.chart.node.addDependency(namespace);
   }
 
   /**

@@ -49,6 +49,14 @@ new EKS(app, "eks", {
   },
 });
 
+new EKS(app, "eks-kpt", {
+  env: {
+    account,
+    region,
+  },
+  autoscaler: Autoscaler.Karpenter,
+});
+
 new EKS(app, "eks-ca", {
   env: {
     account,

@@ -131,13 +131,19 @@ A new VPC with a NAT gateway and a new ECS cluster will be created. The ECS clus
 
 # Elastic Kubernetes Service (EKS)
 
-Provision a cluster:
+a. Provision a cluster:
 
 ```bash
 cdk deploy eks
 ```
 
-Provision a cluster with Cluster Autoscaler configured:
+b. Provision a cluster with Karpenter installed:
+
+```bash
+cdk deploy eks-kpt
+```
+
+c. Provision a cluster with Cluster Autoscaler installed:
 
 ```bash
 cdk deploy eks-ca
@@ -168,6 +174,8 @@ aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
 3. Test the connectivity to the cluster with any `kubectl` commands (e.g. `kubectl get svc`).
 
 ## Karpenter
+
+> ❗ Use this method to install Karpenter only on clusters without Cluster Autoscaler and Karpenter installed (i.e. a cluster created by `cdk deploy eks`)
 
 ### Setup
 
