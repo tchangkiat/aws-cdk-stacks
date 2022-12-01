@@ -6,7 +6,9 @@ class StandardVPC extends Construct {
     super(scope, id);
 
     return new ec2.Vpc(this, "vpc", {
-      cidr: props.cidr || "10.0.0.0/16",
+      ipAddresses: props.cidr
+        ? ec2.IpAddresses.cidr(props.cidr)
+        : ec2.IpAddresses.cidr("10.0.0.0/16"),
       maxAzs: props.maxAzs || 3,
       natGateways: props.natGateways || 1,
       vpcName: props.vpcName || "standard",
