@@ -2,7 +2,7 @@
 require("dotenv").config();
 
 const cdk = require("aws-cdk-lib");
-const { VPC } = require("../lib/VPC");
+const { Vpc } = require("../lib/Vpc");
 const { MultiArchPipeline } = require("../lib/MultiArchPipeline");
 const { ECS } = require("../lib/ECS");
 const { EKS } = require("../lib/EKS");
@@ -18,7 +18,7 @@ const app = new cdk.App();
 const account = process.env.CDK_DEFAULT_ACCOUNT;
 const region = process.env.CDK_DEFAULT_REGION;
 
-new VPC(app, "vpc", {
+new Vpc(app, "vpc", {
   env: {
     account,
     region,
