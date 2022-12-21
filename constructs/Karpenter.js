@@ -174,7 +174,7 @@ class Karpenter extends Construct {
       repository: "oci://public.ecr.aws/karpenter/karpenter",
       cluster: this.cluster,
       namespace: this.namespace,
-      version: this.version ?? "v0.19.2",
+      version: this.version ?? "v0.20.0",
       createNamespace: true,
       timeout: Duration.minutes(15),
       values: {
