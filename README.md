@@ -27,6 +27,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [AWS App Mesh](#aws-app-mesh)
   - [Amazon EMR on EKS](#amazon-emr-on-eks)
   - [Dask + Jupyter on EKS](#dask--jupyter-on-eks)
+- [Jenkins on AWS](#jenkins-on-aws)
 
 # Initial Setup
 
@@ -595,3 +596,13 @@ chmod +x remove-daskhub.sh
 ```
 
 2. Check if there are any related pods remain in the 'default' namespace (e.g. jupyter-\<username\>) and remove them with `kubectl delete pod <pod-name>`.
+
+# Jenkins on AWS
+
+1. Provision an EC2 instance and install Jenkins.
+
+```bash
+cdk deploy jenkins
+```
+
+2. Follow the instructions in the "Configuring Jenkins" section of [the documentation](https://www.jenkins.io/doc/tutorials/tutorial-for-installing-jenkins-on-AWS/#configuring-jenkins) to complete the setup.
