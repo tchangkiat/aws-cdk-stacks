@@ -1,9 +1,8 @@
 #!/bin/bash
 
-export KARPENTER_VERSION=v0.22.0
+export KARPENTER_VERSION=v0.26.0
 export AWS_DEFAULT_REGION="${AWS_REGION}"
 export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
-export CLUSTER_ENDPOINT="$(aws eks describe-cluster --name ${AWS_EKS_CLUSTER} --query "cluster.endpoint" --output text)"
 
 TEMPOUT=$(mktemp)
 
@@ -42,7 +41,6 @@ aws iam create-service-linked-role --aws-service-name spot.amazonaws.com || true
 helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --version ${KARPENTER_VERSION} --namespace karpenter --create-namespace \
   --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=${KARPENTER_IAM_ROLE_ARN} \
   --set settings.aws.clusterName=${AWS_EKS_CLUSTER} \
-  --set settings.aws.clusterEndpoint=${CLUSTER_ENDPOINT} \
   --set settings.aws.defaultInstanceProfile=KarpenterNodeInstanceProfile-${AWS_EKS_CLUSTER} \
   --set settings.aws.interruptionQueueName=${AWS_EKS_CLUSTER} \
   --wait

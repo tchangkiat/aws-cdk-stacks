@@ -124,6 +124,7 @@ class Karpenter extends Construct {
             "ec2:DescribeInstanceTypeOfferings",
             "ec2:DescribeAvailabilityZones",
             "ec2:DescribeSpotPriceHistory",
+            "eks:DescribeCluster",
             "ssm:GetParameter",
             "pricing:GetProducts",
           ],
@@ -174,7 +175,7 @@ class Karpenter extends Construct {
       repository: "oci://public.ecr.aws/karpenter/karpenter",
       cluster: this.cluster,
       namespace: this.namespace,
-      version: this.version ?? "v0.22.0",
+      version: this.version ?? "v0.26.0",
       createNamespace: true,
       timeout: Duration.minutes(15),
       values: {
@@ -186,7 +187,6 @@ class Karpenter extends Construct {
         settings: {
           aws: {
             clusterName: this.cluster.clusterName,
-            clusterEndpoint: this.cluster.clusterEndpoint,
             interruptionQueueName: this.interruptionQueue.queueName,
             defaultInstanceProfile: instanceProfile.ref,
           },
