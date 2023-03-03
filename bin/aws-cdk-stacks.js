@@ -10,7 +10,6 @@ const { CicdEcs } = require("../lib/CICD-ECS");
 const { CicdEc2 } = require("../lib/CICD-EC2");
 const { ApiGateway } = require("../lib/ApiGateway");
 const { TransitGateway } = require("../lib/TransitGateway");
-const { CdkPipeline } = require("../lib/CdkPipeline");
 const { Jenkins } = require("../lib/Jenkins");
 const { Autoscaler } = require("../Constants");
 
@@ -94,13 +93,6 @@ new ApiGateway(app, "api-gateway", {
 });
 
 new TransitGateway(app, "transit-gateway", {
-  env: {
-    account,
-    region,
-  },
-});
-
-new CdkPipeline(app, "cdk-pipeline", {
   env: {
     account,
     region,
