@@ -1,3 +1,5 @@
+#!/bin/bash
+
 PREFIX_LIST_ID=$(aws ec2 describe-managed-prefix-lists --query "PrefixLists[?PrefixListName=="\'com.amazonaws.$AWS_REGION.vpc-lattice\'"].PrefixListId" | jq -r '.[]')
 MANAGED_PREFIX=$(aws ec2 get-managed-prefix-list-entries --prefix-list-id $PREFIX_LIST_ID --output json  | jq -r '.Entries[0].Cidr')
 CLUSTER_SG=$(aws eks describe-cluster --name $AWS_EKS_CLUSTER --output json| jq -r '.cluster.resourcesVpcConfig.clusterSecurityGroupId')

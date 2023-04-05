@@ -1,3 +1,5 @@
+#!/bin/bash
+
 kubectl delete -f gatewayclass.yaml
 rm gatewayclass.yaml
 
