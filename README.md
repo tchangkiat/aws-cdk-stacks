@@ -9,7 +9,6 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 # Table of Content
 
 - [Initial Setup](#initial-setup)
-- [Pipeline for CDK Stacks](#pipeline-for-cdk-stacks)
 - [Standard VPC](#standard-vpc)
 - [Transit Gateway](#transit-gateway)
 - [Multi-Architecture Pipeline](#multi-architecture-pipeline)
@@ -45,20 +44,6 @@ aws configure set output json
 ```
 
 4. Bootstrap AWS account for CDK with `cdk bootstrap`.
-
-# Pipeline for CDK Stacks
-
-> ❗ Prerequisite #1: Generate a GitHub Personal Access Token and create a plaintext secret `github-token` in AWS Secrets Manager to store the token. If you did not follow this prerequisite, you will encounter an `Internal Failure` error when deploying this stack.
-
-> ❗ Prerequisite #2: After deploying the pipeline, add ALL the environment variables (found in your .env file) in the CodeBuild project which starts with `cdkpipelinePipelineBuildsyn-`. If you did not follow this prerequisite, you will encounter an `TypeError: Cannot read property 'length' of undefined` error when the CodeBuild project is being executed.
-
-> ❗ Prerequisite #3: Grant the necessary permissions to the service role used by the CodeBuild project which starts with `cdkpipelinePipelineBuildsyn-`. If you did not follow this prerequisite, you will encounter errors which mention that you do not have permissions to create certain stacks - apparently `npx cdk synth` helps to check whether there are enough permissions to create the stacks.
-
-```bash
-cdk deploy cdk-pipeline
-```
-
-Deploy a pipeline to automate the deployment of CDK stacks whenever there is a code change.
 
 # Standard VPC
 
