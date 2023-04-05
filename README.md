@@ -26,6 +26,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [AWS App Mesh](#aws-app-mesh)
   - [Amazon EMR on EKS](#amazon-emr-on-eks)
   - [Dask + Jupyter on EKS](#dask--jupyter-on-eks)
+  - [AWS Gateway API Controller](#aws-gateway-api-controller)
 - [Jenkins on AWS](#jenkins-on-aws)
 
 # Initial Setup
@@ -581,6 +582,32 @@ chmod +x remove-daskhub.sh
 ```
 
 2. Check if there are any related pods remain in the 'default' namespace (e.g. jupyter-\<username\>) and remove them with `kubectl delete pod <pod-name>`.
+
+## AWS Gateway API Controller
+
+### Setup
+
+1. Install Gateway API Controller.
+
+```bash
+curl -o install-gateway-api-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-gateway-api-controller.sh
+
+chmod +x install-gateway-api-controller.sh
+
+./install-gateway-api-controller.sh
+```
+
+### Clean Up
+
+1. Remove Gateway API Controller.
+
+```bash
+curl -o remove-gateway-api-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-gateway-api-controller.sh
+
+chmod +x remove-gateway-api-controller.sh
+
+./remove-gateway-api-controller.sh
+```
 
 # Jenkins on AWS
 
