@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export KARPENTER_VERSION=v0.26.0
+export KARPENTER_VERSION=v0.27.1
 export AWS_DEFAULT_REGION="${AWS_REGION}"
 export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
 
