@@ -587,7 +587,7 @@ chmod +x remove-daskhub.sh
 
 ### Setup
 
-1. Install Gateway API Controller.
+1. Install AWS Gateway API Controller.
 
 ```bash
 curl -o install-gateway-api-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-gateway-api-controller.sh
@@ -599,7 +599,7 @@ chmod +x install-gateway-api-controller.sh
 
 ### Clean Up
 
-1. Remove Gateway API Controller.
+1. Remove AWS Gateway API Controller.
 
 ```bash
 curl -o remove-gateway-api-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-gateway-api-controller.sh
