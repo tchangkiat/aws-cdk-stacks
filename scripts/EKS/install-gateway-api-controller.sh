@@ -25,11 +25,11 @@ eksctl create iamserviceaccount \
    --approve
 
 aws ecr-public get-login-password --region us-east-1 | helm registry login --username AWS --password-stdin public.ecr.aws
-helm install gateway-api-controller \
+helm upgrade -i gateway-api-controller \
    oci://public.ecr.aws/aws-application-networking-k8s/aws-gateway-controller-chart\
-   --version=v0.0.8 \
+   --version=v0.0.9 \
    --set=aws.region=$AWS_REGION --set=serviceAccount.create=false --namespace aws-application-networking-system
-
+   
 curl -o gatewayclass.yaml https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/gatewayclass.yaml
 
 kubectl apply -f gatewayclass.yaml
