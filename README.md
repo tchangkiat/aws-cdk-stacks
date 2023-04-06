@@ -26,7 +26,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [AWS App Mesh](#aws-app-mesh)
   - [Amazon EMR on EKS](#amazon-emr-on-eks)
   - [Dask + Jupyter on EKS](#dask--jupyter-on-eks)
-  - [AWS Gateway API Controller](#aws-gateway-api-controller)
+  - [Amazon VPC Lattice](#amazon-vpc-lattice)
 - [Jenkins on AWS](#jenkins-on-aws)
 
 # Initial Setup
@@ -244,7 +244,7 @@ chmod +x remove-ebs-csi-driver.sh
 
 > ❗ Prerequisite #1: Deploy the Multi-Architecture Pipeline using `cdk deploy mapl`. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
 
-> ❗ Prerequisite #2: Install AWS Load Balancer Controller.
+> ❗ Prerequisite #2: Install [AWS Load Balancer Controller](#aws-load-balancer-controller).
 
 ### Setup
 
@@ -583,7 +583,13 @@ chmod +x remove-daskhub.sh
 
 2. Check if there are any related pods remain in the 'default' namespace (e.g. jupyter-\<username\>) and remove them with `kubectl delete pod <pod-name>`.
 
-## AWS Gateway API Controller
+## Amazon VPC Lattice
+
+> ❗ Prerequisite #1: Deploy the Multi-Architecture Pipeline using `cdk deploy mapl`. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
+
+> ❗ Prerequisite #2: Install [AWS Load Balancer Controller](#aws-load-balancer-controller).
+
+> ❗ Prerequisite #3: Install [Sample Application](#sample-application).
 
 ### Setup
 
@@ -597,9 +603,37 @@ chmod +x install-gateway-api-controller.sh
 ./install-gateway-api-controller.sh
 ```
 
+2. Set up Gateway for Sample Application.
+
+```bash
+curl -o vpc-lattice-gateway.yaml https://raw.githubusercontent.com/tchangkiat/sample-express-api/master/eks/vpc-lattice/vpc-lattice-gateway.yaml
+
+kubectl apply -f vpc-lattice-gateway.yaml
+```
+
+3. Set up HttpRoute for Sample Application.
+
+```bash
+curl -o vpc-lattice-httproute.yaml https://raw.githubusercontent.com/tchangkiat/sample-express-api/master/eks/vpc-lattice/vpc-lattice-httproute.yaml
+
+kubectl apply -f vpc-lattice-httproute.yaml
+```
+
 ### Clean Up
 
-1. Remove AWS Gateway API Controller.
+1. Remove HttpRoute for Sample Application.
+
+```bash
+kubectl delete -f vpc-lattice-httproute.yaml
+```
+
+2. Remove Gateway for Sample Application.
+
+```bash
+kubectl delete -f vpc-lattice-gateway.yaml
+```
+
+3. Remove AWS Gateway API Controller.
 
 ```bash
 curl -o remove-gateway-api-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-gateway-api-controller.sh
