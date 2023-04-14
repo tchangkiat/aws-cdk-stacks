@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Resources used by https://github.com/aws/karpenter (v0.27.1)
+Description: Resources used by https://github.com/aws/karpenter (v0.27.2)
 Parameters:
   ClusterName:
     Type: String

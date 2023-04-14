@@ -137,7 +137,7 @@ class ClusterAutoscaler extends Construct {
     super(scope, id);
 
     // Best practice: Cluster Autoscaler version must match the Kubernetes control plane version
-    const eksClusterAutoscalerVersion = "v1.24.0";
+    const eksClusterAutoscalerVersion = "v1.26.2";
 
     this.cluster = props.cluster;
 
