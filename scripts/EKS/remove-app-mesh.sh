@@ -20,6 +20,4 @@ kubectl delete -f "appmesh/virtual-node.yaml"
 
 kubectl delete -f "appmesh/mesh.yaml"
 
-kubectl delete -f "appmesh/namespace.yaml"
-
 sudo rm appmesh -rf
