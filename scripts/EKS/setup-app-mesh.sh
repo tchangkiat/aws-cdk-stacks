@@ -162,7 +162,7 @@ spec:
         fsGroup: 65534
       containers:
         - name: envoy
-          image: public.ecr.aws/appmesh/aws-appmesh-envoy:v1.22.0.0-prod
+          image: public.ecr.aws/appmesh/aws-appmesh-envoy:v1.25.4.0-prod
           ports:
             - containerPort: 8088
 EOF
