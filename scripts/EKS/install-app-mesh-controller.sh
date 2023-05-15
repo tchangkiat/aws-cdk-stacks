@@ -17,4 +17,4 @@ helm upgrade -i appmesh-controller eks/appmesh-controller --namespace appmesh-sy
     --set tolerations[0].operator=Exists \
     --set tolerations[0].effect=NoSchedule \
     --set image.repository=public.ecr.aws/appmesh/appmesh-controller \
-    --set image.tag=v1.7.0-linux_arm64
+    --set image.tag=v1.11.0-linux_arm64
