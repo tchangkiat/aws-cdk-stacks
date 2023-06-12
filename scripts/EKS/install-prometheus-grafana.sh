@@ -7,8 +7,8 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 
 helm upgrade -i prometheus prometheus-community/prometheus \
   --namespace prometheus \
-  --set alertmanager.persistentVolume.storageClass="gp2" \
-  --set server.persistentVolume.storageClass="gp2" \
+  --set alertmanager.persistence.storageClass="gp3" \
+  --set server.persistentVolume.storageClass="gp3" \
   --set alertmanager.tolerations[0].key=CriticalAddonsOnly \
   --set alertmanager.tolerations[0].operator=Exists \
   --set alertmanager.tolerations[0].effect=NoSchedule \
@@ -34,7 +34,7 @@ helm repo add grafana https://grafana.github.io/helm-charts
 
 helm install grafana grafana/grafana \
     --namespace grafana \
-    --set persistence.storageClass="gp2" \
+    --set persistence.storageClassName="gp3" \
     --set persistence.enabled=true \
     --set adminPassword='grafanaPassword' \
     --values grafana.yaml \

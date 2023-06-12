@@ -29,3 +29,18 @@ helm upgrade --install aws-ebs-csi-driver \
   --set serviceAccount.snapshot.name=ebs-csi-controller \
   --set serviceAccount.controller.name=ebs-csi-controller \
   aws-ebs-csi-driver/aws-ebs-csi-driver
+
+cat <<EOF >>gp3-storage-class.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp3
+parameters:
+  fsType: ext4
+  type: gp3
+provisioner: kubernetes.io/aws-ebs
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+EOF
+
+kubectl apply -f gp3-storage-class.yaml
