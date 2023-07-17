@@ -44,6 +44,10 @@ helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --vers
   --set settings.aws.clusterName=${CLUSTER_NAME} \
   --set settings.aws.defaultInstanceProfile=KarpenterNodeInstanceProfile-${CLUSTER_NAME} \
   --set settings.aws.interruptionQueueName=${CLUSTER_NAME} \
+  --set controller.resources.requests.cpu=1 \
+  --set controller.resources.requests.memory=1Gi \
+  --set controller.resources.limits.cpu=1 \
+  --set controller.resources.limits.memory=1Gi \
   --wait
 
 cat <<EOF >>spot-provisioner.yaml
@@ -52,9 +56,6 @@ kind: Provisioner
 metadata:
   name: spot
 spec:
-  consolidation:
-    enabled: true
-
   requirements:
     - key: "kubernetes.io/arch"
       operator: In
@@ -65,33 +66,40 @@ spec:
     - key: "karpenter.k8s.aws/instance-generation"
       operator: Gt
       values: ["3"]
-
   limits:
     resources:
-      cpu: "30"
-
-  provider:
-    amiFamily: "Bottlerocket"
-    blockDeviceMappings: 
-      - deviceName: "/dev/xvda"
-        ebs:
-          deleteOnTermination: true
-          volumeSize: "5G"
-          volumeType: "gp3"
-      - deviceName: "/dev/xvdb"
-        ebs:
-          deleteOnTermination: true
-          volumeSize: "20G"
-          volumeType: "gp3"
-    subnetSelector:
-        karpenter.sh/discovery: ${CLUSTER_NAME}
-    securityGroupSelector:
-        "aws:eks:cluster-name": ${CLUSTER_NAME}
-    tags:
-        Name: ${CLUSTER_NAME}/karpenter/spot
-        eks-cost-cluster: ${CLUSTER_NAME}
-        eks-cost-workload: Proof-of-Concept
-        eks-cost-team: tck
+      cpu: 30
+  providerRef:
+    name: spot
+  consolidation: 
+    enabled: true
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: spot
+spec:
+  amiFamily: "Bottlerocket"
+  blockDeviceMappings: 
+    - deviceName: "/dev/xvda"
+      ebs:
+        deleteOnTermination: true
+        volumeSize: "5G"
+        volumeType: "gp3"
+    - deviceName: "/dev/xvdb"
+      ebs:
+        deleteOnTermination: true
+        volumeSize: "20G"
+        volumeType: "gp3"
+  subnetSelector:
+    karpenter.sh/discovery: ${CLUSTER_NAME}
+  securityGroupSelector:
+    "aws:eks:cluster-name": ${CLUSTER_NAME}
+  tags:
+    Name: ${CLUSTER_NAME}/karpenter/spot
+    eks-cost-cluster: ${CLUSTER_NAME}
+    eks-cost-workload: Proof-of-Concept
+    eks-cost-team: tck
 EOF
 
 kubectl apply -f spot-provisioner.yaml
