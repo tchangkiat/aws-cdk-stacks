@@ -2,6 +2,7 @@ const { Stack, CfnOutput, Tags } = require("aws-cdk-lib");
 const ec2 = require("aws-cdk-lib/aws-ec2");
 const iam = require("aws-cdk-lib/aws-iam");
 const eks = require("aws-cdk-lib/aws-eks");
+const { Karpenter } = require("../constructs/Karpenter");
 const { ManagedNodeGroup, ClusterAutoscaler } = require("../constructs/EKS");
 const { StandardVpc } = require("../constructs/Network");
 const { Autoscaler } = require("../Constants");
@@ -262,6 +263,71 @@ class EKS extends Stack {
       });
 
       ca.addNodeGroups(eksClusterName, [addons_mng, spot_mng]);
+    } else if (autoscaler == Autoscaler.Karpenter) {
+      const karpenter = new Karpenter(this, "karpenter", {
+        cluster,
+      });
+
+      karpenter.addProvisioner("spot", {
+        consolidation: {
+          enabled: true,
+        },
+        requirements: [
+          {
+            key: "karpenter.sh/capacity-type",
+            operator: "In",
+            values: ["spot"],
+          },
+          {
+            key: "kubernetes.io/arch",
+            operator: "In",
+            values: ["amd64"],
+          },
+          {
+            key: "karpenter.k8s.aws/instance-generation",
+            operator: "Gt",
+            values: ["3"],
+          },
+        ],
+        limits: {
+          resources: {
+            cpu: 30,
+          },
+        },
+        provider: {
+          amiFamily: "Bottlerocket",
+          blockDeviceMappings: [
+            {
+              deviceName: "/dev/xvda",
+              ebs: {
+                deleteOnTermination: true,
+                volumeSize: "5G",
+                volumeType: "gp3",
+              },
+            },
+            {
+              deviceName: "/dev/xvdb",
+              ebs: {
+                deleteOnTermination: true,
+                volumeSize: "20G",
+                volumeType: "gp3",
+              },
+            },
+          ],
+          subnetSelector: {
+            "karpenter.sh/discovery": eksClusterName,
+          },
+          securityGroupSelector: {
+            "aws:eks:cluster-name": eksClusterName,
+          },
+          tags: {
+            Name: eksClusterName + "/karpenter/spot",
+            "eks-cost-cluster": eksClusterName,
+            "eks-cost-workload": "Proof-of-Concept",
+            "eks-cost-team": "tck",
+          },
+        },
+      });
     }
   }
 }

@@ -1,38 +1,38 @@
 #!/bin/bash
 
-export KARPENTER_VERSION=v0.27.2
+export KARPENTER_VERSION=v0.29.0
+export CLUSTER_NAME="${AWS_EKS_CLUSTER}"
 export AWS_DEFAULT_REGION="${AWS_REGION}"
 export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
-
-TEMPOUT=$(mktemp)
+export TEMPOUT=$(mktemp)
 
 curl -fsSL https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/karpenter.yaml  > $TEMPOUT \
 && aws cloudformation deploy \
-  --stack-name "Karpenter-${AWS_EKS_CLUSTER}" \
+  --stack-name "Karpenter-${CLUSTER_NAME}" \
   --template-file "${TEMPOUT}" \
   --capabilities CAPABILITY_NAMED_IAM \
-  --parameter-overrides "ClusterName=${AWS_EKS_CLUSTER}"
+  --parameter-overrides "ClusterName=${CLUSTER_NAME}"
 
 eksctl create iamidentitymapping \
   --username system:node:{{EC2PrivateDNSName}} \
-  --cluster "${AWS_EKS_CLUSTER}" \
-  --arn "arn:aws:iam::${AWS_ACCOUNT_ID}:role/KarpenterNodeRole-${AWS_EKS_CLUSTER}" \
+  --cluster "${CLUSTER_NAME}" \
+  --arn "arn:aws:iam::${AWS_ACCOUNT_ID}:role/KarpenterNodeRole-${CLUSTER_NAME}" \
   --group system:bootstrappers \
   --group system:nodes
 
 eksctl utils associate-iam-oidc-provider \
     --region $AWS_REGION \
-    --cluster $AWS_EKS_CLUSTER \
+    --cluster $CLUSTER_NAME \
     --approve
 
 eksctl create iamserviceaccount \
-  --cluster "${AWS_EKS_CLUSTER}" --name karpenter --namespace karpenter \
-  --role-name "${AWS_EKS_CLUSTER}-karpenter" \
-  --attach-policy-arn "arn:aws:iam::${AWS_ACCOUNT_ID}:policy/KarpenterControllerPolicy-${AWS_EKS_CLUSTER}" \
+  --cluster "${CLUSTER_NAME}" --name karpenter --namespace karpenter \
+  --role-name "${CLUSTER_NAME}-karpenter" \
+  --attach-policy-arn "arn:aws:iam::${AWS_ACCOUNT_ID}:policy/KarpenterControllerPolicy-${CLUSTER_NAME}" \
   --role-only \
   --approve
 
-export KARPENTER_IAM_ROLE_ARN="arn:aws:iam::${AWS_ACCOUNT_ID}:role/${AWS_EKS_CLUSTER}-karpenter"
+export KARPENTER_IAM_ROLE_ARN="arn:aws:iam::${AWS_ACCOUNT_ID}:role/${CLUSTER_NAME}-karpenter"
 
 aws iam create-service-linked-role --aws-service-name spot.amazonaws.com || true
 # If the role has already been successfully created, you will see:
@@ -40,9 +40,9 @@ aws iam create-service-linked-role --aws-service-name spot.amazonaws.com || true
 
 helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --version ${KARPENTER_VERSION} --namespace karpenter --create-namespace \
   --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=${KARPENTER_IAM_ROLE_ARN} \
-  --set settings.aws.clusterName=${AWS_EKS_CLUSTER} \
-  --set settings.aws.defaultInstanceProfile=KarpenterNodeInstanceProfile-${AWS_EKS_CLUSTER} \
-  --set settings.aws.interruptionQueueName=${AWS_EKS_CLUSTER} \
+  --set settings.aws.clusterName=${CLUSTER_NAME} \
+  --set settings.aws.defaultInstanceProfile=KarpenterNodeInstanceProfile-${CLUSTER_NAME} \
+  --set settings.aws.interruptionQueueName=${CLUSTER_NAME} \
   --wait
 
 cat <<EOF >>spot-provisioner.yaml
@@ -83,12 +83,12 @@ spec:
           volumeSize: "20G"
           volumeType: "gp3"
     subnetSelector:
-        karpenter.sh/discovery: ${AWS_EKS_CLUSTER}
+        karpenter.sh/discovery: ${CLUSTER_NAME}
     securityGroupSelector:
-        "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
+        "aws:eks:cluster-name": ${CLUSTER_NAME}
     tags:
-        Name: ${AWS_EKS_CLUSTER}/karpenter/spot
-        eks-cost-cluster: ${AWS_EKS_CLUSTER}
+        Name: ${CLUSTER_NAME}/karpenter/spot
+        eks-cost-cluster: ${CLUSTER_NAME}
         eks-cost-workload: Proof-of-Concept
         eks-cost-team: tck
 EOF
