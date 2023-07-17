@@ -124,13 +124,7 @@ a. Provision a cluster:
 cdk deploy eks
 ```
 
-b. Provision a cluster with Karpenter installed:
-
-```bash
-cdk deploy eks-kpt
-```
-
-c. Provision a cluster with Cluster Autoscaler installed:
+b. Provision a cluster with Cluster Autoscaler installed:
 
 ```bash
 cdk deploy eks-ca
