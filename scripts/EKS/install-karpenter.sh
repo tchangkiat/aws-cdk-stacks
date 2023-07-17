@@ -12,22 +12,26 @@ curl -fsSL https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/asse
   --stack-name "Karpenter-${CLUSTER_NAME}" \
   --template-file "${TEMPOUT}" \
   --capabilities CAPABILITY_NAMED_IAM \
-  --parameter-overrides "ClusterName=${CLUSTER_NAME}"
+  --parameter-overrides "ClusterName=${CLUSTER_NAME}" \
+  --region "${AWS_DEFAULT_REGION}"
 
 eksctl create iamidentitymapping \
   --username system:node:{{EC2PrivateDNSName}} \
   --cluster "${CLUSTER_NAME}" \
+  --region "${AWS_DEFAULT_REGION}" \
   --arn "arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:role/KarpenterNodeRole-${CLUSTER_NAME}" \
   --group system:bootstrappers \
   --group system:nodes
 
 eksctl utils associate-iam-oidc-provider \
-    --region $AWS_REGION \
-    --cluster $CLUSTER_NAME \
-    --approve
+  --region $AWS_REGION \
+  --cluster $CLUSTER_NAME \
+  --region $AWS_DEFAULT_REGION \
+  --approve
 
 eksctl create iamserviceaccount \
   --cluster "${CLUSTER_NAME}" --name karpenter --namespace karpenter \
+  --region "${AWS_DEFAULT_REGION}" \
   --role-name "${CLUSTER_NAME}-karpenter" \
   --attach-policy-arn "arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:policy/KarpenterControllerPolicy-${CLUSTER_NAME}" \
   --role-only \
