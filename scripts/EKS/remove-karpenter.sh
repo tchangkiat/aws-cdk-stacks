@@ -8,7 +8,8 @@ helm uninstall karpenter --namespace karpenter
 eksctl delete iamserviceaccount \
 --cluster=$AWS_EKS_CLUSTER \
 --name="${AWS_EKS_CLUSTER}-karpenter" \
---namespace=karpenter
+--namespace=karpenter \
+--region=${AWS_REGION}
 
 aws cloudformation delete-stack --stack-name "eksctl-${AWS_EKS_CLUSTER}-addon-iamserviceaccount-karpenter-karpenter"
 
