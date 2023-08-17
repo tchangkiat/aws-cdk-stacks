@@ -1,5 +1,7 @@
 #!/bin/bash
 
+helm repo update
+
 eksctl utils associate-iam-oidc-provider --region=$AWS_REGION --cluster=$AWS_EKS_CLUSTER --approve
 
 kubectl create namespace appmesh-system
