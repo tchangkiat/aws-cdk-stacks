@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export AWS_LOAD_BALANCER_CONTROLLER_VERSION=v2.6.0
+export AWS_LOAD_BALANCER_CONTROLLER_VERSION=2.6.0
 
 helm repo update
 
@@ -9,7 +9,7 @@ eksctl utils associate-iam-oidc-provider \
     --cluster $AWS_EKS_CLUSTER \
     --approve
 
-curl -o aws-load-balancer-controller-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/{$AWS_LOAD_BALANCER_CONTROLLER_VERSION}/docs/install/iam_policy.json
+curl -o aws-load-balancer-controller-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v{$AWS_LOAD_BALANCER_CONTROLLER_VERSION}/docs/install/iam_policy.json
 
 aws iam create-policy \
  --policy-name $AWS_EKS_CLUSTER-aws-load-balancer-controller \
