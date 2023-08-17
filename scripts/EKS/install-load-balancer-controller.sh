@@ -1,11 +1,15 @@
 #!/bin/bash
 
+export AWS_LOAD_BALANCER_CONTROLLER_VERSION=v2.6.0
+
+helm repo update
+
 eksctl utils associate-iam-oidc-provider \
     --region $AWS_REGION \
     --cluster $AWS_EKS_CLUSTER \
     --approve
 
-curl -o aws-load-balancer-controller-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.7/docs/install/iam_policy.json
+curl -o aws-load-balancer-controller-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/{$AWS_LOAD_BALANCER_CONTROLLER_VERSION}/docs/install/iam_policy.json
 
 aws iam create-policy \
  --policy-name $AWS_EKS_CLUSTER-aws-load-balancer-controller \
@@ -28,4 +32,5 @@ kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller/
 helm upgrade -i aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=$AWS_EKS_CLUSTER --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller \
     --set tolerations[0].key=CriticalAddonsOnly \
     --set tolerations[0].operator=Exists \
-    --set tolerations[0].effect=NoSchedule
+    --set tolerations[0].effect=NoSchedule \
+    --version $AWS_LOAD_BALANCER_CONTROLLER_VERSION
