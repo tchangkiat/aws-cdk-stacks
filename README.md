@@ -637,6 +637,32 @@ chmod +x remove-gateway-api-controller.sh
 ./remove-gateway-api-controller.sh
 ```
 
+## Ingress NGINX Controller
+
+### Setup
+
+1. Install Ingress NGINX Controller.
+
+```bash
+curl -o install-ingress-nginx-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-ingress-nginx-controller.sh
+
+chmod +x install-ingress-nginx-controller.sh
+
+./install-ingress-nginx-controller.sh
+```
+
+### Clean Up
+
+1. Remove Ingress NGINX Controller.
+
+```bash
+curl -o remove-ingress-nginx-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-ingress-nginx-controller.sh
+
+chmod +x remove-ingress-nginx-controller.sh
+
+./remove-ingress-nginx-controller.sh
+```
+
 # Jenkins on AWS
 
 1. Provision an EC2 instance and install Jenkins.
