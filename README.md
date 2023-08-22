@@ -640,6 +640,8 @@ chmod +x remove-gateway-api-controller.sh
 
 ## Ingress NGINX Controller
 
+Note: The script installs cert-manager too.
+
 ### Setup
 
 1. Install Ingress NGINX Controller.
