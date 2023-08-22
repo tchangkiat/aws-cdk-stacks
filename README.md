@@ -27,6 +27,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [Amazon EMR on EKS](#amazon-emr-on-eks)
   - [Dask + Jupyter on EKS](#dask--jupyter-on-eks)
   - [Amazon VPC Lattice](#amazon-vpc-lattice)
+  - [Ingress NGINX Controller](#ingress-nginx-controller)
 - [Jenkins on AWS](#jenkins-on-aws)
 
 # Initial Setup
