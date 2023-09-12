@@ -1,7 +1,5 @@
 #!/bin/bash
 
-helm repo update
-
 eksctl utils associate-iam-oidc-provider \
     --region $AWS_REGION \
     --cluster $AWS_EKS_CLUSTER \
@@ -24,6 +22,7 @@ eksctl create iamserviceaccount \
 --approve
 
 helm repo add eks https://aws.github.io/eks-charts
+helm repo update
 
 kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
 
