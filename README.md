@@ -155,16 +155,13 @@ aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
 
 ```bash
 curl -o eks-add-ons.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/eks-add-ons.sh
-
 chmod +x eks-add-ons.sh
-
-./eks-add-ons.sh
 ```
 
 2. Run the script and select an add-on to install / remove.
 
 ```bash
-sh eks-add-ons.sh
+./eks-add-ons.sh
 ```
 
 ### Supported Add-Ons
@@ -175,7 +172,9 @@ sh eks-add-ons.sh
 - Container Insights
 - Prometheus and Grafana
   - Prerequisite: AWS EBS CSI Driver
--
+- Ingress NGINX Controller
+  - Also installs cert-manager
+- Amazon EMR on EKS
 
 ## Sample Application
 
