@@ -22,8 +22,6 @@ options=(
     "AWS EBS CSI Driver - Remove"
     "Amazon CloudWatch Container Insights - Install"
     "Amazon CloudWatch Container Insights - Remove"
-    "AWS X-Ray - Install"
-    "AWS X-Ray - Remove"
     "Prometheus and Grafana - Install"
     "Prometheus and Grafana - Remove"
     "Ingress NGINX Controller - Install"
@@ -65,14 +63,6 @@ do
             ;;
         "Amazon CloudWatch Container Insights - Remove")
             script="remove-container-insights.sh"
-            break
-            ;;
-        "AWS X-Ray - Install")
-            kubectl apply -f https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/x-ray.yaml
-            break
-            ;;
-        "AWS X-Ray - Remove")
-            kubectl delete -f https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/x-ray.yaml
             break
             ;;
         "Prometheus and Grafana - Install")

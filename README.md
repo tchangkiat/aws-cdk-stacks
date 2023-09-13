@@ -176,7 +176,6 @@ chmod +x eks-add-ons.sh
 - AWS Load Balancer Controller
 - AWS EBS CSI Driver
 - Amazon CloudWatch Container Insights
-- AWS X-Ray
 - Prometheus and Grafana
   - Prerequisite: AWS EBS CSI Driver
 - Ingress NGINX Controller
