@@ -20,8 +20,16 @@ options=(
     "AWS Load Balancer Controller - Remove"
     "AWS EBS CSI Driver - Install"
     "AWS EBS CSI Driver - Remove"
-    "Container Insights - Install"
-    "Container Insights - Remove"
+    "Amazon CloudWatch Container Insights - Install"
+    "Amazon CloudWatch Container Insights - Remove"
+    "AWS X-Ray - Install"
+    "AWS X-Ray - Remove"
+    "Prometheus and Grafana - Install"
+    "Prometheus and Grafana - Remove"
+    "Ingress NGINX Controller - Install"
+    "Ingress NGINX Controller - Remove"
+    "Amazon EMR on EKS - Install"
+    "Amazon EMR on EKS - Remove"
     "Quit")
 
 select opt in "${options[@]}"
@@ -51,12 +59,20 @@ do
             script="remove-ebs-csi-driver.sh"
             break
             ;;
-        "Container Insights - Install")
+        "Amazon CloudWatch Container Insights - Install")
             script="install-container-insights.sh"
             break
             ;;
-        "Container Insights - Remove")
+        "Amazon CloudWatch Container Insights - Remove")
             script="remove-container-insights.sh"
+            break
+            ;;
+        "AWS X-Ray - Install")
+            kubectl apply -f https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/x-ray.yaml
+            break
+            ;;
+        "AWS X-Ray - Remove")
+            kubectl delete -f https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/x-ray.yaml
             break
             ;;
         "Prometheus and Grafana - Install")
