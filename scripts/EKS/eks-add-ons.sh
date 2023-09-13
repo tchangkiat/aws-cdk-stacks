@@ -104,7 +104,7 @@ done
 
 if [[ ${#scripts[@]} -ne 0 ]]
 then
-    for scripts in "${scripts[@]}"; do
+    for script in "${scripts[@]}"; do
         curl -o $script "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/${script}"
         chmod +x $script
         ./$script
