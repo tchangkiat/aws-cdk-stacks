@@ -11,7 +11,7 @@
 # express or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: xray-daemon
@@ -22,9 +22,9 @@ roleRef:
   kind: ClusterRole
   name: cluster-admin
 subjects:
-- kind: ServiceAccount
-  name: xray-daemon
-  namespace: default
+  - kind: ServiceAccount
+    name: xray-daemon
+    namespace: default
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -42,28 +42,28 @@ spec:
         app: xray-daemon
     spec:
       volumes:
-      - name: config-volume
-        configMap:
-          name: xray-config
+        - name: config-volume
+          configMap:
+            name: xray-config
       hostNetwork: true
       serviceAccountName: xray-daemon
       containers:
-      - name: xray-daemon
-        image: amazon/aws-xray-daemon
-        imagePullPolicy: Always
-        command: [ "/usr/bin/xray", "-c", "/aws/xray/config.yaml" ]
-        resources:
-          limits:
-            memory: 24Mi
-        ports:
-        - name: xray-ingest
-          containerPort: 2000
-          hostPort: 2000
-          protocol: UDP
-        volumeMounts:
-        - name: config-volume
-          mountPath: /aws/xray
-          readOnly: true
+        - name: xray-daemon
+          image: amazon/aws-xray-daemon
+          imagePullPolicy: Always
+          command: ["/usr/bin/xray", "-c", "/aws/xray/config.yaml"]
+          resources:
+            limits:
+              memory: 24Mi
+          ports:
+            - name: xray-ingest
+              containerPort: 2000
+              hostPort: 2000
+              protocol: UDP
+          volumeMounts:
+            - name: config-volume
+              mountPath: /aws/xray
+              readOnly: true
 ---
 # Configuration for AWS X-Ray daemon
 apiVersion: v1
@@ -113,6 +113,6 @@ spec:
     app: xray-daemon
   clusterIP: None
   ports:
-  - name: incoming
-    port: 2000
-    protocol: UDP
+    - name: incoming
+      port: 2000
+      protocol: UDP

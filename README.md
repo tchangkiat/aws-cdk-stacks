@@ -175,7 +175,8 @@ chmod +x eks-add-ons.sh
 - Karpenter
 - AWS Load Balancer Controller
 - AWS EBS CSI Driver
-- Container Insights
+- Amazon CloudWatch Container Insights
+- AWS X-Ray
 - Prometheus and Grafana
   - Prerequisite: AWS EBS CSI Driver
 - Ingress NGINX Controller
