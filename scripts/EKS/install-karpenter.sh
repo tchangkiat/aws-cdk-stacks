@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export AWS_PARTITION="aws" # if you are not using standard partitions, you may need to configure to aws-cn / aws-us-gov
-export KARPENTER_VERSION=v0.29.2
+export KARPENTER_VERSION=v0.30.0
 export CLUSTER_NAME="${AWS_EKS_CLUSTER}"
 export AWS_DEFAULT_REGION="${AWS_REGION}"
 export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
