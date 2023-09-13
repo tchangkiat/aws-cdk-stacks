@@ -180,6 +180,8 @@ chmod +x eks-add-ons.sh
   - Prerequisite: AWS EBS CSI Driver
 - Ingress NGINX Controller
   - Also installs cert-manager
+- AWS App Mesh Controller
+- AWS Gateway API Controller
 - Amazon EMR on EKS
 
 ## Sample Application
@@ -341,17 +343,9 @@ kubectl delete ns argocd
 
 ### Setup
 
-1. Install AWS App Mesh Controller.
+1. Install AWS App Mesh Controller with `./eks-add-ons.sh`
 
-```bash
-curl -o install-app-mesh-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-app-mesh-controller.sh
-
-chmod +x install-app-mesh-controller.sh
-
-./install-app-mesh-controller.sh
-```
-
-2. As the [Sample Application](#sample-application) is used for the following App Mesh setup, please set it up first before proceeding.
+2. The [Sample Application](#sample-application) is used for the following App Mesh setup. Please set it up first before proceeding.
 
 3. Generate the necessary manifest and set up App Mesh.
 
@@ -391,15 +385,7 @@ chmod +x remove-app-mesh.sh
 ./remove-app-mesh.sh sample-express-api sample
 ```
 
-2. Remove AWS App Mesh Controller
-
-```bash
-curl -o remove-app-mesh-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-app-mesh-controller.sh
-
-chmod +x remove-app-mesh-controller.sh
-
-./remove-app-mesh-controller.sh
-```
+2. Remove AWS App Mesh Controller with `./eks-add-ons.sh`
 
 ## Dask + Jupyter on EKS
 
@@ -455,15 +441,7 @@ chmod +x remove-daskhub.sh
 
 ### Setup
 
-1. Install AWS Gateway API Controller.
-
-```bash
-curl -o install-gateway-api-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-gateway-api-controller.sh
-
-chmod +x install-gateway-api-controller.sh
-
-./install-gateway-api-controller.sh
-```
+1. Install AWS Gateway API Controller with `./eks-add-ons.sh`
 
 2. Set up Gateway for Sample Application.
 
@@ -495,15 +473,7 @@ kubectl delete -f vpc-lattice-httproute.yaml
 kubectl delete -f vpc-lattice-gateway.yaml
 ```
 
-3. Remove AWS Gateway API Controller.
-
-```bash
-curl -o remove-gateway-api-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-gateway-api-controller.sh
-
-chmod +x remove-gateway-api-controller.sh
-
-./remove-gateway-api-controller.sh
-```
+3. Remove AWS Gateway API Controller with `./eks-add-ons.sh`
 
 # Jenkins on AWS
 
