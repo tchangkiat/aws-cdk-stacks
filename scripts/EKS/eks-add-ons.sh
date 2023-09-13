@@ -21,40 +21,31 @@ shift $((OPTIND -1))
 for install in "${installs[@]}"; do
     case $install in
         "1"|"karpenter")
-            scripts+="install-karpenter.sh"
-            break
+            scripts+=("install-karpenter.sh")
             ;;
         "2"|"load-balancer-controller")
-            scripts+="install-load-balancer-controller.sh"
-            break
+            scripts+=("install-load-balancer-controller.sh")
             ;;
         "3"|"ebs-csi-driver")
-            scripts+="install-ebs-csi-driver.sh"
-            break
+            scripts+=("install-ebs-csi-driver.sh")
             ;;
         "4"|"container-insights")
-            scripts+="install-container-insights.sh"
-            break
+            scripts+=("install-container-insights.sh")
             ;;
         "5"|"prometheus-grafana")
-            scripts+="install-prometheus-grafana.sh"
-            break
+            scripts+=("install-prometheus-grafana.sh")
             ;;
         "6"|"ingress-nginx-controller")
-            scripts+="install-ingress-nginx-controller.sh"
-            break
+            scripts+=("install-ingress-nginx-controller.sh")
             ;;
         "7"|"app-mesh-controller")
-            scripts+="install-app-mesh-controller.sh"
-            break
+            scripts+=("install-app-mesh-controller.sh")
             ;;
         "8"|"gateway-api-controller")
-            scripts+="install-gateway-api-controller.sh"
-            break
+            scripts+=("install-gateway-api-controller.sh")
             ;;
         "9"|"emr-on-eks")
-            scripts+="setup-emr-on-eks.sh"
-            break
+            scripts+=("setup-emr-on-eks.sh")
             ;;
         *) echo "Invalid option $REPLY"
     esac
@@ -63,40 +54,31 @@ done
 for removal in "${removals[@]}"; do
     case $removal in
         "1"|"karpenter")
-            scripts+="remove-karpenter.sh"
-            break
+            scripts+=("remove-karpenter.sh")
             ;;
         "2"|"load-balancer-controller")
-            scripts+="remove-load-balancer-controller.sh"
-            break
+            scripts+=("remove-load-balancer-controller.sh")
             ;;
         "3"|"ebs-csi-driver")
-            scripts+="remove-ebs-csi-driver.sh"
-            break
+            scripts+=("remove-ebs-csi-driver.sh")
             ;;
         "4"|"container-insights")
-            scripts+="remove-container-insights.sh"
-            break
+            scripts+=("remove-container-insights.sh")
             ;;
         "5"|"prometheus-grafana")
-            scripts+="remove-prometheus-grafana.sh"
-            break
+            scripts+=("remove-prometheus-grafana.sh")
             ;;
         "6"|"ingress-nginx-controller")
-            scripts+="remove-ingress-nginx-controller.sh"
-            break
+            scripts+=("remove-ingress-nginx-controller.sh")
             ;;
         "7"|"app-mesh-controller")
-            scripts+="remove-app-mesh-controller.sh"
-            break
+            scripts+=("remove-app-mesh-controller.sh")
             ;;
         "8"|"gateway-api-controller")
-            scripts+="remove-gateway-api-controller.sh"
-            break
+            scripts+=("remove-gateway-api-controller.sh")
             ;;
         "9"|"emr-on-eks")
-            scripts+="remove-emr-on-eks.sh"
-            break
+            scripts+=("remove-emr-on-eks.sh")
             ;;
         *) echo "Invalid option $REPLY"
     esac
