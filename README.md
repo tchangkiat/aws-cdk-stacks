@@ -14,20 +14,14 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 - [Multi-Architecture Pipeline](#multi-architecture-pipeline)
 - [Elastic Container Service (ECS)](#elastic-container-service-ecs)
 - [Elastic Kubernetes Service (EKS)](#elastic-kubernetes-service-eks)
-  - [Bastion Host Setup](#bastion-host-setup)
-  - [Karpenter](#karpenter)
-  - [AWS Load Balancer Controller](#aws-load-balancer-controller)
-  - [AWS EBS CSI Driver](#aws-ebs-csi-driver)
+  - [Bastion Host](#bastion-host)
+  - [Add-Ons](#add-ons)
   - [Sample Application](#sample-application)
-  - [Container Insights](#container-insights)
-  - [Prometheus and Grafana](#prometheus-and-grafana)
   - [Metrics Server and Horizontal Pod Autoscaler (HPA)](#metrics-server-and-horizontal-pod-autoscaler-hpa)
   - [Argo CD](#argo-cd)
   - [AWS App Mesh](#aws-app-mesh)
-  - [Amazon EMR on EKS](#amazon-emr-on-eks)
   - [Dask + Jupyter on EKS](#dask--jupyter-on-eks)
   - [Amazon VPC Lattice](#amazon-vpc-lattice)
-  - [Ingress NGINX Controller](#ingress-nginx-controller)
 - [Jenkins on AWS](#jenkins-on-aws)
 
 # Initial Setup
@@ -155,91 +149,39 @@ aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
 
 3. Test the connectivity to the cluster with any `kubectl` commands (e.g. `kubectl get svc`).
 
-## Karpenter
+## Add-Ons
 
-> ❗ Use this method to install Karpenter only on clusters without Cluster Autoscaler and Karpenter installed (i.e. a cluster created by `cdk deploy eks`)
-
-### Setup
-
-1. Install Karpenter.
+1. Download the bash script to install / remove add-ons.
 
 ```bash
-curl -o install-karpenter.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-karpenter.sh
+curl -o eks-add-ons.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/eks-add-ons.sh
 
-chmod +x install-karpenter.sh
+chmod +x eks-add-ons.sh
 
-./install-karpenter.sh
+./eks-add-ons.sh
 ```
 
-### Clean Up
-
-1. Remove Karpenter.
+2. Run the script and select an add-on to install / remove.
 
 ```bash
-curl -o remove-karpenter.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-karpenter.sh
-
-chmod +x remove-karpenter.sh
-
-./remove-karpenter.sh
+sh eks-add-ons.sh
 ```
 
-## AWS Load Balancer Controller
+### Supported Add-Ons
 
-### Setup
-
-1. Install AWS Load Balancer Controller.
-
-```bash
-curl -o install-load-balancer-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-load-balancer-controller.sh
-
-chmod +x install-load-balancer-controller.sh
-
-./install-load-balancer-controller.sh
-```
-
-### Clean Up
-
-1. Remove AWS Load Balancer Controller.
-
-```bash
-curl -o remove-load-balancer-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-load-balancer-controller.sh
-
-chmod +x remove-load-balancer-controller.sh
-
-./remove-load-balancer-controller.sh
-```
-
-## AWS EBS CSI Driver
-
-### Setup
-
-1. Install AWS EBS CSI Driver.
-
-```bash
-curl -o install-ebs-csi-driver.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-ebs-csi-driver.sh
-
-chmod +x install-ebs-csi-driver.sh
-
-./install-ebs-csi-driver.sh
-```
-
-### Clean Up
-
-1. Remove AWS EBS CSI Driver.
-
-```bash
-curl -o remove-ebs-csi-driver.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-ebs-csi-driver.sh
-
-chmod +x remove-ebs-csi-driver.sh
-
-./remove-ebs-csi-driver.sh
-```
+- Karpenter
+- AWS Load Balancer Controller
+- AWS EBS CSI Driver
+- Container Insights
+- Prometheus and Grafana
+  - Prerequisite: AWS EBS CSI Driver
+-
 
 ## Sample Application
 
 > ❗ Prerequisite #1: Deploy the Multi-Architecture Pipeline using `cdk deploy mapl`. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
 
-> ❗ Prerequisite #2: Install [AWS Load Balancer Controller](#aws-load-balancer-controller).
+> ❗ Prerequisite #2: Install AWS Load Balancer Controller.
 
 ### Setup
 
@@ -259,60 +201,6 @@ kubectl apply -f sample-deployment.yaml
 
 ```bash
 kubectl delete -f sample-deployment.yaml
-```
-
-## Container Insights
-
-### Setup
-
-1. Install Container Insights.
-
-```bash
-curl -o install-container-insights.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-container-insights.sh
-
-chmod +x install-container-insights.sh
-
-./install-container-insights.sh
-```
-
-### Clean Up
-
-1. Remove Container Insights.
-
-```bash
-curl -o remove-container-insights.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-container-insights.sh
-
-chmod +x remove-container-insights.sh
-
-./remove-container-insights.sh
-```
-
-## Prometheus and Grafana
-
-> ❗ Prerequisite: Install [AWS EBS CSI Driver](#aws-ebs-csi-driver) first.
-
-### Setup
-
-1. Install Prometheus and Grafana.
-
-```bash
-curl -o install-prometheus-grafana.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-prometheus-grafana.sh
-
-chmod +x install-prometheus-grafana.sh
-
-./install-prometheus-grafana.sh
-```
-
-### Clean Up
-
-1. Remove Prometheus and Grafana.
-
-```bash
-curl -o remove-prometheus-grafana.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-prometheus-grafana.sh
-
-chmod +x remove-prometheus-grafana.sh
-
-./remove-prometheus-grafana.sh
 ```
 
 ## Metrics Server and Horizontal Pod Autoscaler (HPA)
@@ -508,32 +396,6 @@ chmod +x remove-app-mesh-controller.sh
 ./remove-app-mesh-controller.sh
 ```
 
-## Amazon EMR on EKS
-
-### Setup
-
-1. Create IAM role and policy, S3 bucket and EMR virtual cluster.
-
-```bash
-curl -o setup-emr-on-eks.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/setup-emr-on-eks.sh
-
-chmod +x setup-emr-on-eks.sh
-
-./setup-emr-on-eks.sh
-```
-
-### Clean Up
-
-1. Remove IAM role and policy, S3 bucket and EMR virtual cluster.
-
-```bash
-curl -o remove-emr-on-eks.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-emr-on-eks.sh
-
-chmod +x remove-emr-on-eks.sh
-
-./remove-emr-on-eks.sh
-```
-
 ## Dask + Jupyter on EKS
 
 Credit: [Analyze terabyte-scale geospatial datasets with Dask and Jupyter on AWS](https://aws.amazon.com/blogs/publicsector/analyze-terabyte-scale-geospatial-datasets-with-dask-and-jupyter-on-aws/)
@@ -636,34 +498,6 @@ curl -o remove-gateway-api-controller.sh https://raw.githubusercontent.com/tchan
 chmod +x remove-gateway-api-controller.sh
 
 ./remove-gateway-api-controller.sh
-```
-
-## Ingress NGINX Controller
-
-Note: The script installs cert-manager too.
-
-### Setup
-
-1. Install Ingress NGINX Controller.
-
-```bash
-curl -o install-ingress-nginx-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-ingress-nginx-controller.sh
-
-chmod +x install-ingress-nginx-controller.sh
-
-./install-ingress-nginx-controller.sh
-```
-
-### Clean Up
-
-1. Remove Ingress NGINX Controller.
-
-```bash
-curl -o remove-ingress-nginx-controller.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-ingress-nginx-controller.sh
-
-chmod +x remove-ingress-nginx-controller.sh
-
-./remove-ingress-nginx-controller.sh
 ```
 
 # Jenkins on AWS
