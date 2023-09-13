@@ -14,7 +14,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 - [Multi-Architecture Pipeline](#multi-architecture-pipeline)
 - [Elastic Container Service (ECS)](#elastic-container-service-ecs)
 - [Elastic Kubernetes Service (EKS)](#elastic-kubernetes-service-eks)
-  - [Bastion Host](#bastion-host)
+  - [Getting Started](#getting-started)
   - [Add-Ons](#add-ons)
   - [Sample Application](#sample-application)
   - [Metrics Server and Horizontal Pod Autoscaler (HPA)](#metrics-server-and-horizontal-pod-autoscaler-hpa)
@@ -113,32 +113,32 @@ A new VPC with a NAT gateway and a new ECS cluster will be created. The ECS clus
 
 # Elastic Kubernetes Service (EKS)
 
-a. Provision a cluster:
+## Getting Started
+
+### 1. Provision an EKS cluster with one of these commands:
 
 ```bash
+# Deploy a cluster
 cdk deploy eks
-```
 
-b. Provision a cluster with Cluster Autoscaler installed:
-
-```bash
+# Deploy a cluster with Cluster Autoscaler installed
 cdk deploy eks-ca
 ```
 
-The stack will create the following resources:
+These resources will be created:
 
-1. A VPC with public and private subnets and a NAT gateway
-2. An EKS cluster with 1 managed node group (or 2 if Cluster Autoscaler is configured)
-3. A bastion host to manage the EKS cluster
-4. The necessary IAM roles and policies
+- A VPC with public and private subnets and a NAT gateway
+- An EKS cluster with 1 managed node group (or 2 if Cluster Autoscaler is installed)
+- A bastion host to manage the EKS cluster
+- The necessary IAM roles and policies
 
-Please set up the bastion host first. The commands listed in the sections under EKS should be executed in the bastion host. Some environment variables (e.g. AWS_REGION, AWS_ACCOUNT_ID, AWS_EKS_CLUSTER) are already populated in the bastion host.
+### 2. Access the bastion host
 
-## Bastion Host
+Access the bastion host with 'ec2-user' using SSH or EC2 Instance Connect.
 
-1. Log in to the bastion host with 'ec2-user' using SSH or EC2 Instance Connect.
+> ❗ The commands listed in the sections under EKS should be executed in the bastion host. Some environment variables (e.g. AWS_REGION, AWS_ACCOUNT_ID, AWS_EKS_CLUSTER) are already populated in the bastion host.
 
-2. Configure the AWS CLI (region will be set by 'setup-bastion-host.sh' automatically) and execute a script to setup the bastion host:
+### 3. Configure the AWS CLI and execute a script to setup the bastion host:
 
 ```bash
 aws configure set aws_access_key_id {{ACCESS_KEY_ID}}
@@ -147,7 +147,13 @@ aws configure set aws_secret_access_key {{SECRET_ACCESS_KEY}}
 ./setup-bastion-host.sh
 ```
 
-3. Test the connectivity to the cluster with any `kubectl` commands (e.g. `kubectl get svc`).
+Region is set by 'setup-bastion-host.sh' automatically in the bastion host.
+
+### 4. Test the connectivity to the EKS cluster with any `kubectl` commands.
+
+```bash
+kubectl get svc
+```
 
 ## Add-Ons
 

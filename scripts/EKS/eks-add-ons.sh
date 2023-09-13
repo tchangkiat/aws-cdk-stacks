@@ -1,12 +1,13 @@
 #!/bin/bash
 
 echo ""
-echo "---------------------------------"
+echo "--------------------------------------"
 echo "Install / Remove EKS Add-Ons"
-echo "---------------------------------"
-echo "Cluster: ${AWS_EKS_CLUSTER}"
+echo "--------------------------------------"
+echo "Account: ${AWS_ACCOUNT_ID}"
 echo "Region: ${AWS_REGION}"
-echo "---------------------------------"
+echo "EKS Cluster: ${AWS_EKS_CLUSTER}"
+echo "--------------------------------------"
 echo ""
 
 script=""
