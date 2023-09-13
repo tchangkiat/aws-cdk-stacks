@@ -34,29 +34,22 @@ spec:
       labels:
         app: xray-daemon
     spec:
-      volumes:
-        - name: config-volume
-          configMap:
-            name: xray-config
-      hostNetwork: true
-      serviceAccountName: xray-daemon
       containers:
         - name: xray-daemon
-          image: amazon/aws-xray-daemon
+          image: public.ecr.aws/xray/aws-xray-daemon:latest
           imagePullPolicy: Always
-          command: ["/usr/bin/xray", "-c", "/aws/xray/config.yaml"]
-          resources:
-            limits:
-              memory: 24Mi
           ports:
-            - name: xray-ingest
-              containerPort: 2000
+            - containerPort: 2000
               hostPort: 2000
               protocol: UDP
-          volumeMounts:
-            - name: config-volume
-              mountPath: /aws/xray
-              readOnly: true
+          resources:
+            limits:
+              cpu: 100m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
+      terminationGracePeriodSeconds: 60
 ---
 # Configuration for AWS X-Ray daemon
 apiVersion: v1
