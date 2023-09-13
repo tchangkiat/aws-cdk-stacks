@@ -2,125 +2,113 @@
 
 echo ""
 echo "--------------------------------------"
-echo "Install / Remove EKS Add-Ons"
-echo "--------------------------------------"
 echo "Account: ${AWS_ACCOUNT_ID}"
 echo "Region: ${AWS_REGION}"
 echo "EKS Cluster: ${AWS_EKS_CLUSTER}"
 echo "--------------------------------------"
 echo ""
 
-script=""
+scripts=()
 
-PS3="Select an option: "
-options=(
-    "Karpenter - Install"
-    "Karpenter - Remove"
-    "AWS Load Balancer Controller - Install"
-    "AWS Load Balancer Controller - Remove"
-    "AWS EBS CSI Driver - Install"
-    "AWS EBS CSI Driver - Remove"
-    "Amazon CloudWatch Container Insights - Install"
-    "Amazon CloudWatch Container Insights - Remove"
-    "Prometheus and Grafana - Install"
-    "Prometheus and Grafana - Remove"
-    "Ingress NGINX Controller - Install"
-    "Ingress NGINX Controller - Remove"
-    "AWS App Mesh Controller - Install"
-    "AWS App Mesh Controller - Remove"
-    "AWS Gateway API Controller - Install"
-    "AWS Gateway API Controller - Remove"
-    "Amazon EMR on EKS - Install"
-    "Amazon EMR on EKS - Remove"
-    "Quit")
-
-select opt in "${options[@]}"
-do
+while getopts "i:r:" opt; do
     case $opt in
-        "Karpenter - Install")
-            script="install-karpenter.sh"
+        i) installs+=("$OPTARG");;
+        r) removals+=("$OPTARG");;
+    esac
+done
+shift $((OPTIND -1))
+
+for install in "${installs[@]}"; do
+    case $install in
+        "1"|"karpenter")
+            scripts+="install-karpenter.sh"
             break
             ;;
-        "Karpenter - Remove")
-            script="remove-karpenter.sh"
+        "2"|"load-balancer-controller")
+            scripts+="install-load-balancer-controller.sh"
             break
             ;;
-        "AWS Load Balancer Controller - Install")
-            script="install-load-balancer-controller.sh"
+        "3"|"ebs-csi-driver")
+            scripts+="install-ebs-csi-driver.sh"
             break
             ;;
-        "AWS Load Balancer Controller - Remove")
-            script="remove-load-balancer-controller.sh"
+        "4"|"container-insights")
+            scripts+="install-container-insights.sh"
             break
             ;;
-        "AWS EBS CSI Driver - Install")
-            script="install-ebs-csi-driver.sh"
+        "5"|"prometheus-grafana")
+            scripts+="install-prometheus-grafana.sh"
             break
             ;;
-        "AWS EBS CSI Driver - Remove")
-            script="remove-ebs-csi-driver.sh"
+        "6"|"ingress-nginx-controller")
+            scripts+="install-ingress-nginx-controller.sh"
             break
             ;;
-        "Amazon CloudWatch Container Insights - Install")
-            script="install-container-insights.sh"
+        "7"|"app-mesh-controller")
+            scripts+="install-app-mesh-controller.sh"
             break
             ;;
-        "Amazon CloudWatch Container Insights - Remove")
-            script="remove-container-insights.sh"
+        "8"|"gateway-api-controller")
+            scripts+="install-gateway-api-controller.sh"
             break
             ;;
-        "Prometheus and Grafana - Install")
-            script="install-prometheus-grafana.sh"
-            break
-            ;;
-        "Prometheus and Grafana - Remove")
-            script="remove-prometheus-grafana.sh"
-            break
-            ;;
-        "Ingress NGINX Controller - Install")
-            script="install-ingress-nginx-controller.sh"
-            break
-            ;;
-        "Ingress NGINX Controller - Remove")
-            script="remove-ingress-nginx-controller.sh"
-            break
-            ;;
-        "AWS App Mesh Controller - Install")
-            script="install-app-mesh-controller.sh"
-            break
-            ;;
-        "AWS App Mesh Controller - Remove")
-            script="remove-app-mesh-controller.sh"
-            break
-            ;;
-        "AWS API Gateway Controller - Install")
-            script="install-gateway-api-controller.sh"
-            break
-            ;;
-        "AWS API Gateway Controller - Remove")
-            script="remove-gateway-api-controller.sh"
-            break
-            ;;
-        "Amazon EMR on EKS - Install")
-            script="setup-emr-on-eks.sh"
-            break
-            ;;
-        "Amazon EMR on EKS - Remove")
-            script="remove-emr-on-eks.sh"
-            break
-            ;;
-        "Quit")
+        "9"|"emr-on-eks")
+            scripts+="setup-emr-on-eks.sh"
             break
             ;;
         *) echo "Invalid option $REPLY"
     esac
 done
 
-if [[ $script != "" ]]
+for removal in "${removals[@]}"; do
+    case $removal in
+        "1"|"karpenter")
+            scripts+="remove-karpenter.sh"
+            break
+            ;;
+        "2"|"load-balancer-controller")
+            scripts+="remove-load-balancer-controller.sh"
+            break
+            ;;
+        "3"|"ebs-csi-driver")
+            scripts+="remove-ebs-csi-driver.sh"
+            break
+            ;;
+        "4"|"container-insights")
+            scripts+="remove-container-insights.sh"
+            break
+            ;;
+        "5"|"prometheus-grafana")
+            scripts+="remove-prometheus-grafana.sh"
+            break
+            ;;
+        "6"|"ingress-nginx-controller")
+            scripts+="remove-ingress-nginx-controller.sh"
+            break
+            ;;
+        "7"|"app-mesh-controller")
+            scripts+="remove-app-mesh-controller.sh"
+            break
+            ;;
+        "8"|"gateway-api-controller")
+            scripts+="remove-gateway-api-controller.sh"
+            break
+            ;;
+        "9"|"emr-on-eks")
+            scripts+="remove-emr-on-eks.sh"
+            break
+            ;;
+        *) echo "Invalid option $REPLY"
+    esac
+done
+
+if [[ ${#script[@]} -ne 0 ]]
 then
-    curl -o $script "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/${script}"
-    chmod +x $script
-    ./$script
-    rm $script
+    for scripts in "${scripts[@]}"; do
+        curl -o $script "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/${script}"
+        chmod +x $script
+        ./$script
+        rm $script
+    done
     echo "Done!"
 fi

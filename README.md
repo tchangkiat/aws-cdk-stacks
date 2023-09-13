@@ -164,25 +164,59 @@ curl -o eks-add-ons.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stac
 chmod +x eks-add-ons.sh
 ```
 
-2. Run the script and select an add-on to install / remove.
+2. Install add-ons with `-i` argument.
+
+Example #1: Install Karpenter
 
 ```bash
-./eks-add-ons.sh
+./eks-add-ons.sh -i karpenter
+# OR
+./eks-add-ons.sh -i 1
 ```
 
-### Supported Add-Ons
+Example #2: Install Prometheus and Grafana
 
-- Karpenter
-- AWS Load Balancer Controller
-- AWS EBS CSI Driver
-- Amazon CloudWatch Container Insights
-- Prometheus and Grafana
-  - Prerequisite: AWS EBS CSI Driver
-- Ingress NGINX Controller
-  - Also installs cert-manager
-- AWS App Mesh Controller
-- AWS Gateway API Controller
-- Amazon EMR on EKS
+```bash
+./eks-add-ons.sh -i prometheus-grafana
+# OR
+./eks-add-ons.sh -i 5
+```
+
+3. Remove add-ons with `-r` argument.
+
+Example #1: Remove Karpenter
+
+```bash
+./eks-add-ons.sh -r karpenter
+# OR
+./eks-add-ons.sh -r 1
+```
+
+Example #2: Remove Prometheus and Grafana
+
+```bash
+./eks-add-ons.sh -r prometheus-grafana
+# OR
+./eks-add-ons.sh -r 5
+```
+
+### Supported Add-Ons (alias in brackets)
+
+1. Karpenter ("karpenter")
+2. AWS Load Balancer Controller ("load-balancer-controller")
+3. AWS EBS CSI Driver ("ebs-csi-driver")
+4. Amazon CloudWatch Container Insights ("container-insights")
+5. Prometheus and Grafana ("prometheus-grafana")
+
+   - Prerequisite: AWS EBS CSI Driver
+
+6. Ingress NGINX Controller ("ingress-nginx-controller")
+
+   - Also installs cert-manager
+
+7. AWS App Mesh Controller ("app-mesh-controller")
+8. AWS Gateway API Controller ("gateway-api-controller")
+9. Amazon EMR on EKS ("emr-on-eks")
 
 ## Sample Application
 
@@ -343,7 +377,7 @@ kubectl delete ns argocd
 
 ### Setup
 
-1. Install AWS App Mesh Controller with `./eks-add-ons.sh`
+1. Install AWS App Mesh Controller with `./eks-add-ons.sh -i app-mesh-controller`
 
 2. The [Sample Application](#sample-application) is used for the following App Mesh setup. Please set it up first before proceeding.
 
@@ -385,7 +419,7 @@ chmod +x remove-app-mesh.sh
 ./remove-app-mesh.sh sample-express-api sample
 ```
 
-2. Remove AWS App Mesh Controller with `./eks-add-ons.sh`
+2. Remove AWS App Mesh Controller with `./eks-add-ons.sh -i app-mesh-controller`
 
 ## Dask + Jupyter on EKS
 
@@ -441,7 +475,7 @@ chmod +x remove-daskhub.sh
 
 ### Setup
 
-1. Install AWS Gateway API Controller with `./eks-add-ons.sh`
+1. Install AWS Gateway API Controller with `./eks-add-ons.sh -i gateway-api-controller`
 
 2. Set up Gateway for Sample Application.
 
@@ -473,7 +507,7 @@ kubectl delete -f vpc-lattice-httproute.yaml
 kubectl delete -f vpc-lattice-gateway.yaml
 ```
 
-3. Remove AWS Gateway API Controller with `./eks-add-ons.sh`
+3. Remove AWS Gateway API Controller with `./eks-add-ons.sh -r gateway-api-controller`
 
 # Jenkins on AWS
 
