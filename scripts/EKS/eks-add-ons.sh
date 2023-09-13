@@ -102,7 +102,7 @@ for removal in "${removals[@]}"; do
     esac
 done
 
-if [[ ${#script[@]} -ne 0 ]]
+if [[ ${#scripts[@]} -ne 0 ]]
 then
     for scripts in "${scripts[@]}"; do
         curl -o $script "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/${script}"
