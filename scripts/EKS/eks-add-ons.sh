@@ -26,6 +26,10 @@ options=(
     "Prometheus and Grafana - Remove"
     "Ingress NGINX Controller - Install"
     "Ingress NGINX Controller - Remove"
+    "AWS App Mesh Controller - Install"
+    "AWS App Mesh Controller - Remove"
+    "AWS Gateway API Controller - Install"
+    "AWS Gateway API Controller - Remove"
     "Amazon EMR on EKS - Install"
     "Amazon EMR on EKS - Remove"
     "Quit")
@@ -81,6 +85,22 @@ do
             script="remove-ingress-nginx-controller.sh"
             break
             ;;
+        "AWS App Mesh Controller - Install")
+            script="install-app-mesh-controller.sh"
+            break
+            ;;
+        "AWS App Mesh Controller - Remove")
+            script="remove-app-mesh-controller.sh"
+            break
+            ;;
+        "AWS API Gateway Controller - Install")
+            script="install-gateway-api-controller.sh"
+            break
+            ;;
+        "AWS API Gateway Controller - Remove")
+            script="remove-gateway-api-controller.sh"
+            break
+            ;;
         "Amazon EMR on EKS - Install")
             script="setup-emr-on-eks.sh"
             break
@@ -96,7 +116,8 @@ do
     esac
 done
 
-if [[ $script != "" ]] then
+if [[ $script != "" ]]
+then
     curl -o $script "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/${script}"
     chmod +x $script
     ./$script
