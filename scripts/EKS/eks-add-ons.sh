@@ -47,6 +47,9 @@ for install in "${installs[@]}"; do
         "9"|"emr-on-eks")
             scripts+=("setup-emr-on-eks.sh")
             ;;
+        "10"|"jupyterhub")
+            scripts+=("install-jupyterhub.sh")
+            ;;
         *) echo "Invalid option $REPLY"
     esac
 done
@@ -79,6 +82,9 @@ for removal in "${removals[@]}"; do
             ;;
         "9"|"emr-on-eks")
             scripts+=("remove-emr-on-eks.sh")
+            ;;
+        "10"|"jupyterhub")
+            scripts+=("remove-jupyterhub.sh")
             ;;
         *) echo "Invalid option $REPLY"
     esac

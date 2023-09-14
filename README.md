@@ -217,6 +217,9 @@ Example #2: Remove Prometheus and Grafana
 7. AWS App Mesh Controller ("app-mesh-controller")
 8. AWS Gateway API Controller ("gateway-api-controller")
 9. Amazon EMR on EKS ("emr-on-eks")
+10. JupyterHub ("jupyterhub")
+
+    - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
 
 ## Sample Application
 
