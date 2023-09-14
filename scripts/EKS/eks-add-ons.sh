@@ -50,6 +50,9 @@ for install in "${installs[@]}"; do
         "10"|"jupyterhub")
             scripts+=("install-jupyterhub.sh")
             ;;
+        "11"|"ray")
+            scripts+=("install-ray.sh")
+            ;;
         *) echo "Invalid option $REPLY"
     esac
 done
@@ -85,6 +88,9 @@ for removal in "${removals[@]}"; do
             ;;
         "10"|"jupyterhub")
             scripts+=("remove-jupyterhub.sh")
+            ;;
+        "11"|"ray")
+            scripts+=("remove-ray.sh")
             ;;
         *) echo "Invalid option $REPLY"
     esac
