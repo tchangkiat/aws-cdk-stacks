@@ -81,6 +81,11 @@ kubectl apply -f ray-on-demand.yaml
 kubectl apply -f ray-spot.yaml
 
 cat <<EOF >>ray-cluster-config.yaml
+image:
+  repository: rayproject/ray
+  tag: 2.6.3
+  pullPolicy: Always
+
 head:
   nodeSelector:
     karpenter.sh/provisioner-name: ray-on-demand

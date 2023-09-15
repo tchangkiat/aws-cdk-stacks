@@ -68,7 +68,7 @@ proxy:
 singleuser:
   image:
     name: jupyter/scipy-notebook
-    tag: python-3.7.12
+    tag: python-3.8.13
     pullPolicy: Always
   cpu:
     limit: 2
