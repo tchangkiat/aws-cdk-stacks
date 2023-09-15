@@ -93,6 +93,16 @@ head:
   - key: "ray-head"
     operator: "Exists"
     effect: "NoSchedule"
+  rayStartParams:
+    num-cpus: "0"
+    num-gpus: "0"
+  resources:
+    limits:
+      cpu: "2"
+      memory: "8G"
+    requests:
+      cpu: "2"
+      memory: "8G"
 
 worker:
   nodeSelector:
