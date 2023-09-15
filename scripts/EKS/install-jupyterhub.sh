@@ -71,11 +71,11 @@ singleuser:
     tag: latest
     pullPolicy: Always
   cpu:
-    limit: 4
-    guarantee: 4
+    limit: 2
+    guarantee: 1
   memory:
-    limit: 8G
-    guarantee: 8G
+    limit: 4G
+    guarantee: 2G
   nodeSelector:
     karpenter.sh/provisioner-name: jupyterhub-on-demand
 EOF
