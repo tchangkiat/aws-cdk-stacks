@@ -113,10 +113,10 @@ worker:
     effect: "NoSchedule"
   resources:
     limits:
-      cpu: "2"
+      cpu: "4"
       memory: "8G"
     requests:
-      cpu: "2"
+      cpu: "4"
       memory: "8G"
 EOF
 
