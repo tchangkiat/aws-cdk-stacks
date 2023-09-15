@@ -1,6 +1,6 @@
 #!/bin/bash
 
-helm delete jupyter --namespace jupyter
+helm uninstall jupyter --namespace jupyter
 
 kubectl delete ns jupyter
 
