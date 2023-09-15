@@ -18,7 +18,7 @@ spec:
 
   limits:
     resources:
-      cpu: "20"
+      cpu: "16"
 
   provider:
     amiFamily: "Bottlerocket"
@@ -71,11 +71,11 @@ singleuser:
     tag: latest
     pullPolicy: Always
   cpu:
-    limit: 2
-    guarantee: 1
+    limit: 4
+    guarantee: 4
   memory:
-    limit: 4G
-    guarantee: 2G
+    limit: 8G
+    guarantee: 8G
   nodeSelector:
     karpenter.sh/provisioner-name: jupyterhub-on-demand
 EOF

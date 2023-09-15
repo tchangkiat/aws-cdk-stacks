@@ -18,7 +18,7 @@ spec:
 
   limits:
     resources:
-      cpu: "10"
+      cpu: "16"
 
   taints:
   - key: ray-head
@@ -58,7 +58,7 @@ spec:
 
   limits:
     resources:
-      cpu: "30"
+      cpu: "32"
 
   taints:
   - key: ray-worker
@@ -109,4 +109,4 @@ helm install raycluster kuberay/ray-cluster --version 0.6.0 --values ray-cluster
 echo "Sleep for 80 seconds - waiting for Ray pods to start"
 sleep 80
 
-echo "Access Ray Dashboard by running this command on your client machine: 'kubectl port-forward --address 0.0.0.0 svc/raycluster-kuberay-head-svc 8265:8265' and access 'http://localhost:8265'"
+echo "Access Ray Dashboard by running this command 'kubectl port-forward --address 0.0.0.0 svc/raycluster-kuberay-head-svc 8265:8265' and access 'http://localhost:8265' on your client machine"
