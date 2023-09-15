@@ -111,6 +111,13 @@ worker:
   - key: "ray-worker"
     operator: "Exists"
     effect: "NoSchedule"
+  resources:
+    limits:
+      cpu: "4"
+      memory: "8G"
+    requests:
+      cpu: "4"
+      memory: "8G"
 EOF
 
 helm repo add kuberay https://ray-project.github.io/kuberay-helm/
