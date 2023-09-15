@@ -12,12 +12,6 @@ spec:
     - key: "karpenter.k8s.aws/instance-category"
       operator: NotIn
       values: ["t"]
-    - key: "kubernetes.io/arch"
-      operator: In
-      values: ["amd64"]
-    - key: "karpenter.sh/capacity-type"
-      operator: In
-      values: ["on-demand"]
     - key: "karpenter.k8s.aws/instance-generation"
       operator: Gt
       values: ["3"]
@@ -28,19 +22,6 @@ spec:
 
   provider:
     amiFamily: "Bottlerocket"
-    blockDeviceMappings: 
-      - deviceName: "/dev/xvda"
-        ebs:
-          deleteOnTermination: true
-          volumeSize: "5G"
-          volumeType: "gp3"
-          encrypted: true
-      - deviceName: "/dev/xvdb"
-        ebs:
-          deleteOnTermination: true
-          volumeSize: "20G"
-          volumeType: "gp3"
-          encrypted: true
     subnetSelector:
         karpenter.sh/discovery: ${AWS_EKS_CLUSTER}
     securityGroupSelector:

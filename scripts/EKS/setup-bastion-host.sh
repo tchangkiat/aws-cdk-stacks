@@ -14,3 +14,6 @@ kubectl get -n kube-system configmap/aws-auth -o yaml > aws-auth.yml
 sed "s|mapUsers: '\[\]'|$AWS_AUTH_MAP_USERS|g" aws-auth.yml > aws-auth-patched.yml
 
 kubectl apply -f aws-auth-patched.yml
+
+rm aws-auth.yml
+rm aws-auth-patched.yml
