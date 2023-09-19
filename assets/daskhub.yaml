@@ -9,10 +9,6 @@ jupyterhub:
     memory:
       limit: 4G
       guarantee: 2G
-    extraTolerations:
-      - key: "daskhub-on-demand"
-        operator: "Exists"
-        effect: "NoSchedule"
     extraEnv:
       DASK_GATEWAY__CLUSTER__OPTIONS__IMAGE: "{JUPYTER_IMAGE_SPEC}"
   proxy:
@@ -29,58 +25,20 @@ jupyterhub:
     services:
       dask-gateway:
         apiToken: "<API_TOKEN>"
-    tolerations:
-      - key: "daskhub-on-demand"
-        operator: "Exists"
-        effect: "NoSchedule"
-  scheduling:
-    userScheduler:
-      tolerations:
-        - key: "daskhub-on-demand"
-          operator: "Exists"
-          effect: "NoSchedule"
-    corePods:
-      tolerations:
-        - key: "daskhub-on-demand"
-          operator: "Exists"
-          effect: "NoSchedule"
-    userPods:
-      tolerations:
-        - key: "daskhub-on-demand"
-          operator: "Exists"
-          effect: "NoSchedule"
-  prePuller:
-    hook:
-      tolerations:
-        - key: "daskhub-on-demand"
-          operator: "Exists"
-          effect: "NoSchedule"
 
 dask-gateway:
   gateway:
     nodeSelector:
       karpenter.sh/provisioner-name: daskhub-on-demand
-    tolerations:
-      - key: "daskhub-on-demand"
-        operator: "Exists"
-        effect: "NoSchedule"
     backend:
       scheduler:
         extraPodConfig:
           nodeSelector:
             karpenter.sh/provisioner-name: daskhub-on-demand
-          tolerations:
-            - key: "daskhub-on-demand"
-              operator: "Exists"
-              effect: "NoSchedule"
       worker:
         extraPodConfig:
           nodeSelector:
             karpenter.sh/provisioner-name: daskhub-spot
-          tolerations:
-            - key: "daskhub-spot"
-              operator: "Exists"
-              effect: "NoSchedule"
     extraConfig:
       optionHandler: |
         from dask_gateway_server.options import Options, Integer, Float, String
@@ -104,14 +62,6 @@ dask-gateway:
   controller:
     nodeSelector:
       karpenter.sh/provisioner-name: daskhub-on-demand
-    tolerations:
-      - key: "daskhub-on-demand"
-        operator: "Exists"
-        effect: "NoSchedule"
   traefik:
     nodeSelector:
       karpenter.sh/provisioner-name: daskhub-on-demand
-    tolerations:
-      - key: "daskhub-on-demand"
-        operator: "Exists"
-        effect: "NoSchedule"
