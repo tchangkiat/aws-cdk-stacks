@@ -6,7 +6,7 @@ helm uninstall kuberay-operator
 
 helm repo remove kuberay
 
-rm ray-cluster-config.yaml
+rm ray-autoscaler-config.yaml
 
 kubectl delete -f ray-spot.yaml
 rm ray-spot.yaml
