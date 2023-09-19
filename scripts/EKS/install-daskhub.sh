@@ -3,7 +3,7 @@
 curl -o daskhub.yaml https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/daskhub.yaml
 
 export DASKHUB_NOTEBOOK_IMAGE="pangeo/pangeo-notebook"
-export DASKHUB_NOTEBOOK_IMAGE_TAG="2022.11.03"
+export DASKHUB_NOTEBOOK_IMAGE_TAG="2023.09.11"
 export DASKHUB_SECRET_TOKEN=`openssl rand -hex 32`
 export DASKHUB_API_TOKEN=`openssl rand -hex 32`
 export DASKHUB_PASSWORD=`openssl rand -base64 8`

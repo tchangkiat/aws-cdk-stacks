@@ -9,10 +9,24 @@ jupyterhub:
     memory:
       limit: 4G
       guarantee: 2G
+    extraTolerations:
+      - key: "daskhub-on-demand"
+        operator: "Exists"
+        effect: "NoSchedule"
     extraEnv:
       DASK_GATEWAY__CLUSTER__OPTIONS__IMAGE: "{JUPYTER_IMAGE_SPEC}"
   proxy:
     secretToken: "<SECRET_TOKEN>"
+  chp:
+    tolerations:
+      - key: "daskhub-on-demand"
+        operator: "Exists"
+        effect: "NoSchedule"
+  traefik:
+    tolerations:
+      - key: "daskhub-on-demand"
+        operator: "Exists"
+        effect: "NoSchedule"
   hub:
     config:
       Authenticator:
@@ -25,6 +39,32 @@ jupyterhub:
     services:
       dask-gateway:
         apiToken: "<API_TOKEN>"
+    tolerations:
+      - key: "daskhub-on-demand"
+        operator: "Exists"
+        effect: "NoSchedule"
+  scheduling:
+    userScheduler:
+      tolerations:
+        - key: "daskhub-on-demand"
+          operator: "Exists"
+          effect: "NoSchedule"
+    corePods:
+      tolerations:
+        - key: "daskhub-on-demand"
+          operator: "Exists"
+          effect: "NoSchedule"
+    userPods:
+      tolerations:
+        - key: "daskhub-on-demand"
+          operator: "Exists"
+          effect: "NoSchedule"
+  prePuller:
+    hook:
+      tolerations:
+        - key: "daskhub-on-demand"
+          operator: "Exists"
+          effect: "NoSchedule"
 
 dask-gateway:
   gateway:
