@@ -17,16 +17,6 @@ jupyterhub:
       DASK_GATEWAY__CLUSTER__OPTIONS__IMAGE: "{JUPYTER_IMAGE_SPEC}"
   proxy:
     secretToken: "<SECRET_TOKEN>"
-  chp:
-    tolerations:
-      - key: "daskhub-on-demand"
-        operator: "Exists"
-        effect: "NoSchedule"
-  traefik:
-    tolerations:
-      - key: "daskhub-on-demand"
-        operator: "Exists"
-        effect: "NoSchedule"
   hub:
     config:
       Authenticator:
