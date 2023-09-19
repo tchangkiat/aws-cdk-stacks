@@ -1,6 +1,6 @@
 #!/bin/bash
 
-helm delete -f ray-cluster-config.yaml
+kubectl delete -f ray-cluster-config.yaml
 
 helm uninstall kuberay-operator
 
