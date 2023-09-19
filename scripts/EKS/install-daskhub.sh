@@ -3,7 +3,7 @@
 curl -o daskhub.yaml https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/daskhub.yaml
 
 export DASKHUB_NOTEBOOK_IMAGE="pangeo/pangeo-notebook"
-export DASKHUB_NOTEBOOK_IMAGE_TAG="2022.11.03"
+export DASKHUB_NOTEBOOK_IMAGE_TAG="2023.09.11"
 export DASKHUB_SECRET_TOKEN=`openssl rand -hex 32`
 export DASKHUB_API_TOKEN=`openssl rand -hex 32`
 export DASKHUB_PASSWORD=`openssl rand -base64 8`
@@ -39,23 +39,16 @@ spec:
       operator: NotIn
       values: ["micro", "small", "medium"]
 
+  taints:
+  - key: daskhub-spot
+    effect: NoSchedule
+
   limits:
     resources:
       cpu: "40"
 
   provider:
     amiFamily: "Bottlerocket"
-    blockDeviceMappings: 
-      - deviceName: "/dev/xvda"
-        ebs:
-          deleteOnTermination: true
-          volumeSize: "5G"
-          volumeType: "gp3"
-      - deviceName: "/dev/xvdb"
-        ebs:
-          deleteOnTermination: true
-          volumeSize: "20G"
-          volumeType: "gp3"
     subnetSelector:
         karpenter.sh/discovery: ${AWS_EKS_CLUSTER}
     securityGroupSelector:
@@ -84,9 +77,6 @@ spec:
     - key: "kubernetes.io/arch"
       operator: In
       values: ["amd64"]
-    - key: "karpenter.sh/capacity-type"
-      operator: In
-      values: ["on-demand"]
     - key: "karpenter.k8s.aws/instance-generation"
       operator: Gt
       values: ["3"]
@@ -94,23 +84,16 @@ spec:
       operator: NotIn
       values: ["micro", "small", "medium"]
 
+  taints:
+  - key: daskhub-on-demand
+    effect: NoSchedule
+
   limits:
     resources:
       cpu: "20"
 
   provider:
     amiFamily: "Bottlerocket"
-    blockDeviceMappings: 
-      - deviceName: "/dev/xvda"
-        ebs:
-          deleteOnTermination: true
-          volumeSize: "5G"
-          volumeType: "gp3"
-      - deviceName: "/dev/xvdb"
-        ebs:
-          deleteOnTermination: true
-          volumeSize: "20G"
-          volumeType: "gp3"
     subnetSelector:
         karpenter.sh/discovery: ${AWS_EKS_CLUSTER}
     securityGroupSelector:
