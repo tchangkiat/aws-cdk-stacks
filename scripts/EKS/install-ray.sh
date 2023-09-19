@@ -94,6 +94,8 @@ metadata:
   name: raycluster-kuberay
   namespace: default
 spec:
+  rayVersion: '2.6.3'
+  enableInTreeAutoscaling: true
   headGroupSpec:
     rayStartParams:
       num-cpus: "0"
