@@ -89,7 +89,7 @@ cat <<EOF >>ray-cluster-config.yaml
 apiVersion: ray.io/v1alpha1
 kind: RayCluster
 metadata:
-  name: default
+  name: raycluster-default
 spec:
   # The version of Ray you are using. Make sure all Ray containers are running this version of Ray.
   rayVersion: "2.6.3"
