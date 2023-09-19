@@ -85,10 +85,7 @@ helm repo add kuberay https://ray-project.github.io/kuberay-helm/
 # Install both CRDs and KubeRay operator v0.6.0.
 helm install kuberay-operator kuberay/kuberay-operator --version 0.6.0
 
-# Install a RayCluster custom resource
-helm install raycluster kuberay/ray-cluster --version 0.6.0
-
-cat <<EOF >>ray-autoscaler-config.yaml
+cat <<EOF >>ray-cluster-config.yaml
 apiVersion: ray.io/v1alpha1
 kind: RayCluster
 metadata:
@@ -212,7 +209,7 @@ spec:
             effect: "NoSchedule"
 EOF
 
-kubectl apply -f ray-autoscaler-config.yaml
+kubectl apply -f ray-cluster-config.yaml
 
 echo "Installation completed. Pods may take a few minutes to start."
 

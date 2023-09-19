@@ -1,12 +1,12 @@
 #!/bin/bash
 
-helm uninstall raycluster
+helm delete -f ray-cluster-config.yaml
 
 helm uninstall kuberay-operator
 
 helm repo remove kuberay
 
-rm ray-autoscaler-config.yaml
+rm ray-cluster-config.yaml
 
 kubectl delete -f ray-spot.yaml
 rm ray-spot.yaml
