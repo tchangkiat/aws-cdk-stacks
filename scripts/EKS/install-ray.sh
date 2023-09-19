@@ -85,8 +85,6 @@ helm repo add kuberay https://ray-project.github.io/kuberay-helm/
 # Install both CRDs and KubeRay operator v0.6.0.
 helm install kuberay-operator kuberay/kuberay-operator --version 0.6.0
 
-kubectl delete raycluster raycluster-kuberay
-
 cat <<EOF >>ray-cluster-config.yaml
 apiVersion: ray.io/v1alpha1
 kind: RayCluster
@@ -130,7 +128,7 @@ spec:
   workerGroupSpecs:
   - groupName: workergroup
     maxReplicas: 10
-    minReplicas: 0
+    minReplicas: 1
     rayStartParams: {}
     replicas: 1
     template:
