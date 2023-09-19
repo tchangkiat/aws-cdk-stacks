@@ -94,7 +94,7 @@ metadata:
   name: raycluster-kuberay
   namespace: default
 spec:
-  rayVersion: '2.6.3'
+  rayVersion: '2.7.0'
   enableInTreeAutoscaling: true
   headGroupSpec:
     rayStartParams:
@@ -104,7 +104,7 @@ spec:
     template:
       spec:
         containers:
-        - image: rayproject/ray:2.6.3
+        - image: rayproject/ray:2.7.0
           imagePullPolicy: IfNotPresent
           name: ray-head
           resources:
@@ -136,7 +136,7 @@ spec:
     template:
       spec:
         containers:
-        - image: rayproject/ray:2.6.3
+        - image: rayproject/ray:2.7.0
           imagePullPolicy: IfNotPresent
           name: ray-worker
           resources:
