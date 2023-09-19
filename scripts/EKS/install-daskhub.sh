@@ -39,6 +39,10 @@ spec:
       operator: NotIn
       values: ["micro", "small", "medium"]
 
+  taints:
+  - key: daskhub-spot
+    effect: NoSchedule
+
   limits:
     resources:
       cpu: "40"
@@ -79,6 +83,10 @@ spec:
     - key: "karpenter.k8s.aws/instance-size"
       operator: NotIn
       values: ["micro", "small", "medium"]
+
+  taints:
+  - key: daskhub-on-demand
+    effect: NoSchedule
 
   limits:
     resources:

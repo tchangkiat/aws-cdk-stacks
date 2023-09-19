@@ -30,15 +30,27 @@ dask-gateway:
   gateway:
     nodeSelector:
       karpenter.sh/provisioner-name: daskhub-on-demand
+    tolerations:
+      - key: "daskhub-on-demand"
+        operator: "Exists"
+        effect: "NoSchedule"
     backend:
       scheduler:
         extraPodConfig:
           nodeSelector:
             karpenter.sh/provisioner-name: daskhub-on-demand
+          tolerations:
+            - key: "daskhub-on-demand"
+              operator: "Exists"
+              effect: "NoSchedule"
       worker:
         extraPodConfig:
           nodeSelector:
             karpenter.sh/provisioner-name: daskhub-spot
+          tolerations:
+            - key: "daskhub-spot"
+              operator: "Exists"
+              effect: "NoSchedule"
     extraConfig:
       optionHandler: |
         from dask_gateway_server.options import Options, Integer, Float, String
@@ -62,6 +74,14 @@ dask-gateway:
   controller:
     nodeSelector:
       karpenter.sh/provisioner-name: daskhub-on-demand
+    tolerations:
+      - key: "daskhub-on-demand"
+        operator: "Exists"
+        effect: "NoSchedule"
   traefik:
     nodeSelector:
       karpenter.sh/provisioner-name: daskhub-on-demand
+    tolerations:
+      - key: "daskhub-on-demand"
+        operator: "Exists"
+        effect: "NoSchedule"
