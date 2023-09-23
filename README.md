@@ -165,7 +165,7 @@ curl -o eks-add-ons.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stac
 chmod +x eks-add-ons.sh
 ```
 
-2. Install add-ons with `-i` argument.
+2. Install add-ons with `-i` argument or remove add-ons with `-r` argument. Both ID and alias of the add-ons can be used.
 
 Example #1: Install Karpenter
 
@@ -175,30 +175,20 @@ Example #1: Install Karpenter
 ./eks-add-ons.sh -i 1
 ```
 
-Example #2: Install Prometheus and Grafana
+Example #2: Install multiple add-ons
 
 ```bash
-./eks-add-ons.sh -i prometheus-grafana
+./eks-add-ons.sh -i "karpenter load-balancer-controller"
 # OR
-./eks-add-ons.sh -i 5
+./eks-add-ons.sh -i "1 2"
 ```
 
-3. Remove add-ons with `-r` argument.
-
-Example #1: Remove Karpenter
+Example #3: Remove multiple add-ons
 
 ```bash
-./eks-add-ons.sh -r karpenter
+./eks-add-ons.sh -r "karpenter load-balancer-controller"
 # OR
-./eks-add-ons.sh -r 1
-```
-
-Example #2: Remove Prometheus and Grafana
-
-```bash
-./eks-add-ons.sh -r prometheus-grafana
-# OR
-./eks-add-ons.sh -r 5
+./eks-add-ons.sh -r "1 2"
 ```
 
 ### Supported Add-Ons (alias in brackets)

@@ -121,13 +121,15 @@ Install / Remove EKS Add-Ons
 Command Format:
     
     Install:
-    ./eks-add-ons -i <alias>
-    ./eks-add-ons -i <id>
+    ./eks-add-ons -i "<alias 1> <alias 2>"
+    ./eks-add-ons -i "<id 1> <id 2>"
     
     Remove:
-    ./eks-add-ons -r <alias>
-    ./eks-add-ons -r <id>
+    ./eks-add-ons -r "<alias 1> <alias 2>"
+    ./eks-add-ons -r "<id 1> <id 2>"
 --------------------------------------
+List of add-ons (alias are in brackets):
+
 1.  Karpenter ("karpenter")
 2.  AWS Load Balancer Controller ("load-balancer-controller")
 3.  AWS EBS CSI Driver ("ebs-csi-driver")
@@ -143,5 +145,6 @@ Command Format:
     - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
 11. Ray ("ray")
     - Prerequisites: Karpenter
+
 EndOfMessage
 fi
