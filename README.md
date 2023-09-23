@@ -22,6 +22,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [AWS App Mesh](#aws-app-mesh)
   - [Dask + Jupyter on EKS](#dask--jupyter-on-eks)
   - [Amazon VPC Lattice](#amazon-vpc-lattice)
+  - [Distributed ML with Ray](#distributed-ml-with-ray)
 - [Jenkins on AWS](#jenkins-on-aws)
 
 # Initial Setup
@@ -450,7 +451,7 @@ chmod +x install-daskhub.sh
 ./install-daskhub.sh
 ```
 
-2. Use the URL, username and password shared in the terminal (example below) to access JupyterHub.
+2. Use the URL, username and password found in the terminal (example below) to access JupyterHub.
 
 ```bash
 JupyterHub URL: <randomly generated string>.<region>.elb.amazonaws.com
@@ -517,6 +518,38 @@ kubectl delete -f vpc-lattice-gateway.yaml
 ```
 
 3. Remove AWS Gateway API Controller with `./eks-add-ons.sh -r gateway-api-controller`
+
+## Distributed ML with Ray
+
+### Setup
+
+1. Install JupyterHub and Ray
+
+```bash
+./eks-add-ons.sh -i jupyterhub -i ray
+```
+
+2. Use the URL, username and password found in the terminal (example below) to access JupyterHub.
+
+Note: JupyterHub may take a while to start up after installing. During this time, you will notice a blank page and a loading animation in your browser when you access the URL.
+
+```bash
+JupyterHub URL: <randomly generated string>.<region>.elb.amazonaws.com
+JupyterHub Username: user1 / admin1
+JupyterHub Password: <generated password>
+```
+
+3. Once you accessed JupyterHub, you can upload and use the example notebook from /assets/ray/xgboost-ray-example.ipynb.
+
+4. On your client machine, run `kubectl port-forward --address 0.0.0.0 svc/raycluster-kuberay-head-svc 8265:8265` in your terminal and use the URL `http://localhost:8265` to access Ray dashboard.
+
+### Cleanup
+
+1. Remove JupyterHub and Ray.
+
+```bash
+./eks-add-ons.sh -r jupyterhub -r ray
+```
 
 # Jenkins on AWS
 
