@@ -1,13 +1,5 @@
 #!/bin/bash
 
-echo ""
-echo "--------------------------------------"
-echo "Account: ${AWS_ACCOUNT_ID}"
-echo "Region: ${AWS_REGION}"
-echo "EKS Cluster: ${AWS_EKS_CLUSTER}"
-echo "--------------------------------------"
-echo ""
-
 scripts=()
 
 while getopts "i:r:" opt; do
@@ -98,6 +90,14 @@ done
 
 if [[ ${#scripts[@]} -ne 0 ]]
 then
+    echo ""
+    echo "--------------------------------------"
+    echo "Account: ${AWS_ACCOUNT_ID}"
+    echo "Region: ${AWS_REGION}"
+    echo "EKS Cluster: ${AWS_EKS_CLUSTER}"
+    echo "--------------------------------------"
+    echo ""
+
     for script in "${scripts[@]}"; do
         curl -o $script "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/${script}"
         chmod +x $script
@@ -105,4 +105,37 @@ then
         rm $script
     done
     echo "Done!"
+else
+cat << EndOfMessage
+--------------------------------------
+
+Install / Remove EKS Add-Ons
+
+--------------------------------------
+Command Format:
+    
+    Install:
+    ./eks-add-ons -i <alias>
+    ./eks-add-ons -i <id>
+    
+    Remove:
+    ./eks-add-ons -r <alias>
+    ./eks-add-ons -r <id>
+--------------------------------------
+1.  Karpenter ("karpenter")
+2.  AWS Load Balancer Controller ("load-balancer-controller")
+3.  AWS EBS CSI Driver ("ebs-csi-driver")
+4.  Amazon CloudWatch Container Insights ("container-insights")
+5.  Prometheus and Grafana ("prometheus-grafana")
+    - Prerequisite: AWS EBS CSI Driver
+6.  Ingress NGINX Controller ("ingress-nginx-controller")
+    - Also installs cert-manager
+7.  AWS App Mesh Controller ("app-mesh-controller")
+8.  AWS Gateway API Controller ("gateway-api-controller")
+9.  Amazon EMR on EKS ("emr-on-eks")
+10. JupyterHub ("jupyterhub")
+    - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
+11. Ray ("ray")
+    - Prerequisites: Karpenter
+EndOfMessage
 fi
