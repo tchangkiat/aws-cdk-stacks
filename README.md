@@ -523,13 +523,19 @@ kubectl delete -f vpc-lattice-gateway.yaml
 
 ### Setup
 
-1. Install JupyterHub and Ray
+1. Install the pre-requisites if they are not installed yet: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver.
 
 ```bash
-./eks-add-ons.sh -i jupyterhub -i ray
+./eks-add-ons.sh -i "karpenter load-balancer-controller ebs-csi-driver"
 ```
 
-2. Use the URL, username and password found in the terminal (example below) to access JupyterHub.
+2. Install JupyterHub and Ray
+
+```bash
+./eks-add-ons.sh -i "jupyterhub ray"
+```
+
+3. Use the URL, username and password found in the terminal (example below) to access JupyterHub.
 
 Note: JupyterHub may take a while to start up after installing. During this time, you will notice a blank page and a loading animation in your browser when you access the URL.
 
@@ -539,16 +545,22 @@ JupyterHub Username: user1 / admin1
 JupyterHub Password: <generated password>
 ```
 
-3. Once you accessed JupyterHub, you can upload and use the example notebook from /assets/ray/xgboost-ray-example.ipynb.
+4. Once you accessed JupyterHub, you can upload and use the example notebook from /assets/ray/xgboost-ray-example.ipynb.
 
-4. On your client machine, run `kubectl port-forward --address 0.0.0.0 svc/raycluster-kuberay-head-svc 8265:8265` in your terminal and use the URL `http://localhost:8265` to access Ray dashboard.
+5. On your client machine, run `kubectl port-forward --address 0.0.0.0 svc/raycluster-kuberay-head-svc 8265:8265` in your terminal and use the URL `http://localhost:8265` to access Ray dashboard.
 
 ### Cleanup
 
 1. Remove JupyterHub and Ray.
 
 ```bash
-./eks-add-ons.sh -r jupyterhub -r ray
+./eks-add-ons.sh -r "jupyterhub ray"
+```
+
+2. Remove pre-requisites.
+
+```bash
+./eks-add-ons.sh -r "karpenter load-balancer-controller ebs-csi-driver"
 ```
 
 # Jenkins on AWS
