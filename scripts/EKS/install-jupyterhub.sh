@@ -10,11 +10,11 @@ spec:
 
   requirements:
     - key: "karpenter.k8s.aws/instance-category"
-      operator: In
-      values: ["c", "m", "r"]
-    - key: "kubernetes.io/arch"
-      operator: In
-      values: ["arm64"]
+      operator: NotIn
+      values: ["t"]
+    - key: "karpenter.k8s.aws/instance-generation"
+      operator: Gt
+      values: ["3"]
 
   limits:
     resources:
@@ -90,9 +90,9 @@ echo "Sleep for 10 seconds - waiting for load balancer CNAME to be created"
 sleep 10
 
 echo ""
-echo ""
 echo "JupyterHub URL: http://"`kubectl get svc -n jupyter | grep 'amazonaws.com' | awk {'print $4'}`
 echo "JupyterHub Username: user1 / admin1"
 echo "JupyterHub Password: ${JUPYTERHUB_PASSWORD}"
 echo ""
+echo "Note: JupyterHub may take a few minutes to be accessible."
 echo ""

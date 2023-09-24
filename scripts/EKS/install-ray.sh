@@ -161,6 +161,8 @@ EOF
 
 kubectl apply -f ray-cluster-config.yaml
 
-echo "Installation completed. Pods may take a few minutes to start."
-
+echo ""
+echo "Installation completed. Pods may take a few minutes to start. Check the status using 'kubectl get pods'."
+echo ""
 echo "Access Ray Dashboard by running this command 'kubectl port-forward --address 0.0.0.0 svc/raycluster-kuberay-head-svc 8265:8265' and access 'http://localhost:8265' on your client machine"
+echo ""
