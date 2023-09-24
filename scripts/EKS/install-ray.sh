@@ -1,10 +1,10 @@
 #!/bin/bash
 
-cat <<EOF >>ray-on-demand.yaml
+cat <<EOF >>ray-head-provisioner.yaml
 apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
-  name: ray-on-demand
+  name: ray-head
 spec:
   ttlSecondsAfterEmpty: 30
 
@@ -12,9 +12,9 @@ spec:
     - key: "karpenter.k8s.aws/instance-category"
       operator: NotIn
       values: ["t"]
-    - key: "karpenter.k8s.aws/instance-generation"
-      operator: Gt
-      values: ["3"]
+    - key: "kubernetes.io/arch"
+      operator: In
+      values: ["arm64"]
 
   limits:
     resources:
@@ -31,17 +31,17 @@ spec:
     securityGroupSelector:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
     tags:
-        Name: ${AWS_EKS_CLUSTER}/karpenter/ray-on-demand
+        Name: ${AWS_EKS_CLUSTER}/karpenter/ray-head
         eks-cost-cluster: ${AWS_EKS_CLUSTER}
-        eks-cost-workload: Proof-of-Concept
+        eks-cost-workload: Ray
         eks-cost-team: tck
 EOF
 
-cat <<EOF >>ray-spot.yaml
+cat <<EOF >>ray-worker-provisioner.yaml
 apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
-  name: ray-spot
+  name: ray-worker
 spec:
   ttlSecondsAfterEmpty: 30
 
@@ -71,14 +71,14 @@ spec:
     securityGroupSelector:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
     tags:
-        Name: ${AWS_EKS_CLUSTER}/karpenter/ray-spot
+        Name: ${AWS_EKS_CLUSTER}/karpenter/ray-worker
         eks-cost-cluster: ${AWS_EKS_CLUSTER}
-        eks-cost-workload: Proof-of-Concept
+        eks-cost-workload: Ray
         eks-cost-team: tck
 EOF
 
-kubectl apply -f ray-on-demand.yaml
-kubectl apply -f ray-spot.yaml
+kubectl apply -f ray-head-provisioner.yaml
+kubectl apply -f ray-worker-provisioner.yaml
 
 helm repo add kuberay https://ray-project.github.io/kuberay-helm/
 
@@ -102,7 +102,7 @@ spec:
     template:
       spec:
         containers:
-        - image: rayproject/ray:2.7.0
+        - image: rayproject/ray:2.7.0-aarch64
           imagePullPolicy: IfNotPresent
           name: ray-head
           resources:
@@ -117,7 +117,7 @@ spec:
           - mountPath: /tmp/ray
             name: log-volume
         nodeSelector:
-          karpenter.sh/provisioner-name: ray-on-demand
+          karpenter.sh/provisioner-name: ray-head
         tolerations:
         - key: "ray-head"
           operator: "Exists"
@@ -149,7 +149,7 @@ spec:
           - mountPath: /tmp/ray
             name: log-volume
         nodeSelector:
-          karpenter.sh/provisioner-name: ray-spot
+          karpenter.sh/provisioner-name: ray-worker
         tolerations:
         - key: "ray-worker"
           operator: "Exists"

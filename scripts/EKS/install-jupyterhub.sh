@@ -1,10 +1,10 @@
 #!/bin/bash
 
-cat <<EOF >>jupyterhub-on-demand.yaml
+cat <<EOF >>jupyterhub-provisioner.yaml
 apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
-  name: jupyterhub-on-demand
+  name: jupyterhub
 spec:
   ttlSecondsAfterEmpty: 30
 
@@ -27,13 +27,13 @@ spec:
     securityGroupSelector:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
     tags:
-        Name: ${AWS_EKS_CLUSTER}/karpenter/jupyterhub-on-demand
+        Name: ${AWS_EKS_CLUSTER}/karpenter/jupyterhub
         eks-cost-cluster: ${AWS_EKS_CLUSTER}
-        eks-cost-workload: Proof-of-Concept
+        eks-cost-workload: JupyterHub
         eks-cost-team: tck
 EOF
 
-kubectl apply -f jupyterhub-on-demand.yaml
+kubectl apply -f jupyterhub-provisioner.yaml
 
 helm repo add jupyterhub https://hub.jupyter.org/helm-chart/
 helm repo update
@@ -53,7 +53,7 @@ hub:
     JupyterHub:
       authenticator_class: dummy
   nodeSelector:
-    karpenter.sh/provisioner-name: jupyterhub-on-demand
+    karpenter.sh/provisioner-name: jupyterhub
 proxy:
   service:
     annotations:
@@ -64,7 +64,7 @@ proxy:
       service.beta.kubernetes.io/aws-load-balancer-ip-address-type: ipv4
   chp:
     nodeSelector:
-      karpenter.sh/provisioner-name: jupyterhub-on-demand
+      karpenter.sh/provisioner-name: jupyterhub
 singleuser:
   image:
     name: jupyter/scipy-notebook
@@ -76,7 +76,7 @@ singleuser:
     limit: 4G
     guarantee: 2G
   nodeSelector:
-    karpenter.sh/provisioner-name: jupyterhub-on-demand
+    karpenter.sh/provisioner-name: jupyterhub
 EOF
 
 helm upgrade --cleanup-on-fail \
