@@ -10,11 +10,11 @@ spec:
 
   requirements:
     - key: "karpenter.k8s.aws/instance-category"
-      operator: In
-      values: ["c", "m", "r"]
-    - key: "kubernetes.io/arch"
-      operator: In
-      values: ["arm64"]
+      operator: NotIn
+      values: ["t"]
+    - key: "karpenter.k8s.aws/instance-generation"
+      operator: Gt
+      values: ["3"]
 
   limits:
     resources:
@@ -102,7 +102,7 @@ spec:
     template:
       spec:
         containers:
-        - image: rayproject/ray:2.7.0-aarch64
+        - image: rayproject/ray:2.7.0
           imagePullPolicy: IfNotPresent
           name: ray-head
           resources:
