@@ -10,8 +10,8 @@ spec:
 
   requirements:
     - key: "karpenter.k8s.aws/instance-category"
-      operator: NotIn
-      values: ["t"]
+      operator: In
+      values: ["c", "m", "r"]
     - key: "kubernetes.io/arch"
       operator: In
       values: ["arm64"]

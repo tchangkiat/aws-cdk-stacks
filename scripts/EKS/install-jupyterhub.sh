@@ -10,11 +10,11 @@ spec:
 
   requirements:
     - key: "karpenter.k8s.aws/instance-category"
-      operator: NotIn
-      values: ["t"]
-    - key: "karpenter.k8s.aws/instance-generation"
-      operator: Gt
-      values: ["3"]
+      operator: In
+      values: ["c", "m", "r"]
+    - key: "kubernetes.io/arch"
+      operator: In
+      values: ["arm64"]
 
   limits:
     resources:
