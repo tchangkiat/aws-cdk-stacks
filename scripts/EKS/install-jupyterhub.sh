@@ -12,9 +12,6 @@ spec:
     - key: "karpenter.k8s.aws/instance-category"
       operator: NotIn
       values: ["t"]
-    - key: "kubernetes.io/arch"
-      operator: In
-      values: ["arm64", "amd64"]
 
   limits:
     resources:
