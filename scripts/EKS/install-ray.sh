@@ -12,9 +12,6 @@ spec:
     - key: "karpenter.k8s.aws/instance-category"
       operator: NotIn
       values: ["t"]
-    - key: "karpenter.k8s.aws/instance-generation"
-      operator: Gt
-      values: ["3"]
 
   limits:
     resources:
@@ -49,9 +46,6 @@ spec:
     - key: "karpenter.k8s.aws/instance-category"
       operator: NotIn
       values: ["t"]
-    - key: "karpenter.k8s.aws/instance-generation"
-      operator: Gt
-      values: ["3"]
     - key: karpenter.sh/capacity-type
       operator: In
       values: ["spot"]
@@ -128,9 +122,9 @@ spec:
   workerGroupSpecs:
   - groupName: workergroup
     maxReplicas: 10
-    minReplicas: 1
+    minReplicas: 0
     rayStartParams: {}
-    replicas: 1
+    replicas: 0
     template:
       spec:
         containers:
