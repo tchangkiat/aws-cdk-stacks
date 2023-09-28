@@ -18,6 +18,6 @@ helm upgrade -i appmesh-controller eks/appmesh-controller --namespace appmesh-sy
     --set tolerations[0].key=CriticalAddonsOnly \
     --set tolerations[0].operator=Exists \
     --set tolerations[0].effect=NoSchedule \
-    --set nodeSelector."kubernetes.io/arch"=arm64 \
+    --set nodeSelector."kubernetes\\.io/arch"=arm64 \
     --set image.repository=public.ecr.aws/appmesh/appmesh-controller \
     --set image.tag=v1.12.3-linux_arm64
