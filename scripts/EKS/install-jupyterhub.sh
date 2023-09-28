@@ -83,7 +83,7 @@ helm upgrade --cleanup-on-fail \
   --version=3.0.3 \
   --values jupyterhub-config.yaml
 
-echo "Sleep for 10 seconds - waiting for load balancer CNAME to be created"
+echo "Wait 10 seconds for load balancer host name to be created"
 sleep 10
 
 echo ""
