@@ -311,7 +311,7 @@ Credit: [EKS Workshop](https://www.eksworkshop.com/intermediate/290_argocd/)
 export EKS_CLUSTER_ARN=`kubectl config view -o jsonpath='{.current-context}'`
 export ARGOCD_CLUSTER_URL=`argocd cluster list | grep $EKS_CLUSTER_ARN | awk '{print $1}'`
 kubectl create namespace nginx
-argocd app create nginx --repo https://github.com/tchangkiat/argocd-sample.git --path . --dest-server $ARGOCD_CLUSTER_URL --dest-namespace nginx
+argocd app create nginx --repo https://github.com/tchangkiat/aws-cdk-stacks.git --path assets/argocd --dest-server $ARGOCD_CLUSTER_URL --dest-namespace nginx
 ```
 
 4. Sync the application in Argo CD to deploy Nginx.
@@ -320,7 +320,7 @@ argocd app create nginx --repo https://github.com/tchangkiat/argocd-sample.git -
 argocd app sync nginx
 ```
 
-5. Get the load balancer's CNAME to check whether Nginx is accessible.
+5. Get the load balancer's CNAME to access Nginx.
 
 ```bash
 kubectl get svc -n nginx | awk '{print $4}'
@@ -328,7 +328,7 @@ kubectl get svc -n nginx | awk '{print $4}'
 
 ### Clean Up
 
-1. Remove nginx application from Argo CD
+1. Remove Nginx application from Argo CD
 
 ```bash
 argocd app delete nginx -y
