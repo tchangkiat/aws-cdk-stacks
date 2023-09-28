@@ -417,7 +417,7 @@ chmod +x remove-app-mesh.sh
 ./remove-app-mesh.sh sample-express-api sample
 ```
 
-2. Remove AWS App Mesh Controller with `./eks-add-ons.sh -i app-mesh-controller`
+2. Remove AWS App Mesh Controller with `./eks-add-ons.sh -r app-mesh-controller`
 
 ## Dask + Jupyter on EKS
 
