@@ -216,6 +216,10 @@ Example #3: Remove multiple add-ons
 
     - Prerequisites: Karpenter
 
+12. Argo CD ("argocd")
+
+    - Prerequisites: Karpenter, AWS Load Balancer Controller
+
 ## Sample Application
 
 > ❗ Prerequisite #1: Deploy the Multi-Architecture Pipeline using `cdk deploy mapl`. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
@@ -292,66 +296,25 @@ Credit: [EKS Workshop](https://www.eksworkshop.com/intermediate/290_argocd/)
 1. Setup Argo CD and install Argo CD CLI.
 
 ```bash
-kubectl create namespace argocd
-
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.8.4/manifests/install.yaml
-
-sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-arm64
-
-sudo chmod +x /usr/local/bin/argocd
+./eks-add-ons.sh -i argocd
 ```
 
-2. Expose argocd-server via a load balancer.
-
-```bash
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
-```
-
-3. Get the load balancer host name (1-2 minutes after executing #2).
-
-```bash
-export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq --raw-output '.status.loadBalancer.ingress[0].hostname'`
-```
-
-4. Get the generated password of the Argo CD API server and use 'admin' and the generated password to login.
-
-```bash
-export ARGOCD_PWD=`kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d`
-
-argocd login $ARGOCD_SERVER --username admin --password $ARGOCD_PWD --insecure
-```
-
-5. In order to log in to Argo CD UI, use `admin` as the username and use the value retrieved from the command below as the password.
-
-```bash
-echo $ARGOCD_PWD
-```
-
-6. Get the ARN of the EKS cluster and link Argo CD CLI with the cluster using the EKS cluster ARN.
+2. Create an application in Argo CD and link it to the repository. Nginx is used as an example below.
 
 ```bash
 export EKS_CLUSTER_ARN=`kubectl config view -o jsonpath='{.current-context}'`
-
-argocd cluster add $EKS_CLUSTER_ARN
-```
-
-7. Create an application in Argo CD and link it to the repository. Nginx is used as an example below.
-
-```bash
 export ARGOCD_CLUSTER_URL=`argocd cluster list | grep $EKS_CLUSTER_ARN | awk '{print $1}'`
-
 kubectl create namespace nginx
-
 argocd app create nginx --repo https://github.com/tchangkiat/argocd-sample.git --path . --dest-server $ARGOCD_CLUSTER_URL --dest-namespace nginx
 ```
 
-8. Sync the application in Argo CD to deploy Nginx.
+3. Sync the application in Argo CD to deploy Nginx.
 
 ```bash
 argocd app sync nginx
 ```
 
-9. Get the load balancer's CNAME to check whether Nginx is accessible.
+4. Get the load balancer's CNAME to check whether Nginx is accessible.
 
 ```bash
 kubectl get svc -n nginx | awk '{print $4}'
@@ -359,21 +322,17 @@ kubectl get svc -n nginx | awk '{print $4}'
 
 ### Clean Up
 
-1. Remove Argo CD and Nginx.
+1. Remove nginx application from Argo CD
 
 ```bash
 argocd app delete nginx -y
-
-export EKS_CLUSTER_ARN=`kubectl config view -o jsonpath='{.current-context}'`
-argocd cluster delete $EKS_CLUSTER_ARN
-
-kubectl delete -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.8.4/manifests/install.yaml
-
 kubectl delete ns nginx
+```
 
-kubectl delete ns argocd
+2. Remove Argo CD.
 
-rm /usr/local/bin/argocd
+```bash
+./eks-add-ons.sh -r argocd
 ```
 
 ## AWS App Mesh

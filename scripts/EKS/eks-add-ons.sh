@@ -47,6 +47,9 @@ for install in "${installs[@]}"; do
             "11"|"ray")
                 scripts+=("install-ray.sh")
                 ;;
+            "12"|"argocd")
+                scripts+=("install-argocd.sh")
+                ;;
             *) echo "Invalid option $REPLY"
         esac
     done
@@ -88,6 +91,9 @@ for removal in "${removals[@]}"; do
                 ;;
             "11"|"ray")
                 scripts+=("remove-ray.sh")
+                ;;
+            "12"|"argocd")
+                scripts+=("remove-argocd.sh")
                 ;;
             *) echo "Invalid option $REPLY"
         esac
@@ -145,6 +151,8 @@ List of add-ons (alias are in brackets):
     - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
 11. Ray ("ray")
     - Prerequisites: Karpenter
+12. Argo CD ("argocd")
+    - Prerequisites: Karpenter, AWS Load Balancer Controller
 
 EndOfMessage
 fi
