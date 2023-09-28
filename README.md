@@ -293,13 +293,19 @@ Credit: [EKS Workshop](https://www.eksworkshop.com/intermediate/290_argocd/)
 
 ### Setup
 
-1. Setup Argo CD and install Argo CD CLI.
+1. Install pre-requisites if they are not installed yet.
+
+```bash
+./eks-add-ons.sh -i "karpenter load-balancer-controller"
+```
+
+2. Setup Argo CD and install Argo CD CLI.
 
 ```bash
 ./eks-add-ons.sh -i argocd
 ```
 
-2. Create an application in Argo CD and link it to the repository. Nginx is used as an example below.
+3. Create an application in Argo CD and link it to the repository. Nginx is used as an example below.
 
 ```bash
 export EKS_CLUSTER_ARN=`kubectl config view -o jsonpath='{.current-context}'`
@@ -308,13 +314,13 @@ kubectl create namespace nginx
 argocd app create nginx --repo https://github.com/tchangkiat/argocd-sample.git --path . --dest-server $ARGOCD_CLUSTER_URL --dest-namespace nginx
 ```
 
-3. Sync the application in Argo CD to deploy Nginx.
+4. Sync the application in Argo CD to deploy Nginx.
 
 ```bash
 argocd app sync nginx
 ```
 
-4. Get the load balancer's CNAME to check whether Nginx is accessible.
+5. Get the load balancer's CNAME to check whether Nginx is accessible.
 
 ```bash
 kubectl get svc -n nginx | awk '{print $4}'
@@ -333,6 +339,12 @@ kubectl delete ns nginx
 
 ```bash
 ./eks-add-ons.sh -r argocd
+```
+
+3. Remove pre-requisites.
+
+```bash
+./eks-add-ons.sh -r "karpenter load-balancer-controller"
 ```
 
 ## AWS App Mesh
@@ -485,7 +497,7 @@ kubectl delete -f vpc-lattice-gateway.yaml
 
 ### Setup
 
-1. Install the pre-requisites if they are not installed yet: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver.
+1. Install the pre-requisites if they are not installed yet.
 
 ```bash
 ./eks-add-ons.sh -i "karpenter load-balancer-controller ebs-csi-driver"
