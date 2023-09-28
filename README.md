@@ -294,7 +294,7 @@ Credit: [EKS Workshop](https://www.eksworkshop.com/intermediate/290_argocd/)
 ```bash
 kubectl create namespace argocd
 
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.5.0/manifests/install.yaml
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.8.4/manifests/install.yaml
 
 sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-arm64
 
@@ -364,11 +364,16 @@ kubectl get svc -n nginx | awk '{print $4}'
 ```bash
 argocd app delete nginx -y
 
-kubectl delete -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.5.0/manifests/install.yaml
+export EKS_CLUSTER_ARN=`kubectl config view -o jsonpath='{.current-context}'`
+argocd cluster delete $EKS_CLUSTER_ARN
+
+kubectl delete -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.8.4/manifests/install.yaml
 
 kubectl delete ns nginx
 
 kubectl delete ns argocd
+
+rm /usr/local/bin/argocd
 ```
 
 ## AWS App Mesh
