@@ -9,8 +9,8 @@ sudo chmod +x /usr/local/bin/argocd
 # Expose argocd-server via a load balancer
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
 
-echo "Wait 10 seconds for load balancer host name to be created"
-sleep 10
+echo "Wait 60 seconds for Argo CD to initialize"
+sleep 60
 
 # Get the load balancer host name
 export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq --raw-output '.status.loadBalancer.ingress[0].hostname'`
