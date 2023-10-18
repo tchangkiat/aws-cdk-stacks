@@ -106,11 +106,13 @@ The pipeline will build Docker images for x86 and ARM64 architectures and store 
 
 # Elastic Container Service (ECS)
 
+> ❗ Prerequisite: Deploy the Multi-Architecture Pipeline using `cdk deploy mapl`.
+
 ```bash
 cdk deploy ecs
 ```
 
-A new VPC with a NAT gateway and a new ECS cluster will be created. The ECS cluster contains an active and passive EC2 Auto-Scaling Groups (ASGs) which scale on 70% CPU utilization. An Application Load Balancer (ALB) will be used to balance traffic to the ASGs via an ECS service. A similar workload will also be created using Fargate. A CloudWatch dashboard will be created to visualize both workloads (EC2 and Fargate).
+A new VPC with a NAT gateway and a new ECS cluster will be created. The ECS cluster has an EC2 Auto-Scaling Group (ASG) as the capacity provider that scales on 70% CPU utilization. An Application Load Balancer (ALB) will be created to expose the ECS service. A similar workload will also be created using Fargate. A CloudWatch dashboard will be created to visualize both workloads (EC2 and Fargate).
 
 # Elastic Kubernetes Service (EKS)
 
