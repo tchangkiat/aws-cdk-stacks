@@ -10,11 +10,12 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 
 - [Initial Setup](#initial-setup)
 - [Standard VPC](#standard-vpc)
-- [Transit Gateway](#transit-gateway)
 - [Multi-Architecture Pipeline](#multi-architecture-pipeline)
 - [Elastic Container Service (ECS)](#elastic-container-service-ecs)
+  - [ECS Cluster Setup](#ecs-cluster-setup)
+  - [CICD Pipeline for ECS Cluster](#cicd-pipeline-for-ecs-cluster)
 - [Elastic Kubernetes Service (EKS)](#elastic-kubernetes-service-eks)
-  - [Getting Started](#getting-started)
+  - [EKS Cluster Setup](#eks-cluster-setup)
   - [Add-Ons](#add-ons)
   - [Sample Application](#sample-application)
   - [Metrics Server and Horizontal Pod Autoscaler (HPA)](#metrics-server-and-horizontal-pod-autoscaler-hpa)
@@ -23,6 +24,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [Dask + Jupyter on EKS](#dask--jupyter-on-eks)
   - [Amazon VPC Lattice](#amazon-vpc-lattice)
   - [Distributed ML with Ray](#distributed-ml-with-ray)
+- [Transit Gateway](#transit-gateway)
 - [Jenkins on AWS](#jenkins-on-aws)
 
 # Initial Setup
@@ -50,52 +52,6 @@ cdk deploy vpc
 
 Deploy a VPC with a maximum of 3 public and 3 private subnets. A NAT gateway will also be provisioned in one of the public subnets.
 
-# Transit Gateway
-
-![Transit Gateway Architecture](./diagrams/TransitGateway.jpg)
-
-```bash
-cdk deploy transit-gateway
-```
-
-Deploy an egress VPC solution with Transit Gateway. VPN-related resources are deployed for the VPN connection between the Transit Gateway and the simulated customer's on-prem environment. Comment away the code in the section `VPN` of `TransitGateway.js` if the VPN connection is not required.
-
-## Establish VPN connection from the Transit Gateway to a simulated customer on-prem environment
-
-1. Create 2 secrets in AWS Secrets Manager: `tgw-poc-psk1` and `tgw-poc-psk2`. Plaintext values of the respective secrets should be `{"psk":"tgw.poc.psk1"}` and `{"psk":"tgw.poc.psk2"}`.
-
-2. Un-comment the code in the section `VPN` of `TransitGateway.js`.
-
-3. Follow section 4 and 5 in the following article to deploy an EC2 instance with strongSwan to establish a Site-to-Site VPN -> [Simulating Site-to-Site VPN Customer Gateways Using strongSwan](https://aws.amazon.com/blogs/networking-and-content-delivery/simulating-site-to-site-vpn-customer-gateways-strongswan/).<br/><br/> Below are the values to fill up some of the parameters of the CloudFormation template used in the article above (for the other parameters, follow the instructions in the section 5 of the article):
-
-   - Name of secret in AWS Secrets Manager for VPN Tunnel 1 Pre-Shared Key: `tgw-poc-psk1`
-   - Name of secret in AWS Secrets Manager for VPN Tunnel 2 Pre-Shared Key: `tgw-poc-psk2`
-   - VPC ID: select `tgw-poc-customer-vpc`
-   - VPC CIDR Block: `30.0.0.0/16`
-   - Subnet ID for VPN Gateway: select `tgw-poc-customer-vpc/PublicSubnet1`
-   - Elastic IP Address Allocation ID: can be found in the output of the CDK stack. The value should start with `eipalloc-`
-
-> ❗ Wait until the VPN Gateway (EC2 Instance) is created and verify that both IPSec tunnels are 'UP' (Site-to-Site VPN Connections > tgw-poc-vpn > Tunnel details), before proceeding to step 4 and 5. This will take a few minutes.
-
-4. Add a route to `20.0.0.0/16` in the route table (Target: Instance > infra-vpngw-test) of `tgw-poc-customer-vpc/PrivateSubnet1` in order to route requests from instances in `tgw-poc-customer-vpc/PrivateSubnet1` to instances in `tgw-poc-vpc-1/PrivateSubnet1`.
-
-5. Create a Transit Gateway Association and Propagation in the Transit Gateway Route Table for the VPN Transit Gateway attachment. Once you completed this step successfully, you should see a route `30.0.0.0/16` propagated in the Transit Gateway Route Table. Note: this step cannot be automated because there is no way to retrieve the VPN Transit Gateway attachment and then create an association and propagation programmatically.
-
-> ❗ The connection between `tgw-poc-vpc-1` and `tgw-poc-customer-vpc` will be established in a few minutes after completing step 5.
-
-## Testing the network connectivity
-
-1. Connect to `tgw-poc-demo-instance` and `tgw-poc-demo-instance-2` using Session Manager
-
-2. Use `ifconfig` in the instances to retrieve the private IP addresses
-
-3. Ping each other using the private IP addresses - e.g. `ping 30.0.1.30` in `tgw-poc-demo-instance`
-
-4. You should receive similar results as those below:
-
-- `tgw-poc-demo-instance`: 64 bytes from 30.0.1.30: icmp_seq=1 ttl=253 time=2.49 ms
-- `tgw-poc-demo-instance-2`: 64 bytes from 20.0.0.20: icmp_seq=1 ttl=252 time=3.52 ms
-
 # Multi-Architecture Pipeline
 
 ```bash
@@ -106,7 +62,7 @@ The pipeline will build Docker images for x86 and ARM64 architectures and store 
 
 # Elastic Container Service (ECS)
 
-## Getting Started
+## ECS Cluster Setup
 
 > ❗ Prerequisite: Deploy the Multi-Architecture Pipeline using `cdk deploy mapl`.
 
@@ -116,7 +72,7 @@ cdk deploy ecs
 
 Creates a new VPC with a NAT gateway and a new ECS cluster. The ECS cluster has an EC2 Auto-Scaling Group (ASG) as the capacity provider that scales on 70% CPU utilization. An Application Load Balancer (ALB) will be created to expose the ECS service. A similar workload will also be created using Fargate. A CloudWatch dashboard will be created to visualize both workloads (EC2 and Fargate).
 
-## CICD Pipeline
+## CICD Pipeline for ECS Cluster
 
 > ❗ Prerequisite: Deploy the ECS cluster using `cdk deploy ecs`.
 
@@ -128,7 +84,7 @@ Creates a new CodePipeline, ECR repository, and S3 bucket to build and deploy a 
 
 # Elastic Kubernetes Service (EKS)
 
-## Getting Started
+## EKS Cluster Setup
 
 ### 1. Provision an EKS cluster with one of these commands:
 
@@ -550,6 +506,52 @@ JupyterHub Password: <generated password>
 ```bash
 ./eks-add-ons.sh -r "karpenter load-balancer-controller ebs-csi-driver"
 ```
+
+# Transit Gateway
+
+![Transit Gateway Architecture](./diagrams/TransitGateway.jpg)
+
+```bash
+cdk deploy transit-gateway
+```
+
+Deploy an egress VPC solution with Transit Gateway. VPN-related resources are deployed for the VPN connection between the Transit Gateway and the simulated customer's on-prem environment. Comment away the code in the section `VPN` of `TransitGateway.js` if the VPN connection is not required.
+
+## Establish VPN connection from the Transit Gateway to a simulated customer on-prem environment
+
+1. Create 2 secrets in AWS Secrets Manager: `tgw-poc-psk1` and `tgw-poc-psk2`. Plaintext values of the respective secrets should be `{"psk":"tgw.poc.psk1"}` and `{"psk":"tgw.poc.psk2"}`.
+
+2. Un-comment the code in the section `VPN` of `TransitGateway.js`.
+
+3. Follow section 4 and 5 in the following article to deploy an EC2 instance with strongSwan to establish a Site-to-Site VPN -> [Simulating Site-to-Site VPN Customer Gateways Using strongSwan](https://aws.amazon.com/blogs/networking-and-content-delivery/simulating-site-to-site-vpn-customer-gateways-strongswan/).<br/><br/> Below are the values to fill up some of the parameters of the CloudFormation template used in the article above (for the other parameters, follow the instructions in the section 5 of the article):
+
+   - Name of secret in AWS Secrets Manager for VPN Tunnel 1 Pre-Shared Key: `tgw-poc-psk1`
+   - Name of secret in AWS Secrets Manager for VPN Tunnel 2 Pre-Shared Key: `tgw-poc-psk2`
+   - VPC ID: select `tgw-poc-customer-vpc`
+   - VPC CIDR Block: `30.0.0.0/16`
+   - Subnet ID for VPN Gateway: select `tgw-poc-customer-vpc/PublicSubnet1`
+   - Elastic IP Address Allocation ID: can be found in the output of the CDK stack. The value should start with `eipalloc-`
+
+> ❗ Wait until the VPN Gateway (EC2 Instance) is created and verify that both IPSec tunnels are 'UP' (Site-to-Site VPN Connections > tgw-poc-vpn > Tunnel details), before proceeding to step 4 and 5. This will take a few minutes.
+
+4. Add a route to `20.0.0.0/16` in the route table (Target: Instance > infra-vpngw-test) of `tgw-poc-customer-vpc/PrivateSubnet1` in order to route requests from instances in `tgw-poc-customer-vpc/PrivateSubnet1` to instances in `tgw-poc-vpc-1/PrivateSubnet1`.
+
+5. Create a Transit Gateway Association and Propagation in the Transit Gateway Route Table for the VPN Transit Gateway attachment. Once you completed this step successfully, you should see a route `30.0.0.0/16` propagated in the Transit Gateway Route Table. Note: this step cannot be automated because there is no way to retrieve the VPN Transit Gateway attachment and then create an association and propagation programmatically.
+
+> ❗ The connection between `tgw-poc-vpc-1` and `tgw-poc-customer-vpc` will be established in a few minutes after completing step 5.
+
+## Testing the network connectivity
+
+1. Connect to `tgw-poc-demo-instance` and `tgw-poc-demo-instance-2` using Session Manager
+
+2. Use `ifconfig` in the instances to retrieve the private IP addresses
+
+3. Ping each other using the private IP addresses - e.g. `ping 30.0.1.30` in `tgw-poc-demo-instance`
+
+4. You should receive similar results as those below:
+
+- `tgw-poc-demo-instance`: 64 bytes from 30.0.1.30: icmp_seq=1 ttl=253 time=2.49 ms
+- `tgw-poc-demo-instance-2`: 64 bytes from 20.0.0.20: icmp_seq=1 ttl=252 time=3.52 ms
 
 # Jenkins on AWS
 
