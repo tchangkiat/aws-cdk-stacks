@@ -2,9 +2,7 @@
 
 This repository contains stacks for various solutions in AWS. These stacks are used for Proof-of-Concept (POC) and demonstration.
 
-> ❗ These stacks are not suitable for production - necessary modifications should be made if you are using it for production. E.g. enable encryption, switch from burst to standard EC2 family, increase EBS capacity and EKS nodes, etc.
-
-> ❗ You need to be aware of the resources created for each stack and the costs associated with these resources.
+❗ These stacks are not suitable for production.
 
 # Table of Content
 
