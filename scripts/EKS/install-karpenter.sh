@@ -54,11 +54,11 @@ helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --vers
   --set controller.resources.limits.memory=1Gi \
   --wait
 
-cat <<EOF >>spot-provisioner.yaml
+cat <<EOF >>default-provisioner.yaml
 apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
-  name: spot
+  name: default
 spec:
   requirements:
     - key: "kubernetes.io/arch"
@@ -66,7 +66,7 @@ spec:
       values: ["amd64"]
     - key: "karpenter.sh/capacity-type"
       operator: In
-      values: ["spot"]
+      values: ["spot", "on-demand"]
     - key: "karpenter.k8s.aws/instance-generation"
       operator: Gt
       values: ["3"]
@@ -74,7 +74,7 @@ spec:
     resources:
       cpu: 30
   providerRef:
-    name: spot
+    name: default
   consolidation: 
     enabled: true
   ttlSecondsUntilExpired: 2592000
@@ -82,29 +82,18 @@ spec:
 apiVersion: karpenter.k8s.aws/v1alpha1
 kind: AWSNodeTemplate
 metadata:
-  name: spot
+  name: default
 spec:
   amiFamily: "Bottlerocket"
-  blockDeviceMappings: 
-    - deviceName: "/dev/xvda"
-      ebs:
-        deleteOnTermination: true
-        volumeSize: "5G"
-        volumeType: "gp3"
-    - deviceName: "/dev/xvdb"
-      ebs:
-        deleteOnTermination: true
-        volumeSize: "20G"
-        volumeType: "gp3"
   subnetSelector:
     karpenter.sh/discovery: ${CLUSTER_NAME}
   securityGroupSelector:
     "aws:eks:cluster-name": ${CLUSTER_NAME}
   tags:
-    Name: ${CLUSTER_NAME}/karpenter/spot
+    Name: ${CLUSTER_NAME}/karpenter/default
     eks-cost-cluster: ${CLUSTER_NAME}
     eks-cost-workload: Proof-of-Concept
     eks-cost-team: tck
 EOF
 
-kubectl apply -f spot-provisioner.yaml
+kubectl apply -f default-provisioner.yaml
