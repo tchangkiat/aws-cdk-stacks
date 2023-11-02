@@ -57,7 +57,7 @@ helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --vers
   --set controller.resources.limits.memory=1Gi \
   --wait
 
-cat <<EOF >>default-provisioner.yaml
+cat <<EOF >>default-node-pool.yaml
 apiVersion: karpenter.sh/v1beta1
 kind: NodePool
 metadata:
@@ -103,4 +103,4 @@ spec:
     eks-cost-team: tck
 EOF
 
-kubectl apply -f default-provisioner.yaml
+kubectl apply -f default-node-pool.yaml

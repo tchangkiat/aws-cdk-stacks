@@ -1,7 +1,7 @@
 #!/bin/bash
 
-kubectl delete -f default-provisioner.yaml
-rm default-provisioner.yaml
+kubectl delete -f default-node-pool.yaml
+rm default-node-pool.yaml
 
 helm uninstall karpenter --namespace karpenter
 
