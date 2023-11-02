@@ -1,7 +1,7 @@
 #!/bin/bash
 
-kubectl delete -f spot-provisioner.yaml
-rm spot-provisioner.yaml
+kubectl delete -f default-provisioner.yaml
+rm default-provisioner.yaml
 
 helm uninstall karpenter --namespace karpenter
 

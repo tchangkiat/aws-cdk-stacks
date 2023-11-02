@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export AWS_PARTITION="aws" # if you are not using standard partitions, you may need to configure to aws-cn / aws-us-gov
-export KARPENTER_VERSION=v0.30.0
+export KARPENTER_VERSION=v0.32.1
 export CLUSTER_NAME="${AWS_EKS_CLUSTER}"
 export AWS_DEFAULT_REGION="${AWS_REGION}"
 export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
@@ -43,6 +43,9 @@ aws iam create-service-linked-role --aws-service-name spot.amazonaws.com || true
 # If the role has already been successfully created, you will see:
 # An error occurred (InvalidInput) when calling the CreateServiceLinkedRole operation: Service role name AWSServiceRoleForEC2Spot has been taken in this account, please try a different suffix.
 
+# Logout of helm registry to perform an unauthenticated pull against the public ECR
+helm registry logout public.ecr.aws
+
 helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --version ${KARPENTER_VERSION} --namespace karpenter --create-namespace \
   --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=${KARPENTER_IAM_ROLE_ARN} \
   --set settings.aws.clusterName=${CLUSTER_NAME} \
@@ -55,40 +58,44 @@ helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --vers
   --wait
 
 cat <<EOF >>default-provisioner.yaml
-apiVersion: karpenter.sh/v1alpha5
-kind: Provisioner
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
 metadata:
   name: default
 spec:
-  requirements:
-    - key: "kubernetes.io/arch"
-      operator: In
-      values: ["amd64"]
-    - key: "karpenter.sh/capacity-type"
-      operator: In
-      values: ["spot", "on-demand"]
-    - key: "karpenter.k8s.aws/instance-generation"
-      operator: Gt
-      values: ["3"]
+  template:
+    spec:
+      requirements:
+        - key: "kubernetes.io/arch"
+          operator: In
+          values: ["amd64"]
+        - key: "karpenter.sh/capacity-type"
+          operator: In
+          values: ["spot", "on-demand"]
+        - key: "karpenter.k8s.aws/instance-generation"
+          operator: Gt
+          values: ["3"]
+      nodeClassRef:
+        name: default
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    expireAfter: 720h
   limits:
-    resources:
-      cpu: 30
-  providerRef:
-    name: default
-  consolidation: 
-    enabled: true
-  ttlSecondsUntilExpired: 2592000
+    cpu: "30"
 ---
-apiVersion: karpenter.k8s.aws/v1alpha1
-kind: AWSNodeTemplate
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: EC2NodeClass
 metadata:
   name: default
 spec:
   amiFamily: "Bottlerocket"
-  subnetSelector:
-    karpenter.sh/discovery: ${CLUSTER_NAME}
-  securityGroupSelector:
-    "aws:eks:cluster-name": ${CLUSTER_NAME}
+  role: "KarpenterNodeRole-${CLUSTER_NAME}"
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: ${CLUSTER_NAME}
+  securityGroupSelectorTerms:
+    - tags:
+        "aws:eks:cluster-name": ${CLUSTER_NAME}
   tags:
     Name: ${CLUSTER_NAME}/karpenter/default
     eks-cost-cluster: ${CLUSTER_NAME}
