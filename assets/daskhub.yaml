@@ -1,5 +1,27 @@
 jupyterhub:
+  prePuller:
+    hook:
+      nodeSelector:
+        karpenter.sh/nodepool: daskhub-on-demand
+      tolerations:
+        - key: "daskhub-on-demand"
+          operator: "Exists"
+          effect: "NoSchedule"
+  scheduling:
+    userScheduler:
+      nodeSelector:
+        karpenter.sh/nodepool: daskhub-on-demand
+      tolerations:
+        - key: "daskhub-on-demand"
+          operator: "Exists"
+          effect: "NoSchedule"
   singleuser:
+    nodeSelector:
+      karpenter.sh/nodepool: daskhub-on-demand
+    extraTolerations:
+      - key: "daskhub-on-demand"
+        operator: "Exists"
+        effect: "NoSchedule"
     image:
       name: <NOTEBOOK_IMAGE>
       tag: <NOTEBOOK_IMAGE_TAG>
@@ -13,6 +35,20 @@ jupyterhub:
       DASK_GATEWAY__CLUSTER__OPTIONS__IMAGE: "{JUPYTER_IMAGE_SPEC}"
   proxy:
     secretToken: "<SECRET_TOKEN>"
+    chp:
+      nodeSelector:
+        karpenter.sh/nodepool: daskhub-on-demand
+      tolerations:
+        - key: "daskhub-on-demand"
+          operator: "Exists"
+          effect: "NoSchedule"
+    traefik:
+      nodeSelector:
+        karpenter.sh/nodepool: daskhub-on-demand
+      tolerations:
+        - key: "daskhub-on-demand"
+          operator: "Exists"
+          effect: "NoSchedule"
   hub:
     config:
       Authenticator:
@@ -25,6 +61,12 @@ jupyterhub:
     services:
       dask-gateway:
         apiToken: "<API_TOKEN>"
+    nodeSelector:
+      karpenter.sh/nodepool: daskhub-on-demand
+    tolerations:
+      - key: "daskhub-on-demand"
+        operator: "Exists"
+        effect: "NoSchedule"
 
 dask-gateway:
   gateway:
