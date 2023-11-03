@@ -80,9 +80,6 @@ proxy:
   chp:
     nodeSelector:
       karpenter.sh/nodepool: jupyterhub
-    traefik:
-      nodeSelector:
-        karpenter.sh/nodepool: jupyterhub
 singleuser:
   image:
     name: jupyter/scipy-notebook
