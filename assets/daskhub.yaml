@@ -28,6 +28,8 @@ jupyterhub:
 
 dask-gateway:
   gateway:
+    nodeSelector:
+      karpenter.sh/nodepool: daskhub-on-demand
     tolerations:
       - key: "daskhub-on-demand"
         operator: "Exists"
@@ -35,12 +37,16 @@ dask-gateway:
     backend:
       scheduler:
         extraPodConfig:
+          nodeSelector:
+            karpenter.sh/nodepool: daskhub-on-demand
           tolerations:
             - key: "daskhub-on-demand"
               operator: "Exists"
               effect: "NoSchedule"
       worker:
         extraPodConfig:
+          nodeSelector:
+            karpenter.sh/nodepool: daskhub-spot
           tolerations:
             - key: "daskhub-spot"
               operator: "Exists"
@@ -66,11 +72,15 @@ dask-gateway:
       jupyterhub:
         apiToken: "<API_TOKEN>"
   controller:
+    nodeSelector:
+      karpenter.sh/nodepool: daskhub-on-demand
     tolerations:
       - key: "daskhub-on-demand"
         operator: "Exists"
         effect: "NoSchedule"
   traefik:
+    nodeSelector:
+      karpenter.sh/nodepool: daskhub-on-demand
     tolerations:
       - key: "daskhub-on-demand"
         operator: "Exists"
