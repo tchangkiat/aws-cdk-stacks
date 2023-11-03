@@ -14,98 +14,116 @@ sed "s|<SECRET_TOKEN>|$DASKHUB_SECRET_TOKEN|g" -i daskhub.yaml
 sed "s|<API_TOKEN>|$DASKHUB_API_TOKEN|g" -i daskhub.yaml
 sed "s|<PASSWORD>|$DASKHUB_PASSWORD|g" -i daskhub.yaml
 
-cat <<EOF >>daskhub-spot-provisioner.yaml
-apiVersion: karpenter.sh/v1alpha5
-kind: Provisioner
+cat <<EOF >>daskhub-spot.yaml
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
 metadata:
   name: daskhub-spot
 spec:
-  ttlSecondsAfterEmpty: 30
-
-  requirements:
-    - key: "karpenter.k8s.aws/instance-category"
-      operator: NotIn
-      values: ["t"]
-    - key: "kubernetes.io/arch"
-      operator: In
-      values: ["amd64"]
-    - key: "karpenter.sh/capacity-type"
-      operator: In
-      values: ["spot"]
-    - key: "karpenter.k8s.aws/instance-generation"
-      operator: Gt
-      values: ["3"]
-    - key: "karpenter.k8s.aws/instance-size"
-      operator: NotIn
-      values: ["micro", "small", "medium"]
-
-  taints:
-  - key: daskhub-spot
-    effect: NoSchedule
-
+  template:
+    spec:
+      requirements:
+        - key: "karpenter.k8s.aws/instance-category"
+          operator: NotIn
+          values: ["t"]
+        - key: "kubernetes.io/arch"
+          operator: In
+          values: ["amd64"]
+        - key: "karpenter.sh/capacity-type"
+          operator: In
+          values: ["spot"]
+        - key: "karpenter.k8s.aws/instance-generation"
+          operator: Gt
+          values: ["3"]
+        - key: "karpenter.k8s.aws/instance-size"
+          operator: NotIn
+          values: ["micro", "small", "medium"]
+      nodeClassRef:
+        name: daskhub-spot
+      taints:
+        - key: daskhub-spot
+          effect: NoSchedule
+  disruption:
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 30s
   limits:
-    resources:
-      cpu: "40"
-
-  provider:
-    amiFamily: "Bottlerocket"
-    subnetSelector:
+    cpu: "40"
+---
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: EC2NodeClass
+metadata:
+  name: daskhub-spot
+spec:
+  amiFamily: "Bottlerocket"
+  role: "KarpenterNodeRole-${AWS_EKS_CLUSTER}"
+  subnetSelectorTerms:
+    - tags:
         karpenter.sh/discovery: ${AWS_EKS_CLUSTER}
-    securityGroupSelector:
+  securityGroupSelectorTerms:
+    - tags:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
-    tags:
-        Name: ${AWS_EKS_CLUSTER}/karpenter/daskhub-spot
-        eks-cost-cluster: ${AWS_EKS_CLUSTER}
-        eks-cost-workload: Proof-of-Concept
-        eks-cost-team: tck
+  tags:
+    Name: ${AWS_EKS_CLUSTER}/karpenter/daskhub-spot
+    eks-cost-cluster: ${AWS_EKS_CLUSTER}
+    eks-cost-workload: daskhub
+    eks-cost-team: tck
 EOF
 
-kubectl apply -f daskhub-spot-provisioner.yaml
+kubectl apply -f daskhub-spot.yaml
 
-cat <<EOF >>daskhub-on-demand-provisioner.yaml
-apiVersion: karpenter.sh/v1alpha5
-kind: Provisioner
+cat <<EOF >>daskhub-on-demand.yaml
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
 metadata:
   name: daskhub-on-demand
 spec:
-  ttlSecondsAfterEmpty: 30
-
-  requirements:
-    - key: "karpenter.k8s.aws/instance-category"
-      operator: NotIn
-      values: ["t"]
-    - key: "kubernetes.io/arch"
-      operator: In
-      values: ["amd64"]
-    - key: "karpenter.k8s.aws/instance-generation"
-      operator: Gt
-      values: ["3"]
-    - key: "karpenter.k8s.aws/instance-size"
-      operator: NotIn
-      values: ["micro", "small", "medium"]
-
-  taints:
-  - key: daskhub-on-demand
-    effect: NoSchedule
-
+  template:
+    spec:
+      requirements:
+        - key: "karpenter.k8s.aws/instance-category"
+          operator: NotIn
+          values: ["t"]
+        - key: "kubernetes.io/arch"
+          operator: In
+          values: ["amd64"]
+        - key: "karpenter.k8s.aws/instance-generation"
+          operator: Gt
+          values: ["3"]
+        - key: "karpenter.k8s.aws/instance-size"
+          operator: NotIn
+          values: ["micro", "small", "medium"]
+      nodeClassRef:
+        name: daskhub-on-demand
+      taints:
+        - key: daskhub-on-demand
+          effect: NoSchedule
+  disruption:
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 30s
   limits:
-    resources:
-      cpu: "20"
-
-  provider:
-    amiFamily: "Bottlerocket"
-    subnetSelector:
+    cpu: "20"
+---
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: EC2NodeClass
+metadata:
+  name: daskhub-on-demand
+spec:
+  amiFamily: "Bottlerocket"
+  role: "KarpenterNodeRole-${AWS_EKS_CLUSTER}"
+  subnetSelectorTerms:
+    - tags:
         karpenter.sh/discovery: ${AWS_EKS_CLUSTER}
-    securityGroupSelector:
+  securityGroupSelectorTerms:
+    - tags:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
-    tags:
-        Name: ${AWS_EKS_CLUSTER}/karpenter/daskhub-on-demand
-        eks-cost-cluster: ${AWS_EKS_CLUSTER}
-        eks-cost-workload: Proof-of-Concept
-        eks-cost-team: tck
+  tags:
+    Name: ${AWS_EKS_CLUSTER}/karpenter/daskhub-on-demand
+    eks-cost-cluster: ${AWS_EKS_CLUSTER}
+    eks-cost-workload: daskhub
+    eks-cost-team: tck
 EOF
 
-kubectl apply -f daskhub-on-demand-provisioner.yaml
+kubectl apply -f daskhub-on-demand.yaml
 
 helm repo add dask https://helm.dask.org/
 helm repo update

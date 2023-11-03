@@ -77,9 +77,6 @@ spec:
           values: ["3"]
       nodeClassRef:
         name: default
-  disruption:
-    consolidationPolicy: WhenUnderutilized
-    expireAfter: 720h
   limits:
     cpu: "30"
 ---
