@@ -379,8 +379,6 @@ Credit: [Analyze terabyte-scale geospatial datasets with Dask and Jupyter on AWS
 
 > ❗ Prerequisite #2: Install [AWS EBS CSI Driver](#aws-ebs-csi-driver).
 
-> Current issue: Uninstall AWS Load Balancer Controller if it is installed in the cluster. You will not be able to access JupyterHub if this add on is installed.
-
 ### Setup
 
 1. Install DaskHub.
