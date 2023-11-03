@@ -14,7 +14,7 @@ sed "s|<SECRET_TOKEN>|$DASKHUB_SECRET_TOKEN|g" -i daskhub.yaml
 sed "s|<API_TOKEN>|$DASKHUB_API_TOKEN|g" -i daskhub.yaml
 sed "s|<PASSWORD>|$DASKHUB_PASSWORD|g" -i daskhub.yaml
 
-cat <<EOF >>daskhub-spot.yaml
+cat <<EOF >>daskhub-spot-node-pool.yaml
 apiVersion: karpenter.sh/v1beta1
 kind: NodePool
 metadata:
@@ -32,9 +32,6 @@ spec:
         - key: "karpenter.sh/capacity-type"
           operator: In
           values: ["spot"]
-        - key: "karpenter.k8s.aws/instance-generation"
-          operator: Gt
-          values: ["3"]
         - key: "karpenter.k8s.aws/instance-size"
           operator: NotIn
           values: ["micro", "small", "medium"]
@@ -71,9 +68,9 @@ spec:
     eks-cost-team: tck
 EOF
 
-kubectl apply -f daskhub-spot.yaml
+kubectl apply -f daskhub-spot-node-pool.yaml
 
-cat <<EOF >>daskhub-on-demand.yaml
+cat <<EOF >>daskhub-on-demand-node-pool.yaml
 apiVersion: karpenter.sh/v1beta1
 kind: NodePool
 metadata:
@@ -91,9 +88,6 @@ spec:
         - key: "karpenter.sh/capacity-type"
           operator: In
           values: ["on-demand"]
-        - key: "karpenter.k8s.aws/instance-generation"
-          operator: Gt
-          values: ["3"]
         - key: "karpenter.k8s.aws/instance-size"
           operator: NotIn
           values: ["micro", "small", "medium"]
@@ -130,7 +124,7 @@ spec:
     eks-cost-team: tck
 EOF
 
-kubectl apply -f daskhub-on-demand.yaml
+kubectl apply -f daskhub-on-demand-node-pool.yaml
 
 helm repo add dask https://helm.dask.org/
 helm repo update

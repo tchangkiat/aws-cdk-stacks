@@ -8,7 +8,7 @@ helm repo remove kuberay
 
 rm ray-cluster-config.yaml
 
-kubectl delete -f ray-worker-provisioner.yaml
-rm ray-worker-provisioner.yaml
-kubectl delete -f ray-head-provisioner.yaml
-rm ray-head-provisioner.yaml
+kubectl delete -f ray-worker-node-pool.yaml
+rm ray-worker-node-pool.yaml
+kubectl delete -f ray-head-node-pool.yaml
+rm ray-head-node-pool.yaml

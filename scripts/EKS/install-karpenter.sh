@@ -72,9 +72,6 @@ spec:
         - key: "karpenter.sh/capacity-type"
           operator: In
           values: ["spot", "on-demand"]
-        - key: "karpenter.k8s.aws/instance-generation"
-          operator: Gt
-          values: ["3"]
       nodeClassRef:
         apiVersion: karpenter.k8s.aws/v1beta1
         kind: EC2NodeClass

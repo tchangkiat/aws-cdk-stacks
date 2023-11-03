@@ -1,36 +1,54 @@
 #!/bin/bash
 
-cat <<EOF >>jupyterhub-provisioner.yaml
-apiVersion: karpenter.sh/v1alpha5
-kind: Provisioner
+cat <<EOF >>jupyterhub-node-pool.yaml
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
 metadata:
   name: jupyterhub
 spec:
-  ttlSecondsAfterEmpty: 30
-
-  requirements:
-    - key: "karpenter.k8s.aws/instance-category"
-      operator: NotIn
-      values: ["t"]
-
+  template:
+    spec:
+      requirements:
+        - key: "karpenter.k8s.aws/instance-category"
+          operator: NotIn
+          values: ["t"]
+        - key: "kubernetes.io/arch"
+          operator: In
+          values: ["amd64"]
+        - key: "karpenter.sh/capacity-type"
+          operator: In
+          values: ["on-demand"]
+      nodeClassRef:
+        apiVersion: karpenter.k8s.aws/v1beta1
+        kind: EC2NodeClass
+        name: jupyterhub
+  disruption:
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 30s
   limits:
-    resources:
-      cpu: "16"
-
-  provider:
-    amiFamily: "Bottlerocket"
-    subnetSelector:
+    cpu: "16"
+---
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: EC2NodeClass
+metadata:
+  name: jupyterhub
+spec:
+  amiFamily: "Bottlerocket"
+  role: "KarpenterNodeRole-${AWS_EKS_CLUSTER}"
+  subnetSelectorTerms:
+    - tags:
         karpenter.sh/discovery: ${AWS_EKS_CLUSTER}
-    securityGroupSelector:
+  securityGroupSelectorTerms:
+    - tags:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
-    tags:
-        Name: ${AWS_EKS_CLUSTER}/karpenter/jupyterhub
-        eks-cost-cluster: ${AWS_EKS_CLUSTER}
-        eks-cost-workload: JupyterHub
-        eks-cost-team: tck
+  tags:
+    Name: ${AWS_EKS_CLUSTER}/karpenter/jupyterhub
+    eks-cost-cluster: ${AWS_EKS_CLUSTER}
+    eks-cost-workload: jupyterhub
+    eks-cost-team: tck
 EOF
 
-kubectl apply -f jupyterhub-provisioner.yaml
+kubectl apply -f jupyterhub-node-pool.yaml
 
 helm repo add jupyterhub https://hub.jupyter.org/helm-chart/
 helm repo update
@@ -50,7 +68,7 @@ hub:
     JupyterHub:
       authenticator_class: dummy
   nodeSelector:
-    karpenter.sh/provisioner-name: jupyterhub
+    karpenter.sh/nodepool: jupyterhub
 proxy:
   service:
     annotations:
@@ -61,7 +79,7 @@ proxy:
       service.beta.kubernetes.io/aws-load-balancer-ip-address-type: ipv4
   chp:
     nodeSelector:
-      karpenter.sh/provisioner-name: jupyterhub
+      karpenter.sh/nodepool: jupyterhub
 singleuser:
   image:
     name: jupyter/scipy-notebook
@@ -73,7 +91,7 @@ singleuser:
     limit: 4G
     guarantee: 2G
   nodeSelector:
-    karpenter.sh/provisioner-name: jupyterhub
+    karpenter.sh/nodepool: jupyterhub
 EOF
 
 helm upgrade --cleanup-on-fail \

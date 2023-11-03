@@ -8,5 +8,5 @@ helm repo remove jupyterhub
 
 rm jupyterhub-config.yaml
 
-kubectl delete -f jupyterhub-provisioner.yaml
-rm jupyterhub-provisioner.yaml
+kubectl delete -f jupyterhub-node-pool.yaml
+rm jupyterhub-node-pool.yaml
