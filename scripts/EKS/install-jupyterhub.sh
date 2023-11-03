@@ -80,6 +80,9 @@ proxy:
   chp:
     nodeSelector:
       karpenter.sh/nodepool: jupyterhub
+    traefik:
+      nodeSelector:
+        karpenter.sh/nodepool: jupyterhub
 singleuser:
   image:
     name: jupyter/scipy-notebook
@@ -92,6 +95,14 @@ singleuser:
     guarantee: 2G
   nodeSelector:
     karpenter.sh/nodepool: jupyterhub
+scheduling:
+    userScheduler:
+      nodeSelector:
+        karpenter.sh/nodepool: jupyterhub
+prePuller:
+    hook:
+      nodeSelector:
+        karpenter.sh/nodepool: jupyterhub
 EOF
 
 helm upgrade --cleanup-on-fail \
