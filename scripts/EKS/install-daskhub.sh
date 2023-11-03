@@ -39,6 +39,8 @@ spec:
           operator: NotIn
           values: ["micro", "small", "medium"]
       nodeClassRef:
+        apiVersion: karpenter.k8s.aws/v1beta1
+        kind: EC2NodeClass
         name: daskhub-spot
       taints:
         - key: daskhub-spot
@@ -93,6 +95,8 @@ spec:
           operator: NotIn
           values: ["micro", "small", "medium"]
       nodeClassRef:
+        apiVersion: karpenter.k8s.aws/v1beta1
+        kind: EC2NodeClass
         name: daskhub-on-demand
       taints:
         - key: daskhub-on-demand

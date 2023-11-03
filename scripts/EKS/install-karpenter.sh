@@ -76,6 +76,8 @@ spec:
           operator: Gt
           values: ["3"]
       nodeClassRef:
+        apiVersion: karpenter.k8s.aws/v1beta1
+        kind: EC2NodeClass
         name: default
   limits:
     cpu: "30"
