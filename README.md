@@ -383,7 +383,7 @@ Credit: [Analyze terabyte-scale geospatial datasets with Dask and Jupyter on AWS
 
 ### Setup
 
-1. Install Dask, Jupyter and create Karpenter provisioners.
+1. Install DaskHub.
 
 ```bash
 curl -o install-daskhub.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-daskhub.sh
@@ -405,7 +405,7 @@ JupyterHub Password: <generated password>
 
 ### Clean Up
 
-1. Remove Dask, Jupyter and Karpenter provisioners.
+1. Remove DaskHub.
 
 ```bash
 curl -o remove-daskhub.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-daskhub.sh
