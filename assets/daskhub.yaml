@@ -1,38 +1,22 @@
 jupyterhub:
-  prePuller:
-    hook:
-      nodeSelector:
-        karpenter.sh/nodepool: daskhub-on-demand
-      tolerations:
-        - key: "daskhub-on-demand"
-          operator: "Exists"
-          effect: "NoSchedule"
-  scheduling:
-    userScheduler:
-      nodeSelector:
-        karpenter.sh/nodepool: daskhub-on-demand
-      tolerations:
-        - key: "daskhub-on-demand"
-          operator: "Exists"
-          effect: "NoSchedule"
-  singleuser:
+  hub:
+    config:
+      Authenticator:
+        admin_users:
+          - admin
+      DummyAuthenticator:
+        password: <PASSWORD>
+      JupyterHub:
+        authenticator_class: dummy
+    services:
+      dask-gateway:
+        apiToken: "<API_TOKEN>"
     nodeSelector:
       karpenter.sh/nodepool: daskhub-on-demand
-    extraTolerations:
+    tolerations:
       - key: "daskhub-on-demand"
         operator: "Exists"
         effect: "NoSchedule"
-    image:
-      name: <NOTEBOOK_IMAGE>
-      tag: <NOTEBOOK_IMAGE_TAG>
-    cpu:
-      limit: 2
-      guarantee: 1
-    memory:
-      limit: 4G
-      guarantee: 2G
-    extraEnv:
-      DASK_GATEWAY__CLUSTER__OPTIONS__IMAGE: "{JUPYTER_IMAGE_SPEC}"
   proxy:
     secretToken: "<SECRET_TOKEN>"
     service:
@@ -56,24 +40,36 @@ jupyterhub:
         - key: "daskhub-on-demand"
           operator: "Exists"
           effect: "NoSchedule"
-  hub:
-    config:
-      Authenticator:
-        admin_users:
-          - admin
-      DummyAuthenticator:
-        password: <PASSWORD>
-      JupyterHub:
-        authenticator_class: dummy
-    services:
-      dask-gateway:
-        apiToken: "<API_TOKEN>"
+  singleuser:
     nodeSelector:
       karpenter.sh/nodepool: daskhub-on-demand
-    tolerations:
-      - key: "daskhub-on-demand"
-        operator: "Exists"
-        effect: "NoSchedule"
+    image:
+      name: <NOTEBOOK_IMAGE>
+      tag: <NOTEBOOK_IMAGE_TAG>
+    cpu:
+      limit: 2
+      guarantee: 1
+    memory:
+      limit: 4G
+      guarantee: 2G
+    extraEnv:
+      DASK_GATEWAY__CLUSTER__OPTIONS__IMAGE: "{JUPYTER_IMAGE_SPEC}"
+  prePuller:
+    hook:
+      nodeSelector:
+        karpenter.sh/nodepool: daskhub-on-demand
+      tolerations:
+        - key: "daskhub-on-demand"
+          operator: "Exists"
+          effect: "NoSchedule"
+  scheduling:
+    userScheduler:
+      nodeSelector:
+        karpenter.sh/nodepool: daskhub-on-demand
+      tolerations:
+        - key: "daskhub-on-demand"
+          operator: "Exists"
+          effect: "NoSchedule"
 
 dask-gateway:
   gateway:

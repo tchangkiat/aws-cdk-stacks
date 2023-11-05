@@ -153,9 +153,9 @@ spec:
   workerGroupSpecs:
   - groupName: workergroup
     maxReplicas: 10
-    minReplicas: 0
+    minReplicas: 1
     rayStartParams: {}
-    replicas: 0
+    replicas: 1
     template:
       spec:
         containers:
