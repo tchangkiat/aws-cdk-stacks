@@ -377,7 +377,9 @@ Credit: [Analyze terabyte-scale geospatial datasets with Dask and Jupyter on AWS
 
 > ❗ Prerequisite #1: Install [Karpenter](#karpenter).
 
-> ❗ Prerequisite #2: Install [AWS EBS CSI Driver](#aws-ebs-csi-driver).
+> ❗ Prerequisite #2: Install [AWS Load Balancer Controller](#aws-load-balancer-controller).
+
+> ❗ Prerequisite #3: Install [AWS EBS CSI Driver](#aws-ebs-csi-driver).
 
 ### Setup
 
