@@ -1,4 +1,18 @@
 jupyterhub:
+  singleuser:
+    image:
+      name: <NOTEBOOK_IMAGE>
+      tag: <NOTEBOOK_IMAGE_TAG>
+    cpu:
+      limit: 2
+      guarantee: 1
+    memory:
+      limit: 4G
+      guarantee: 2G
+    extraEnv:
+      DASK_GATEWAY__CLUSTER__OPTIONS__IMAGE: "{JUPYTER_IMAGE_SPEC}"
+  proxy:
+    secretToken: "<SECRET_TOKEN>"
   hub:
     config:
       Authenticator:
@@ -13,58 +27,6 @@ jupyterhub:
     services:
       dask-gateway:
         apiToken: "<API_TOKEN>"
-    nodeSelector:
-      karpenter.sh/nodepool: daskhub-on-demand
-    tolerations:
-      - key: "daskhub-on-demand"
-        operator: "Exists"
-        effect: "NoSchedule"
-  proxy:
-    secretToken: "<SECRET_TOKEN>"
-    service:
-      annotations:
-        service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
-        service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
-        service.beta.kubernetes.io/aws-load-balancer-type: external
-        service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
-        service.beta.kubernetes.io/aws-load-balancer-ip-address-type: ipv4
-    chp:
-      nodeSelector:
-        karpenter.sh/nodepool: daskhub-on-demand
-      tolerations:
-        - key: "daskhub-on-demand"
-          operator: "Exists"
-          effect: "NoSchedule"
-  singleuser:
-    nodeSelector:
-      karpenter.sh/nodepool: daskhub-on-demand
-    image:
-      name: <NOTEBOOK_IMAGE>
-      tag: <NOTEBOOK_IMAGE_TAG>
-    cpu:
-      limit: 2
-      guarantee: 1
-    memory:
-      limit: 4G
-      guarantee: 2G
-    extraEnv:
-      DASK_GATEWAY__CLUSTER__OPTIONS__IMAGE: "{JUPYTER_IMAGE_SPEC}"
-  # prePuller:
-  #   hook:
-  #     nodeSelector:
-  #       karpenter.sh/nodepool: daskhub-on-demand
-  #     tolerations:
-  #       - key: "daskhub-on-demand"
-  #         operator: "Exists"
-  #         effect: "NoSchedule"
-  scheduling:
-    userScheduler:
-      nodeSelector:
-        karpenter.sh/nodepool: daskhub-on-demand
-      tolerations:
-        - key: "daskhub-on-demand"
-          operator: "Exists"
-          effect: "NoSchedule"
 
 dask-gateway:
   gateway:
