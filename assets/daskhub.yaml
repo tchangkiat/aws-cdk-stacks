@@ -35,14 +35,9 @@ jupyterhub:
         - key: "daskhub-on-demand"
           operator: "Exists"
           effect: "NoSchedule"
-    traefik:
-      nodeSelector:
-        karpenter.sh/nodepool: daskhub-on-demand
-      tolerations:
-        - key: "daskhub-on-demand"
-          operator: "Exists"
-          effect: "NoSchedule"
   singleuser:
+    nodeSelector:
+      karpenter.sh/nodepool: daskhub-on-demand
     image:
       name: <NOTEBOOK_IMAGE>
       tag: <NOTEBOOK_IMAGE_TAG>
@@ -54,14 +49,14 @@ jupyterhub:
       guarantee: 2G
     extraEnv:
       DASK_GATEWAY__CLUSTER__OPTIONS__IMAGE: "{JUPYTER_IMAGE_SPEC}"
-  prePuller:
-    hook:
-      nodeSelector:
-        karpenter.sh/nodepool: daskhub-on-demand
-      tolerations:
-        - key: "daskhub-on-demand"
-          operator: "Exists"
-          effect: "NoSchedule"
+  # prePuller:
+  #   hook:
+  #     nodeSelector:
+  #       karpenter.sh/nodepool: daskhub-on-demand
+  #     tolerations:
+  #       - key: "daskhub-on-demand"
+  #         operator: "Exists"
+  #         effect: "NoSchedule"
   scheduling:
     userScheduler:
       nodeSelector:
