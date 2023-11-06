@@ -3,7 +3,9 @@ jupyterhub:
     config:
       Authenticator:
         admin_users:
-          - admin
+          - admin1
+        allowed_users:
+          - user1
       DummyAuthenticator:
         password: <PASSWORD>
       JupyterHub:
@@ -41,8 +43,6 @@ jupyterhub:
           operator: "Exists"
           effect: "NoSchedule"
   singleuser:
-    nodeSelector:
-      karpenter.sh/nodepool: daskhub-on-demand
     image:
       name: <NOTEBOOK_IMAGE>
       tag: <NOTEBOOK_IMAGE_TAG>

@@ -135,7 +135,7 @@ sleep 10
 echo ""
 echo ""
 echo "JupyterHub URL: http://"`kubectl get svc | grep 'amazonaws.com' | awk {'print $4'}`
-echo "JupyterHub Username: jovyan / admin"
+echo "JupyterHub Username: user1 / admin1"
 echo "JupyterHub Password: ${DASKHUB_PASSWORD}"
 echo ""
 echo ""
