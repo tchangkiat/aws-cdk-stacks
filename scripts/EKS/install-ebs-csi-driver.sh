@@ -30,15 +30,34 @@ helm upgrade --install aws-ebs-csi-driver \
   --set serviceAccount.controller.name=ebs-csi-controller \
   aws-ebs-csi-driver/aws-ebs-csi-driver
 
+kubectl delete storageclass gp2
+
+cat <<EOF >>gp2-storage-class.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp2
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp2
+  fsType: ext4
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+EOF
+
+kubectl apply -f gp2-storage-class.yaml
+
 cat <<EOF >>gp3-storage-class.yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: gp3
+provisioner: ebs.csi.aws.com
 parameters:
-  fsType: ext4
   type: gp3
-provisioner: kubernetes.io/aws-ebs
+  fsType: ext4
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
 EOF

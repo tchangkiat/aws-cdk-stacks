@@ -16,3 +16,5 @@ aws iam delete-policy \
 
 kubectl delete -f gp3-storage-class.yaml
 rm gp3-storage-class.yaml
+
+rm gp2-storage-class.yaml
