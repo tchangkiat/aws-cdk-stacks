@@ -1,4 +1,4 @@
-# Template from https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluent-bit-quickstart.yaml
+# Template from https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluent-bit-quickstart-enhanced.yaml
 # create amazon-cloudwatch namespace
 apiVersion: v1
 kind: Namespace
@@ -7,6 +7,7 @@ metadata:
   labels:
     name: amazon-cloudwatch
 ---
+
 # create cwagent service account and role binding
 apiVersion: v1
 kind: ServiceAccount
@@ -24,7 +25,7 @@ rules:
     resources: ["pods", "nodes", "endpoints"]
     verbs: ["list", "watch"]
   - apiGroups: ["apps"]
-    resources: ["replicasets"]
+    resources: ["replicasets", "daemonsets", "deployments", "statefulsets"]
     verbs: ["list", "watch"]
   - apiGroups: ["batch"]
     resources: ["jobs"]
@@ -38,7 +39,9 @@ rules:
   - apiGroups: [""]
     resources: ["configmaps"]
     resourceNames: ["cwagent-clusterleader"]
-    verbs: ["get", "update"]
+    verbs: ["get","update"]
+  - nonResourceURLs: ["/metrics"]
+    verbs: ["get", "list", "watch"]
 
 ---
 kind: ClusterRoleBinding
@@ -54,6 +57,7 @@ roleRef:
   name: cloudwatch-agent-role
   apiGroup: rbac.authorization.k8s.io
 ---
+
 # create configmap for cwagent config
 apiVersion: v1
 data:
@@ -68,7 +72,8 @@ data:
         "metrics_collected": {
           "kubernetes": {
             "cluster_name": "{{cluster_name}}",
-            "metrics_collection_interval": 60
+            "metrics_collection_interval": 60,
+            "enhanced_container_insights": true
           }
         },
         "force_flush_interval": 5
@@ -79,6 +84,7 @@ metadata:
   name: cwagentconfig
   namespace: amazon-cloudwatch
 ---
+
 # deploy cwagent as daemonset
 apiVersion: apps/v1
 kind: DaemonSet
@@ -96,18 +102,18 @@ spec:
     spec:
       containers:
         - name: cloudwatch-agent
-          image: public.ecr.aws/cloudwatch-agent/cloudwatch-agent:1.247360.0b252689
+          image: public.ecr.aws/cloudwatch-agent/cloudwatch-agent:1.300030.2b309
           #ports:
           #  - containerPort: 8125
           #    hostPort: 8125
           #    protocol: UDP
           resources:
             limits:
-              cpu: 200m
-              memory: 200Mi
+              cpu:  400m
+              memory: 400Mi
             requests:
-              cpu: 200m
-              memory: 200Mi
+              cpu: 400m
+              memory: 400Mi
           # Please don't change below envs
           env:
             - name: HOST_IP
@@ -123,7 +129,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: CI_VERSION
-              value: "k8s/1.3.16"
+              value: "k8s/1.3.17"
           # Please don't change the mountPath
           volumeMounts:
             - name: cwagentconfig
@@ -163,7 +169,7 @@ spec:
             path: /var/lib/docker
         - name: containerdsock
           hostPath:
-            path: /run/dockershim.sock
+            path: /run/containerd/containerd.sock
         - name: sys
           hostPath:
             path: /sys
@@ -178,6 +184,7 @@ spec:
           effect: "NoSchedule"
 
 ---
+
 # create configmap for cluster name and aws region for CloudWatch Logs
 # need to replace the placeholders {{cluster_name}} and {{region_name}}
 # and need to replace {{http_server_toggle}} and {{http_server_port}}
@@ -195,6 +202,7 @@ metadata:
   name: fluent-bit-cluster-info
   namespace: amazon-cloudwatch
 ---
+
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -254,7 +262,7 @@ data:
         storage.sync              normal
         storage.checksum          off
         storage.backlog.mem_limit 5M
-        
+
     @INCLUDE application-log.conf
     @INCLUDE dataplane-log.conf
     @INCLUDE host-log.conf
@@ -355,7 +363,7 @@ data:
     [FILTER]
         Name                aws
         Match               dataplane.*
-        imds_version        v1
+        imds_version        v2
 
     [OUTPUT]
         Name                cloudwatch_logs
@@ -403,7 +411,7 @@ data:
     [FILTER]
         Name                aws
         Match               host.*
-        imds_version        v1
+        imds_version        v2
 
     [OUTPUT]
         Name                cloudwatch_logs
@@ -457,10 +465,10 @@ spec:
         kubernetes.io/cluster-service: "true"
     spec:
       containers:
-        - name: fluent-bit
-          image: public.ecr.aws/aws-observability/aws-for-fluent-bit:stable
-          imagePullPolicy: Always
-          env:
+      - name: fluent-bit
+        image: public.ecr.aws/aws-observability/aws-for-fluent-bit:stable
+        imagePullPolicy: Always
+        env:
             - name: AWS_REGION
               valueFrom:
                 configMapKeyRef:
@@ -501,62 +509,55 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.name
             - name: CI_VERSION
-              value: "k8s/1.3.16"
-          resources:
+              value: "k8s/1.3.17"
+        resources:
             limits:
               memory: 200Mi
             requests:
               cpu: 500m
               memory: 100Mi
-          volumeMounts:
-            # Please don't change below read-only permissions
-            - name: fluentbitstate
-              mountPath: /var/fluent-bit/state
-            - name: varlog
-              mountPath: /var/log
-              readOnly: true
-            - name: varlibdockercontainers
-              mountPath: /var/lib/docker/containers
-              readOnly: true
-            - name: fluent-bit-config
-              mountPath: /fluent-bit/etc/
-            - name: runlogjournal
-              mountPath: /run/log/journal
-              readOnly: true
-            - name: dmesg
-              mountPath: /var/log/dmesg
-              readOnly: true
+        volumeMounts:
+        # Please don't change below read-only permissions
+        - name: fluentbitstate
+          mountPath: /var/fluent-bit/state
+        - name: varlog
+          mountPath: /var/log
+          readOnly: true
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        - name: fluent-bit-config
+          mountPath: /fluent-bit/etc/
+        - name: runlogjournal
+          mountPath: /run/log/journal
+          readOnly: true
+        - name: dmesg
+          mountPath: /var/log/dmesg
+          readOnly: true
       terminationGracePeriodSeconds: 10
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       volumes:
-        - name: fluentbitstate
-          hostPath:
-            path: /var/fluent-bit/state
-        - name: varlog
-          hostPath:
-            path: /var/log
-        - name: varlibdockercontainers
-          hostPath:
-            path: /var/lib/docker/containers
-        - name: fluent-bit-config
-          configMap:
-            name: fluent-bit-config
-        - name: runlogjournal
-          hostPath:
-            path: /run/log/journal
-        - name: dmesg
-          hostPath:
-            path: /var/log/dmesg
+      - name: fluentbitstate
+        hostPath:
+          path: /var/fluent-bit/state
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+      - name: runlogjournal
+        hostPath:
+          path: /run/log/journal
+      - name: dmesg
+        hostPath:
+          path: /var/log/dmesg
       serviceAccountName: fluent-bit
       tolerations:
-        - key: node-role.kubernetes.io/master
-          operator: Exists
-          effect: NoSchedule
-        - operator: "Exists"
-          effect: "NoExecute"
-        - operator: "Exists"
-          effect: "NoSchedule"
         - key: "CriticalAddonsOnly"
           operator: "Exists"
           effect: "NoSchedule"
