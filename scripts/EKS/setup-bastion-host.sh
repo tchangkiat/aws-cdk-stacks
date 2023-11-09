@@ -1,3 +1,5 @@
+#!/bin/bash
+
 aws configure set region $AWS_REGION
 aws configure set output json
 
@@ -17,3 +19,5 @@ kubectl apply -f aws-auth-patched.yml
 
 rm aws-auth.yml
 rm aws-auth-patched.yml
+
+eksctl create iamidentitymapping --cluster $AWS_EKS_CLUSTER --region=$AWS_REGION --arn arn:aws:iam::$AWS_ACCOUNT_ID:role/admin --group system:masters --username admin
