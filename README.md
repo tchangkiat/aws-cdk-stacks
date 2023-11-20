@@ -22,6 +22,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [Amazon VPC Lattice](#amazon-vpc-lattice)
   - [Distributed ML with Ray](#distributed-ml-with-ray)
 - [Transit Gateway](#transit-gateway)
+- [Application Load Balancer (ALB) Rule Restriction](#application-load-balancer-alb-rule-restriction)
 - [Jenkins on AWS](#jenkins-on-aws)
 
 # Initial Setup
@@ -503,6 +504,36 @@ Deploy an egress VPC solution with Transit Gateway. VPN-related resources are de
 
 - `tgw-poc-demo-instance`: 64 bytes from 30.0.1.30: icmp_seq=1 ttl=253 time=2.49 ms
 - `tgw-poc-demo-instance-2`: 64 bytes from 20.0.0.20: icmp_seq=1 ttl=252 time=3.52 ms
+
+# Application Load Balancer (ALB) Rule Restriction
+
+![Application Load Balancer (ALB) Rule Restriction Architecture](./diagrams/ALBRuleRestriction.jpg)
+
+## Setup
+
+```bash
+cdk deploy alb-rule-restriction
+```
+
+## Testing the ALB rules
+
+1. Connect to Bastion Host and run the following command. You should receive a response from Nginx.
+
+```bash
+curl <ALB DNS Name>:80
+```
+
+2. Run the following command. You should receive a response from the ALB: "Denied by ALB".
+
+```bash
+curl <ALB DNS Name>:8080
+```
+
+## Cleanup
+
+```bash
+cdk destroy alb-rule-restriction
+```
 
 # Jenkins on AWS
 
