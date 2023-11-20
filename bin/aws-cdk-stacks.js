@@ -11,6 +11,7 @@ const { CicdEc2 } = require("../lib/CICD-EC2");
 const { ApiGateway } = require("../lib/ApiGateway");
 const { TransitGateway } = require("../lib/TransitGateway");
 const { Jenkins } = require("../lib/Jenkins");
+const { ALBRuleRestriction } = require("../lib/ALBRuleRestriction");
 const { Autoscaler } = require("../Constants");
 
 const app = new cdk.App();
@@ -97,3 +98,5 @@ new Jenkins(app, "jenkins", {
     region,
   },
 });
+
+new ALBRuleRestriction(app, "alb-rule-restriction");
