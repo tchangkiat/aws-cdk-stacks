@@ -16,52 +16,24 @@ const { Autoscaler } = require("../Constants");
 
 const app = new cdk.App();
 
-const account = process.env.CDK_DEFAULT_ACCOUNT;
-const region = process.env.CDK_DEFAULT_REGION;
-
-new Vpc(app, "vpc", {
-  env: {
-    account,
-    region,
-  },
-});
+new Vpc(app, "vpc");
 
 new MultiArchPipeline(app, "mapl", {
   env: {
-    account,
-    region,
     github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN,
     github_owner: process.env.CDK_GITHUB_OWNER,
     github_repo: process.env.CDK_GITHUB_REPO,
   },
 });
 
-new ECS(app, "ecs", {
-  env: {
-    account,
-    region,
-  },
-});
+new ECS(app, "ecs");
 
-new EKS(app, "eks", {
-  env: {
-    account,
-    region,
-  },
-});
+new EKS(app, "eks");
 
-new EKS(app, "eks-ca", {
-  env: {
-    account,
-    region,
-  },
-  autoscaler: Autoscaler.ClusterAutoscaler,
-});
+new EKS(app, "eks-ca", Autoscaler.ClusterAutoscaler);
 
 new CicdEcs(app, "cicd-ecs", {
   env: {
-    account,
-    region,
     github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN,
     github_owner: process.env.CDK_GITHUB_OWNER,
     github_repo: process.env.CDK_GITHUB_REPO,
@@ -70,33 +42,16 @@ new CicdEcs(app, "cicd-ecs", {
 
 new CicdEc2(app, "cicd-ec2", {
   env: {
-    account,
-    region,
     github_connection_arn: process.env.CDK_GITHUB_CONNECTION_ARN,
     github_owner: process.env.CDK_GITHUB_OWNER,
     github_repo: process.env.CDK_GITHUB_REPO2,
   },
 });
 
-new ApiGateway(app, "api-gateway", {
-  env: {
-    account,
-    region,
-  },
-});
+new ApiGateway(app, "api-gateway");
 
-new TransitGateway(app, "transit-gateway", {
-  env: {
-    account,
-    region,
-  },
-});
+new TransitGateway(app, "transit-gateway");
 
-new Jenkins(app, "jenkins", {
-  env: {
-    account,
-    region,
-  },
-});
+new Jenkins(app, "jenkins");
 
 new ALBRuleRestriction(app, "alb-rule-restriction");
