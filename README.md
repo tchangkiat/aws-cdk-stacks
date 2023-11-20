@@ -42,6 +42,8 @@ aws configure set output json
 
 4. Bootstrap AWS account for CDK with `cdk bootstrap`.
 
+5. Create an EC2 Key Pair named "EC2DefaultKeyPair".
+
 # Standard VPC
 
 ```bash
