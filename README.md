@@ -23,7 +23,6 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [Distributed ML with Ray](#distributed-ml-with-ray)
 - [Transit Gateway](#transit-gateway)
 - [Application Load Balancer (ALB) Rule Restriction](#application-load-balancer-alb-rule-restriction)
-- [Jenkins on AWS](#jenkins-on-aws)
 
 # Initial Setup
 
@@ -536,13 +535,3 @@ curl <ALB DNS Name>:8080
 ```bash
 cdk destroy alb-rule-restriction
 ```
-
-# Jenkins on AWS
-
-1. Provision an EC2 instance and install Jenkins.
-
-```bash
-cdk deploy jenkins
-```
-
-2. Follow the instructions in the "Configuring Jenkins" section of [the documentation](https://www.jenkins.io/doc/tutorials/tutorial-for-installing-jenkins-on-AWS/#configuring-jenkins) to complete the setup.
