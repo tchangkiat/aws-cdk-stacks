@@ -10,7 +10,6 @@ const { CicdEcs } = require("../lib/CICD-ECS");
 const { CicdEc2 } = require("../lib/CICD-EC2");
 const { ApiGateway } = require("../lib/ApiGateway");
 const { TransitGateway } = require("../lib/TransitGateway");
-const { Jenkins } = require("../lib/Jenkins");
 const { ALBRuleRestriction } = require("../lib/ALBRuleRestriction");
 const { Autoscaler } = require("../Constants");
 
@@ -51,7 +50,5 @@ new CicdEc2(app, "cicd-ec2", {
 new ApiGateway(app, "api-gateway");
 
 new TransitGateway(app, "transit-gateway");
-
-new Jenkins(app, "jenkins");
 
 new ALBRuleRestriction(app, "alb-rule-restriction");
