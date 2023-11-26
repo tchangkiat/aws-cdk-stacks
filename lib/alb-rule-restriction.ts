@@ -1,20 +1,15 @@
-const { Stack } = require("aws-cdk-lib");
-const { StandardVpc } = require("../constructs/Network");
-const { BastionHost } = require("../constructs/BastionHost");
+import { Construct } from "constructs";
+import { Stack, StackProps } from "aws-cdk-lib";
+import { AutoScalingGroup } from "aws-cdk-lib/aws-autoscaling";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as iam from "aws-cdk-lib/aws-iam";
+import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 
-const { AutoScalingGroup } = require("aws-cdk-lib/aws-autoscaling");
-const ec2 = require("aws-cdk-lib/aws-ec2");
-const iam = require("aws-cdk-lib/aws-iam");
-const elbv2 = require("aws-cdk-lib/aws-elasticloadbalancingv2");
+import { StandardVpc } from "../constructs/network";
+import { BastionHost } from "../constructs/bastion-host";
 
-class ALBRuleRestriction extends Stack {
-  /**
-   *
-   * @param {Construct} scope
-   * @param {string} id
-   * @param {StackProps=} props
-   */
-  constructor(scope, id, props) {
+export class ALBRuleRestriction extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     // ----------------------------
@@ -24,13 +19,13 @@ class ALBRuleRestriction extends Stack {
     const vpc = new StandardVpc(this, "vpc-1", {
       vpcName: id + "-vpc-1",
       natGateways: 0,
-    });
+    }) as ec2.Vpc;
 
     const vpc2 = new StandardVpc(this, "vpc-2", {
       vpcName: id + "-vpc-2",
       natGateways: 0,
       cidr: "11.0.0.0/16",
-    });
+    }) as ec2.Vpc;
 
     const vpcPeering = new ec2.CfnVPCPeeringConnection(
       this,
@@ -109,7 +104,7 @@ class ALBRuleRestriction extends Stack {
     );
 
     const userData = ec2.UserData.forLinux();
-    userData.addCommands([
+    userData.addCommands(
       [
         "sudo yum update -y",
         "sudo amazon-linux-extras enable epel",
@@ -117,8 +112,8 @@ class ALBRuleRestriction extends Stack {
         // nginx
         "sudo yum install nginx -y",
         "sudo systemctl start nginx",
-      ].join("\n"),
-    ]);
+      ].join("\n")
+    );
 
     const ec2LaunchTemplate = new ec2.LaunchTemplate(
       this,
@@ -135,9 +130,7 @@ class ALBRuleRestriction extends Stack {
           ec2.InstanceSize.SMALL
         ),
         launchTemplateName: id + "-launch-template",
-        machineImage: ec2.MachineImage.latestAmazonLinux2023({
-          generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2023,
-        }),
+        machineImage: ec2.MachineImage.latestAmazonLinux2023(),
         role: new iam.Role(this, "instance-profile-role", {
           assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
           managedPolicies: [
@@ -180,7 +173,7 @@ class ALBRuleRestriction extends Stack {
     });
     listener.addAction(id + "-default-action-1", {
       action: elbv2.ListenerAction.fixedResponse(403, {
-        contentType: elbv2.ContentType.TEXT_PLAIN,
+        contentType: "text/plain",
         messageBody: "Denied by ALB\n",
       }),
     });
@@ -196,11 +189,9 @@ class ALBRuleRestriction extends Stack {
     });
     listener2.addAction(id + "-default-action-2", {
       action: elbv2.ListenerAction.fixedResponse(403, {
-        contentType: elbv2.ContentType.TEXT_PLAIN,
+        contentType: "text/plain",
         messageBody: "Denied by ALB\n",
       }),
     });
   }
 }
-
-module.exports = { ALBRuleRestriction };

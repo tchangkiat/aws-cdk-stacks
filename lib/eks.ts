@@ -1,21 +1,22 @@
-const { Stack, CfnOutput, Tags } = require("aws-cdk-lib");
-const ec2 = require("aws-cdk-lib/aws-ec2");
-const iam = require("aws-cdk-lib/aws-iam");
-const eks = require("aws-cdk-lib/aws-eks");
-const { ManagedNodeGroup, ClusterAutoscaler } = require("../constructs/EKS");
-const { StandardVpc } = require("../constructs/Network");
-const { BastionHost } = require("../constructs/BastionHost");
-const { Autoscaler } = require("../Constants");
-const { KubectlLayer } = require("aws-cdk-lib/lambda-layer-kubectl");
+import { Construct } from "constructs";
+import { Stack, StackProps, CfnOutput, Tags } from "aws-cdk-lib";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as iam from "aws-cdk-lib/aws-iam";
+import * as eks from "aws-cdk-lib/aws-eks";
+import { KubectlLayer } from "aws-cdk-lib/lambda-layer-kubectl";
 
-class EKS extends Stack {
-  /**
-   *
-   * @param {Construct} scope
-   * @param {string} id
-   * @param {StackProps=} props
-   */
-  constructor(scope, id, autoscaler = "", props) {
+import { ManagedNodeGroup, ClusterAutoscaler } from "../constructs/eks";
+import { StandardVpc } from "../constructs/network";
+import { BastionHost } from "../constructs/bastion-host";
+import { Autoscaler } from "../constants";
+
+export class EKS extends Stack {
+  constructor(
+    scope: Construct,
+    id: string,
+    autoscaler?: string,
+    props?: StackProps
+  ) {
     super(scope, id, props);
 
     // ----------------------------
@@ -24,7 +25,7 @@ class EKS extends Stack {
 
     const bastionHostSshKeyName = "EC2DefaultKeyPair";
 
-    const eksClusterKubernetesVersion = eks.KubernetesVersion.of("1.28");
+    const eksClusterKubernetesVersion = eks.KubernetesVersion.V1_28;
 
     const eksClusterName = id + "-demo";
 
@@ -34,7 +35,7 @@ class EKS extends Stack {
 
     const vpc = new StandardVpc(this, "vpc", {
       vpcName: eksClusterName,
-    });
+    }) as ec2.Vpc;
 
     for (const subnet of vpc.publicSubnets) {
       // Tags for AWS Load Balancer Controller
@@ -93,7 +94,6 @@ class EKS extends Stack {
 
     const addons_mng = new ManagedNodeGroup(this, "addons-mng", {
       cluster,
-      desiredSize: 1,
       nodeGroupName: "addons",
       taints: [
         {
@@ -102,7 +102,7 @@ class EKS extends Stack {
           value: "true",
         },
       ],
-    });
+    }) as eks.Nodegroup;
 
     // ----------------------------
     // Bastion Host
@@ -157,7 +157,7 @@ class EKS extends Stack {
         "echo 'alias k=kubectl' >> /home/ec2-user/.bashrc",
         "echo 'export KUBE_EDITOR=nano' >> /home/ec2-user/.bashrc",
       ],
-    });
+    }) as ec2.Instance;
 
     bastionHost.addSecurityGroup(cluster.clusterSecurityGroup);
     Tags.of(bastionHost).add("eks-cost-cluster", eksClusterName);
@@ -218,7 +218,7 @@ class EKS extends Stack {
         capacityType: eks.CapacityType.SPOT,
         instanceType: "t3.medium",
         nodeGroupName: "spot",
-      });
+      }) as eks.Nodegroup;
 
       const ca = new ClusterAutoscaler(this, "cluster-autoscaler", {
         cluster,
@@ -228,5 +228,3 @@ class EKS extends Stack {
     }
   }
 }
-
-module.exports = { EKS };

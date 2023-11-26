@@ -1,22 +1,24 @@
-const { Stack, RemovalPolicy, CfnOutput } = require("aws-cdk-lib");
-const { AutoScalingGroup } = require("aws-cdk-lib/aws-autoscaling");
-const codepipeline = require("aws-cdk-lib/aws-codepipeline");
-const codepipeline_actions = require("aws-cdk-lib/aws-codepipeline-actions");
-const codedeploy = require("aws-cdk-lib/aws-codedeploy");
-const ec2 = require("aws-cdk-lib/aws-ec2");
-const iam = require("aws-cdk-lib/aws-iam");
-const s3 = require("aws-cdk-lib/aws-s3");
-const elbv2 = require("aws-cdk-lib/aws-elasticloadbalancingv2");
-const { StandardVpc } = require("../constructs/Network");
+import { Construct } from "constructs";
+import { Stack, StackProps, RemovalPolicy, CfnOutput } from "aws-cdk-lib";
+import { AutoScalingGroup } from "aws-cdk-lib/aws-autoscaling";
+import * as codepipeline from "aws-cdk-lib/aws-codepipeline";
+import * as codepipeline_actions from "aws-cdk-lib/aws-codepipeline-actions";
+import * as codedeploy from "aws-cdk-lib/aws-codedeploy";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as iam from "aws-cdk-lib/aws-iam";
+import * as s3 from "aws-cdk-lib/aws-s3";
+import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 
-class CicdEc2 extends Stack {
-  /**
-   *
-   * @param {Construct} scope
-   * @param {string} id
-   * @param {StackProps=} props
-   */
-  constructor(scope, id, props) {
+import { StandardVpc } from "../constructs/network";
+import { GitHubProps } from "../github-props";
+
+export class CicdEc2 extends Stack {
+  constructor(
+    scope: Construct,
+    id: string,
+    github: GitHubProps,
+    props?: StackProps
+  ) {
     super(scope, id, props);
 
     // ----------------------------
@@ -29,7 +31,9 @@ class CicdEc2 extends Stack {
     // VPC
     // ----------------------------
 
-    const vpc = new StandardVpc(this, "vpc", { vpcName: "cicd-ec2" });
+    const vpc = new StandardVpc(this, "vpc", {
+      vpcName: "cicd-ec2",
+    }) as ec2.Vpc;
 
     // ----------------------------
     // Application Fleet
@@ -51,7 +55,7 @@ class CicdEc2 extends Stack {
     );
 
     const userData = ec2.UserData.forLinux();
-    userData.addCommands([
+    userData.addCommands(
       [
         "sudo yum update -y",
         "sudo amazon-linux-extras enable epel",
@@ -65,8 +69,8 @@ class CicdEc2 extends Stack {
         "wget https://aws-codedeploy-ap-southeast-1.s3.ap-southeast-1.amazonaws.com/latest/install",
         "sudo chmod +x ./install",
         "sudo ./install auto",
-      ].join("\n"),
-    ]);
+      ].join("\n")
+    );
 
     const ec2LaunchTemplate = new ec2.LaunchTemplate(
       this,
@@ -84,9 +88,7 @@ class CicdEc2 extends Stack {
         ),
         keyName: sshKeyName,
         launchTemplateName: "cicd-ec2",
-        machineImage: ec2.MachineImage.latestAmazonLinux2023({
-          generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2023,
-        }),
+        machineImage: ec2.MachineImage.latestAmazonLinux2023(),
         role: new iam.Role(this, "instance-profile-role", {
           assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
           managedPolicies: [
@@ -160,10 +162,10 @@ class CicdEc2 extends Stack {
           actions: [
             new codepipeline_actions.CodeStarConnectionsSourceAction({
               actionName: "Retrieve-Source-Code-From-GitHub",
-              owner: props.env.github_owner,
-              repo: props.env.github_repo,
+              owner: github.owner,
+              repo: github.repository,
               output: sourceArtifact,
-              connectionArn: props.env.github_connection_arn,
+              connectionArn: github.connectionArn,
             }),
           ],
         },
@@ -181,5 +183,3 @@ class CicdEc2 extends Stack {
     });
   }
 }
-
-module.exports = { CicdEc2 };

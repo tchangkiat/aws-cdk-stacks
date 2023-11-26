@@ -1,19 +1,29 @@
-const { Construct } = require("constructs");
-const ec2 = require("aws-cdk-lib/aws-ec2");
-const iam = require("aws-cdk-lib/aws-iam");
-const eks = require("aws-cdk-lib/aws-eks");
-const { CfnJson, Tags } = require("aws-cdk-lib");
+import { Construct } from "constructs";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as iam from "aws-cdk-lib/aws-iam";
+import * as eks from "aws-cdk-lib/aws-eks";
+import { Tags } from "aws-cdk-lib";
 
-class ManagedNodeGroup extends Construct {
-  constructor(scope, id, props = {}) {
+export interface ManagedNodeGroupProps {
+  cluster: eks.Cluster;
+  nodeGroupName: string;
+  instanceType?: string;
+  amiType?: eks.NodegroupAmiType;
+  capacityType?: eks.CapacityType;
+  taints?: object[];
+  tags?: {};
+}
+
+export class ManagedNodeGroup extends Construct {
+  constructor(scope: Construct, id: string, props: ManagedNodeGroupProps) {
     super(scope, id);
 
-    this.cluster = props.cluster;
-    this.nodeGroupName = props.nodeGroupName;
+    const cluster = props.cluster;
+    const nodeGroupName = props.nodeGroupName;
 
     const eksNodeRole = new iam.Role(this, id + "-node-role", {
       assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
-      roleName: this.cluster.clusterName + "-" + id + "-node",
+      roleName: cluster.clusterName + "-" + id + "-node",
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKS_CNI_Policy"),
         iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSWorkerNodePolicy"),
@@ -43,7 +53,7 @@ class ManagedNodeGroup extends Construct {
       this,
       id + "-launch-template",
       {
-        launchTemplateName: this.cluster.clusterName + "/" + this.nodeGroupName,
+        launchTemplateName: cluster.clusterName + "/" + nodeGroupName,
         launchTemplateData: {
           blockDeviceMappings: [
             {
@@ -68,11 +78,11 @@ class ManagedNodeGroup extends Construct {
               tags: [
                 {
                   key: "Name",
-                  value: this.cluster.clusterName + "/" + this.nodeGroupName,
+                  value: cluster.clusterName + "/" + nodeGroupName,
                 },
                 {
                   key: "eks-cost-cluster",
-                  value: this.cluster.clusterName,
+                  value: cluster.clusterName,
                 },
                 {
                   key: "eks-cost-workload",
@@ -89,15 +99,11 @@ class ManagedNodeGroup extends Construct {
               tags: [
                 {
                   key: "Name",
-                  value:
-                    this.cluster.clusterName +
-                    "/" +
-                    this.nodeGroupName +
-                    "/volume",
+                  value: cluster.clusterName + "/" + nodeGroupName + "/volume",
                 },
                 {
                   key: "eks-cost-cluster",
-                  value: this.cluster.clusterName,
+                  value: cluster.clusterName,
                 },
                 {
                   key: "eks-cost-workload",
@@ -114,13 +120,13 @@ class ManagedNodeGroup extends Construct {
       }
     );
 
-    return this.cluster.addNodegroupCapacity(id, {
+    return cluster.addNodegroupCapacity(id, {
       amiType: props.amiType || eks.NodegroupAmiType.BOTTLEROCKET_ARM_64,
       capacityType: props.capacityType || eks.CapacityType.ON_DEMAND,
-      desiredSize: props.desiredSize || 0,
-      minSize: props.minSize || 0,
-      maxSize: props.maxSize || 3,
-      nodegroupName: this.nodeGroupName,
+      desiredSize: 1,
+      minSize: 0,
+      maxSize: 3,
+      nodegroupName: nodeGroupName,
       nodeRole: eksNodeRole,
       launchTemplateSpec: {
         id: launchTemplate.ref,
@@ -132,17 +138,21 @@ class ManagedNodeGroup extends Construct {
   }
 }
 
-class ClusterAutoscaler extends Construct {
-  constructor(scope, id, props = {}) {
+export interface ClusterAutoscalerProps {
+  cluster: eks.Cluster;
+}
+
+export class ClusterAutoscaler extends Construct {
+  constructor(scope: Construct, id: string, props: ClusterAutoscalerProps) {
     super(scope, id);
 
     // Best practice: Cluster Autoscaler version must match the Kubernetes control plane version
     const eksClusterAutoscalerVersion = "v1.28.0";
 
-    this.cluster = props.cluster;
+    const cluster = props.cluster;
 
     new eks.KubernetesManifest(this, "cluster-autoscaler", {
-      cluster: this.cluster,
+      cluster: cluster,
       manifest: [
         {
           apiVersion: "v1",
@@ -369,7 +379,7 @@ class ClusterAutoscaler extends Construct {
                       "--skip-nodes-with-local-storage=false",
                       "--expander=least-waste",
                       "--node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/" +
-                        this.cluster.clusterName,
+                        cluster.clusterName,
                       "--balance-similar-node-groups",
                     ],
                     volumeMounts: [
@@ -405,7 +415,7 @@ class ClusterAutoscaler extends Construct {
     });
   }
 
-  addNodeGroups(clusterName, nodeGroups) {
+  addNodeGroups(clusterName: string, nodeGroups: eks.Nodegroup[]) {
     for (var ng of nodeGroups) {
       Tags.of(ng).add(`k8s.io/cluster-autoscaler/${clusterName}`, "owned", {
         applyToLaunchedInstances: true,
@@ -416,5 +426,3 @@ class ClusterAutoscaler extends Construct {
     }
   }
 }
-
-module.exports = { ManagedNodeGroup, ClusterAutoscaler };

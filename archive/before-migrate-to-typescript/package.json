@@ -1,0 +1,19 @@
+{
+  "name": "aws-cdk-stacks",
+  "version": "0.1.0",
+  "bin": {
+    "aws-cdk-stacks": "bin/aws-cdk-stacks.js"
+  },
+  "scripts": {
+    "build": "echo \"The build step is not required when using JavaScript!\" && exit 0",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "aws-cdk": "2.110.0"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.110.0",
+    "constructs": "^10.3.0",
+    "dotenv": "^16.3.1"
+  }
+}

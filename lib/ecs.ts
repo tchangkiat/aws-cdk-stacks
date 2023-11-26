@@ -1,23 +1,21 @@
-const { Stack, Duration, CfnOutput } = require("aws-cdk-lib");
-const ec2 = require("aws-cdk-lib/aws-ec2");
-const ecs = require("aws-cdk-lib/aws-ecs");
-const ecsPatterns = require("aws-cdk-lib/aws-ecs-patterns");
-const autoscaling = require("aws-cdk-lib/aws-autoscaling");
-const cloudwatch = require("aws-cdk-lib/aws-cloudwatch");
-const elbv2 = require("aws-cdk-lib/aws-elasticloadbalancingv2");
-const { StandardVpc } = require("../constructs/Network");
-const iam = require("aws-cdk-lib/aws-iam");
-const ecr = require("aws-cdk-lib/aws-ecr");
-const logs = require("aws-cdk-lib/aws-logs");
+import { Construct } from "constructs";
+import { Stack, StackProps, Duration } from "aws-cdk-lib";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as ecs from "aws-cdk-lib/aws-ecs";
+import * as ecsPatterns from "aws-cdk-lib/aws-ecs-patterns";
+import * as autoscaling from "aws-cdk-lib/aws-autoscaling";
+import * as cloudwatch from "aws-cdk-lib/aws-cloudwatch";
+import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
+import * as iam from "aws-cdk-lib/aws-iam";
+import * as ecr from "aws-cdk-lib/aws-ecr";
+import * as logs from "aws-cdk-lib/aws-logs";
 
-class ECS extends Stack {
-  /**
-   *
-   * @param {Construct} scope
-   * @param {string} id
-   * @param {StackProps=} props
-   */
-  constructor(scope, id, props) {
+import { StandardVpc } from "../constructs/network";
+
+export class ECS extends Stack {
+  public Vpc: ec2.Vpc;
+
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const prefix = id + "-demo";
@@ -72,7 +70,8 @@ class ECS extends Stack {
     // VPC
     // ----------------------------
 
-    const vpc = new StandardVpc(this, "vpc", { vpcName: prefix });
+    const vpc = new StandardVpc(this, "vpc", { vpcName: prefix }) as ec2.Vpc;
+    this.Vpc = vpc;
 
     // ----------------------------
     // ECS Cluster
@@ -264,5 +263,3 @@ class ECS extends Stack {
     );
   }
 }
-
-module.exports = { ECS };
