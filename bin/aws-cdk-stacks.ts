@@ -13,7 +13,6 @@ import { ECS } from "../lib/ecs";
 import { EKS } from "../lib/EKS";
 import { MultiArchPipeline } from "../lib/multi-arch-pipeline";
 import { TransitGateway } from "../lib/transit-gateway";
-import { Vpc } from "../lib/vpc";
 
 import { Autoscaler } from "../constants";
 import { GitHubProps } from "../github-props";
@@ -31,9 +30,11 @@ const github2: GitHubProps = {
 
 const app = new cdk.App();
 
-new Vpc(app, "vpc");
+new ALBRuleRestriction(app, "alb-rule-restriction");
 
-new MultiArchPipeline(app, "mapl", github);
+new ApiGateway(app, "api-gateway");
+
+new CicdEc2(app, "cicd-ec2", github2);
 
 const ecs = new ECS(app, "ecs");
 
@@ -43,10 +44,6 @@ new EKS(app, "eks");
 
 new EKS(app, "eks-ca", Autoscaler.ClusterAutoscaler);
 
-new CicdEc2(app, "cicd-ec2", github2);
-
-new ApiGateway(app, "api-gateway");
+new MultiArchPipeline(app, "mapl", github);
 
 new TransitGateway(app, "transit-gateway");
-
-new ALBRuleRestriction(app, "alb-rule-restriction");

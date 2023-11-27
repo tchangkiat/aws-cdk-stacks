@@ -7,7 +7,6 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 # Table of Content
 
 - [Initial Setup](#initial-setup)
-- [Standard VPC](#standard-vpc)
 - [Multi-Architecture Pipeline](#multi-architecture-pipeline)
 - [Elastic Container Service (ECS)](#elastic-container-service-ecs)
   - [ECS Cluster Setup](#ecs-cluster-setup)
@@ -42,14 +41,6 @@ aws configure set output json
 4. Bootstrap AWS account for CDK with `cdk bootstrap`.
 
 5. Create an EC2 Key Pair named "EC2DefaultKeyPair".
-
-# Standard VPC
-
-```bash
-cdk deploy vpc
-```
-
-Deploy a VPC with a maximum of 3 public and 3 private subnets. A NAT gateway will also be provisioned in one of the public subnets.
 
 # Multi-Architecture Pipeline
 
