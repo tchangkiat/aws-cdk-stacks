@@ -142,7 +142,7 @@ export class ApiGateway extends Stack {
     const listener = alb.addListener("alb-listener", {
       port: 80,
     });
-    const targetGroup = listener.addTargets("alb-target-1", {
+    listener.addTargets("alb-target-1", {
       port: 80,
       targets: [ec2AutoScalingGroup],
     });

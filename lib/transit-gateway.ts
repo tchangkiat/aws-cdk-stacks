@@ -83,7 +83,7 @@ export class TransitGateway extends Stack {
     );
     tgwAttachmentVpc1.addDependency(tgw);
 
-    for (let subnet of egressVpc.publicSubnets) {
+    for (const subnet of egressVpc.publicSubnets) {
       new ec2.CfnRoute(this, subnet.node.id, {
         routeTableId: subnet.routeTable.routeTableId,
         destinationCidrBlock: vpc1.vpcCidrBlock,
@@ -91,7 +91,7 @@ export class TransitGateway extends Stack {
       }).addDependency(tgwAttachmentVpcEgress);
     }
 
-    for (let subnet of vpc1.isolatedSubnets) {
+    for (const subnet of vpc1.isolatedSubnets) {
       new ec2.CfnRoute(this, subnet.node.id, {
         routeTableId: subnet.routeTable.routeTableId,
         destinationCidrBlock: "0.0.0.0/0",
@@ -112,51 +112,48 @@ export class TransitGateway extends Stack {
         ],
       }
     );
-    const tgwRouteVpcEgress = new ec2.CfnTransitGatewayRoute(
+
+    new ec2.CfnTransitGatewayRoute(this, "tgw-route-vpc-egress", {
+      transitGatewayRouteTableId: tgwRouteTable.ref,
+      transitGatewayAttachmentId: tgwAttachmentVpcEgress.ref,
+      destinationCidrBlock: "0.0.0.0/0",
+    });
+
+    new ec2.CfnTransitGatewayRouteTableAssociation(
       this,
-      "tgw-route-vpc-egress",
+      "tgw-route-table-association-vpc-egress",
       {
-        transitGatewayRouteTableId: tgwRouteTable.ref,
         transitGatewayAttachmentId: tgwAttachmentVpcEgress.ref,
-        destinationCidrBlock: "0.0.0.0/0",
+        transitGatewayRouteTableId: tgwRouteTable.ref,
       }
     );
-    const tgwRouteTableAssociationVpcEgress =
-      new ec2.CfnTransitGatewayRouteTableAssociation(
-        this,
-        "tgw-route-table-association-vpc-egress",
-        {
-          transitGatewayAttachmentId: tgwAttachmentVpcEgress.ref,
-          transitGatewayRouteTableId: tgwRouteTable.ref,
-        }
-      );
-    const tgwRouteTablePropagationVpcEgress =
-      new ec2.CfnTransitGatewayRouteTablePropagation(
-        this,
-        "tgw-route-table-propagation-vpc-egress",
-        {
-          transitGatewayAttachmentId: tgwAttachmentVpcEgress.ref,
-          transitGatewayRouteTableId: tgwRouteTable.ref,
-        }
-      );
-    const tgwRouteTableAssociationVpc1 =
-      new ec2.CfnTransitGatewayRouteTableAssociation(
-        this,
-        "tgw-route-table-association-vpc-1",
-        {
-          transitGatewayAttachmentId: tgwAttachmentVpc1.ref,
-          transitGatewayRouteTableId: tgwRouteTable.ref,
-        }
-      );
-    const tgwRouteTablePropagationVpc1 =
-      new ec2.CfnTransitGatewayRouteTablePropagation(
-        this,
-        "tgw-route-table-propagation-vpc-1",
-        {
-          transitGatewayAttachmentId: tgwAttachmentVpc1.ref,
-          transitGatewayRouteTableId: tgwRouteTable.ref,
-        }
-      );
+
+    new ec2.CfnTransitGatewayRouteTablePropagation(
+      this,
+      "tgw-route-table-propagation-vpc-egress",
+      {
+        transitGatewayAttachmentId: tgwAttachmentVpcEgress.ref,
+        transitGatewayRouteTableId: tgwRouteTable.ref,
+      }
+    );
+
+    new ec2.CfnTransitGatewayRouteTableAssociation(
+      this,
+      "tgw-route-table-association-vpc-1",
+      {
+        transitGatewayAttachmentId: tgwAttachmentVpc1.ref,
+        transitGatewayRouteTableId: tgwRouteTable.ref,
+      }
+    );
+
+    new ec2.CfnTransitGatewayRouteTablePropagation(
+      this,
+      "tgw-route-table-propagation-vpc-1",
+      {
+        transitGatewayAttachmentId: tgwAttachmentVpc1.ref,
+        transitGatewayRouteTableId: tgwRouteTable.ref,
+      }
+    );
 
     // ----------------------------
     // EC2
@@ -205,7 +202,7 @@ export class TransitGateway extends Stack {
       },
     });
 
-    const demoInstance = new ec2.CfnInstance(this, "demo-instance", {
+    new ec2.CfnInstance(this, "demo-instance", {
       subnetId: vpc1.isolatedSubnets[0].subnetId,
       imageId: latestLinuxAMI.getImage(this).imageId,
       instanceType: "t4g.nano",
@@ -268,7 +265,7 @@ export class TransitGateway extends Stack {
       ],
     });
 
-    const vpnConnection = new ec2.CfnVPNConnection(this, "tgw-poc-vpn", {
+    new ec2.CfnVPNConnection(this, "tgw-poc-vpn", {
       customerGatewayId: cgw.ref,
       type: "ipsec.1",
 
@@ -304,7 +301,7 @@ export class TransitGateway extends Stack {
     );
     demoInstance2SG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allIcmp());
 
-    const demoInstance2 = new ec2.CfnInstance(this, "demo-instance-2", {
+    new ec2.CfnInstance(this, "demo-instance-2", {
       subnetId: customerVpc.privateSubnets[0].subnetId,
       imageId: latestLinuxAMI.getImage(this).imageId,
       instanceType: "t4g.nano",

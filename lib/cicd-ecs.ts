@@ -177,7 +177,7 @@ export class CicdEcs extends Stack {
       }
     );
 
-    const pipeline = new codepipeline.Pipeline(this, "CodePipeline", {
+    new codepipeline.Pipeline(this, "CodePipeline", {
       artifactBucket: artifactBucket,
       pipelineName: prefix + "-pipeline",
       stages: [
