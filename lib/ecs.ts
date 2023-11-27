@@ -1,60 +1,60 @@
-import { Construct } from "constructs";
-import { Stack, StackProps, Duration } from "aws-cdk-lib";
-import * as ec2 from "aws-cdk-lib/aws-ec2";
-import * as ecs from "aws-cdk-lib/aws-ecs";
-import * as ecsPatterns from "aws-cdk-lib/aws-ecs-patterns";
+import { type Construct } from 'constructs'
+import { Stack, type StackProps, Duration } from 'aws-cdk-lib'
+import type * as ec2 from 'aws-cdk-lib/aws-ec2'
+import * as ecs from 'aws-cdk-lib/aws-ecs'
+import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns'
 // import * as autoscaling from "aws-cdk-lib/aws-autoscaling";
-import * as cloudwatch from "aws-cdk-lib/aws-cloudwatch";
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch'
 // import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
-import * as iam from "aws-cdk-lib/aws-iam";
-import * as ecr from "aws-cdk-lib/aws-ecr";
-import * as logs from "aws-cdk-lib/aws-logs";
+import * as iam from 'aws-cdk-lib/aws-iam'
+import * as ecr from 'aws-cdk-lib/aws-ecr'
+import * as logs from 'aws-cdk-lib/aws-logs'
 
-import { StandardVpc } from "../constructs/network";
+import { StandardVpc } from '../constructs/network'
 
 export class ECS extends Stack {
-  public Vpc: ec2.Vpc;
+  public Vpc: ec2.Vpc
 
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
+  constructor (scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props)
 
-    const prefix = id + "-demo";
+    const prefix = id + '-demo'
 
     // ----------------------------
     // IAM Roles
     // ----------------------------
 
-    const ecsTaskExecutionRole = new iam.Role(this, "ecs-task-execution-role", {
-      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-      roleName: prefix + "-ecs-task-execution",
-    });
+    const ecsTaskExecutionRole = new iam.Role(this, 'ecs-task-execution-role', {
+      assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+      roleName: prefix + '-ecs-task-execution'
+    })
     ecsTaskExecutionRole.addToPolicy(
       new iam.PolicyStatement({
-        resources: ["*"],
+        resources: ['*'],
         actions: [
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:BatchGetImage",
-          "ecr:GetAuthorizationToken",
-          "ecr:GetDownloadUrlForLayer",
-        ],
+          'ecr:BatchCheckLayerAvailability',
+          'ecr:BatchGetImage',
+          'ecr:GetAuthorizationToken',
+          'ecr:GetDownloadUrlForLayer'
+        ]
       })
-    );
+    )
 
-    const ecsTaskRole = new iam.Role(this, "ecs-task-role", {
-      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-      roleName: prefix + "-ecs-task",
-    });
+    const ecsTaskRole = new iam.Role(this, 'ecs-task-role', {
+      assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+      roleName: prefix + '-ecs-task'
+    })
     ecsTaskRole.addToPolicy(
       new iam.PolicyStatement({
-        resources: ["*"],
+        resources: ['*'],
         actions: [
-          "logs:CreateLogStream",
-          "logs:CreateLogGroup",
-          "logs:DescribeLogStreams",
-          "logs:PutLogEvents",
-        ],
+          'logs:CreateLogStream',
+          'logs:CreateLogGroup',
+          'logs:DescribeLogStreams',
+          'logs:PutLogEvents'
+        ]
       })
-    );
+    )
 
     // ----------------------------
     // ECR
@@ -62,31 +62,31 @@ export class ECS extends Stack {
 
     const imgRepo = ecr.Repository.fromRepositoryName(
       this,
-      "image-repository",
-      "mapl"
-    );
+      'image-repository',
+      'mapl'
+    )
 
     // ----------------------------
     // VPC
     // ----------------------------
 
-    const vpc = new StandardVpc(this, "vpc", { vpcName: prefix }) as ec2.Vpc;
-    this.Vpc = vpc;
+    const vpc = new StandardVpc(this, 'vpc', { vpcName: prefix }) as ec2.Vpc
+    this.Vpc = vpc
 
     // ----------------------------
     // ECS Cluster
     // ----------------------------
 
-    const cluster = new ecs.Cluster(this, "cluster", {
+    const cluster = new ecs.Cluster(this, 'cluster', {
       vpc,
-      clusterName: prefix,
-    });
+      clusterName: prefix
+    })
 
     // ----------------------------
     // ECS Cluster > EC2 Capacity Provider
     // ----------------------------
 
-    /*const asg = new autoscaling.AutoScalingGroup(this, "asg", {
+    /* const asg = new autoscaling.AutoScalingGroup(this, "asg", {
       vpc,
       autoScalingGroupName: prefix + "-asg",
       instanceType: new ec2.InstanceType("t3.medium"),
@@ -156,7 +156,7 @@ export class ECS extends Stack {
 
     new CfnOutput(this, "EC2 Service Load Balancer DNS", {
       value: "http://" + lb.loadBalancerDnsName,
-    });*/
+    }); */
 
     // ----------------------------
     // ECS Cluster > Fargate
@@ -164,102 +164,102 @@ export class ECS extends Stack {
 
     const fgTaskDef = new ecs.FargateTaskDefinition(
       this,
-      "fg-task-definition",
+      'fg-task-definition',
       {
         executionRole: ecsTaskExecutionRole,
         taskRole: ecsTaskRole,
         cpu: 512,
-        memoryLimitMiB: 1024,
+        memoryLimitMiB: 1024
       }
-    );
+    )
 
-    fgTaskDef.addContainer("sample-express-api", {
+    fgTaskDef.addContainer('sample-express-api', {
       image: ecs.ContainerImage.fromEcrRepository(imgRepo),
-      containerName: "sample-express-api",
+      containerName: 'sample-express-api',
       portMappings: [{ containerPort: 8000 }],
       cpu: 256,
       memoryReservationMiB: 512,
       logging: ecs.LogDrivers.firelens({
         options: {
-          Name: "cloudwatch",
-          region: "ap-southeast-1",
-          log_group_name: "/aws/containerinsights/" + prefix + "/application",
-          auto_create_group: "true",
-          log_stream_name: "sample-express-api-$(ecs_task_id)",
-          retry_limit: "2",
-        },
-      }),
-    });
+          Name: 'cloudwatch',
+          region: 'ap-southeast-1',
+          log_group_name: '/aws/containerinsights/' + prefix + '/application',
+          auto_create_group: 'true',
+          log_stream_name: 'sample-express-api-$(ecs_task_id)',
+          retry_limit: '2'
+        }
+      })
+    })
 
-    fgTaskDef.addFirelensLogRouter("log-router", {
+    fgTaskDef.addFirelensLogRouter('log-router', {
       essential: true,
       image: ecs.ContainerImage.fromRegistry(
-        "public.ecr.aws/aws-observability/aws-for-fluent-bit:latest"
+        'public.ecr.aws/aws-observability/aws-for-fluent-bit:latest'
       ),
-      containerName: "log_router",
+      containerName: 'log_router',
       firelensConfig: { type: ecs.FirelensLogRouterType.FLUENTBIT },
       logging: new ecs.AwsLogDriver({
-        streamPrefix: "firelens",
-        logGroup: new logs.LogGroup(this, "firelens-container-log-group", {
-          logGroupName: "firelens-container",
-          retention: logs.RetentionDays.ONE_DAY,
-        }),
+        streamPrefix: 'firelens',
+        logGroup: new logs.LogGroup(this, 'firelens-container-log-group', {
+          logGroupName: 'firelens-container',
+          retention: logs.RetentionDays.ONE_DAY
+        })
       }),
-      memoryReservationMiB: 50,
-    });
+      memoryReservationMiB: 50
+    })
 
     const loadBalancedFargateService =
       new ecsPatterns.ApplicationLoadBalancedFargateService(
         this,
-        "FargateService",
+        'FargateService',
         {
           cluster,
           desiredCount: 1,
           publicLoadBalancer: true,
-          serviceName: prefix + "-fg-service",
-          loadBalancerName: prefix + "-fg-service-lb",
-          taskDefinition: fgTaskDef,
+          serviceName: prefix + '-fg-service',
+          loadBalancerName: prefix + '-fg-service-lb',
+          taskDefinition: fgTaskDef
         }
-      );
+      )
     const fargateServiceScalability =
-      loadBalancedFargateService.service.autoScaleTaskCount({ maxCapacity: 3 });
+      loadBalancedFargateService.service.autoScaleTaskCount({ maxCapacity: 3 })
     fargateServiceScalability.scaleOnCpuUtilization(
-      "FargateServiceScalability",
+      'FargateServiceScalability',
       {
-        targetUtilizationPercent: 70,
+        targetUtilizationPercent: 70
       }
-    );
+    )
 
     // ----------------------------
     // ECS Cluster > CloudWatch
     // ----------------------------
 
-    const dashboard = new cloudwatch.Dashboard(this, "CWDashboard", {
-      dashboardName: prefix,
-    });
+    const dashboard = new cloudwatch.Dashboard(this, 'CWDashboard', {
+      dashboardName: prefix
+    })
 
-    /*const ec2CpuUtilizationMetric = ec2Service.metricCpuUtilization({
+    /* const ec2CpuUtilizationMetric = ec2Service.metricCpuUtilization({
       period: Duration.minutes(1),
       label: "EC2 CPU Utilization",
-    });*/
+    }); */
 
     const fargateCpuUtilizationMetric =
       loadBalancedFargateService.service.metricCpuUtilization({
         period: Duration.minutes(1),
-        label: "Fargate CPU Utilization",
-      });
+        label: 'Fargate CPU Utilization'
+      })
 
     dashboard.addWidgets(
-      /*new cloudwatch.GraphWidget({
+      /* new cloudwatch.GraphWidget({
         left: [ec2CpuUtilizationMetric],
         width: 12,
         title: "EC2 CPU Utilization",
-      }),*/
+      }), */
       new cloudwatch.GraphWidget({
         left: [fargateCpuUtilizationMetric],
         width: 12,
-        title: "Fargate CPU Utilization",
+        title: 'Fargate CPU Utilization'
       })
-    );
+    )
   }
 }

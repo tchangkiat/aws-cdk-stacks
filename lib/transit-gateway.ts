@@ -1,185 +1,185 @@
-import { Construct } from "constructs";
-import { Stack, StackProps, CfnOutput } from "aws-cdk-lib";
-import * as ec2 from "aws-cdk-lib/aws-ec2";
-import * as iam from "aws-cdk-lib/aws-iam";
+import { type Construct } from 'constructs'
+import { Stack, type StackProps, CfnOutput } from 'aws-cdk-lib'
+import * as ec2 from 'aws-cdk-lib/aws-ec2'
+import * as iam from 'aws-cdk-lib/aws-iam'
 
-import { StandardVpc } from "../constructs/network";
+import { StandardVpc } from '../constructs/network'
 
 export class TransitGateway extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
+  constructor (scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props)
 
     // ----------------------------
     // VPC
     // ----------------------------
 
-    const egressVpc = new StandardVpc(this, "tgw-poc-vpc-egress", {
+    const egressVpc = new StandardVpc(this, 'tgw-poc-vpc-egress', {
       maxAzs: 1,
-      vpcName: "tgw-poc-vpc-egress",
-    }) as ec2.Vpc;
+      vpcName: 'tgw-poc-vpc-egress'
+    }) as ec2.Vpc
 
-    const vpc1 = new ec2.Vpc(this, "tgw-poc-vpc-1", {
-      ipAddresses: ec2.IpAddresses.cidr("20.0.0.0/16"),
+    const vpc1 = new ec2.Vpc(this, 'tgw-poc-vpc-1', {
+      ipAddresses: ec2.IpAddresses.cidr('20.0.0.0/16'),
       maxAzs: 1,
       natGateways: 0,
-      vpcName: "tgw-poc-vpc-1",
+      vpcName: 'tgw-poc-vpc-1',
       subnetConfiguration: [
         {
           cidrMask: 24,
-          name: "Private",
-          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-        },
-      ],
-    });
+          name: 'Private',
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED
+        }
+      ]
+    })
 
     // ----------------------------
     // Transit Gateway
     // ----------------------------
 
-    const tgw = new ec2.CfnTransitGateway(this, "tgw", {
-      description: "Transit Gateway",
-      vpnEcmpSupport: "enable",
-      defaultRouteTableAssociation: "disable",
-      defaultRouteTablePropagation: "disable",
+    const tgw = new ec2.CfnTransitGateway(this, 'tgw', {
+      description: 'Transit Gateway',
+      vpnEcmpSupport: 'enable',
+      defaultRouteTableAssociation: 'disable',
+      defaultRouteTablePropagation: 'disable',
       tags: [
         {
-          key: "Name",
-          value: "tgw-poc",
-        },
-      ],
-    });
+          key: 'Name',
+          value: 'tgw-poc'
+        }
+      ]
+    })
 
     const tgwAttachmentVpcEgress = new ec2.CfnTransitGatewayAttachment(
       this,
-      "tgw-attachment-vpc-egress",
+      'tgw-attachment-vpc-egress',
       {
         transitGatewayId: tgw.ref,
         vpcId: egressVpc.vpcId,
         subnetIds: [egressVpc.privateSubnets[0].subnetId],
         tags: [
           {
-            key: "Name",
-            value: "tgw-attachment-vpc-egress",
-          },
-        ],
+            key: 'Name',
+            value: 'tgw-attachment-vpc-egress'
+          }
+        ]
       }
-    );
-    tgwAttachmentVpcEgress.addDependency(tgw);
+    )
+    tgwAttachmentVpcEgress.addDependency(tgw)
 
     const tgwAttachmentVpc1 = new ec2.CfnTransitGatewayAttachment(
       this,
-      "tgw-attachment-vpc-1",
+      'tgw-attachment-vpc-1',
       {
         transitGatewayId: tgw.ref,
         vpcId: vpc1.vpcId,
         subnetIds: [vpc1.isolatedSubnets[0].subnetId],
         tags: [
           {
-            key: "Name",
-            value: "tgw-attachment-vpc-1",
-          },
-        ],
+            key: 'Name',
+            value: 'tgw-attachment-vpc-1'
+          }
+        ]
       }
-    );
-    tgwAttachmentVpc1.addDependency(tgw);
+    )
+    tgwAttachmentVpc1.addDependency(tgw)
 
     for (const subnet of egressVpc.publicSubnets) {
       new ec2.CfnRoute(this, subnet.node.id, {
         routeTableId: subnet.routeTable.routeTableId,
         destinationCidrBlock: vpc1.vpcCidrBlock,
-        transitGatewayId: tgw.ref,
-      }).addDependency(tgwAttachmentVpcEgress);
+        transitGatewayId: tgw.ref
+      }).addDependency(tgwAttachmentVpcEgress)
     }
 
     for (const subnet of vpc1.isolatedSubnets) {
       new ec2.CfnRoute(this, subnet.node.id, {
         routeTableId: subnet.routeTable.routeTableId,
-        destinationCidrBlock: "0.0.0.0/0",
-        transitGatewayId: tgw.ref,
-      }).addDependency(tgwAttachmentVpc1);
+        destinationCidrBlock: '0.0.0.0/0',
+        transitGatewayId: tgw.ref
+      }).addDependency(tgwAttachmentVpc1)
     }
 
     const tgwRouteTable = new ec2.CfnTransitGatewayRouteTable(
       this,
-      "tgwRouteTable",
+      'tgwRouteTable',
       {
         transitGatewayId: tgw.ref,
         tags: [
           {
-            key: "Name",
-            value: "tgw-route-table",
-          },
-        ],
+            key: 'Name',
+            value: 'tgw-route-table'
+          }
+        ]
       }
-    );
+    )
 
-    new ec2.CfnTransitGatewayRoute(this, "tgw-route-vpc-egress", {
+    new ec2.CfnTransitGatewayRoute(this, 'tgw-route-vpc-egress', {
       transitGatewayRouteTableId: tgwRouteTable.ref,
       transitGatewayAttachmentId: tgwAttachmentVpcEgress.ref,
-      destinationCidrBlock: "0.0.0.0/0",
-    });
+      destinationCidrBlock: '0.0.0.0/0'
+    })
 
     new ec2.CfnTransitGatewayRouteTableAssociation(
       this,
-      "tgw-route-table-association-vpc-egress",
+      'tgw-route-table-association-vpc-egress',
       {
         transitGatewayAttachmentId: tgwAttachmentVpcEgress.ref,
-        transitGatewayRouteTableId: tgwRouteTable.ref,
+        transitGatewayRouteTableId: tgwRouteTable.ref
       }
-    );
+    )
 
     new ec2.CfnTransitGatewayRouteTablePropagation(
       this,
-      "tgw-route-table-propagation-vpc-egress",
+      'tgw-route-table-propagation-vpc-egress',
       {
         transitGatewayAttachmentId: tgwAttachmentVpcEgress.ref,
-        transitGatewayRouteTableId: tgwRouteTable.ref,
+        transitGatewayRouteTableId: tgwRouteTable.ref
       }
-    );
+    )
 
     new ec2.CfnTransitGatewayRouteTableAssociation(
       this,
-      "tgw-route-table-association-vpc-1",
+      'tgw-route-table-association-vpc-1',
       {
         transitGatewayAttachmentId: tgwAttachmentVpc1.ref,
-        transitGatewayRouteTableId: tgwRouteTable.ref,
+        transitGatewayRouteTableId: tgwRouteTable.ref
       }
-    );
+    )
 
     new ec2.CfnTransitGatewayRouteTablePropagation(
       this,
-      "tgw-route-table-propagation-vpc-1",
+      'tgw-route-table-propagation-vpc-1',
       {
         transitGatewayAttachmentId: tgwAttachmentVpc1.ref,
-        transitGatewayRouteTableId: tgwRouteTable.ref,
+        transitGatewayRouteTableId: tgwRouteTable.ref
       }
-    );
+    )
 
     // ----------------------------
     // EC2
     // ----------------------------
 
-    const demoInstanceSG = new ec2.SecurityGroup(this, "tgw-poc-instance-sg", {
+    const demoInstanceSG = new ec2.SecurityGroup(this, 'tgw-poc-instance-sg', {
       vpc: vpc1,
-      securityGroupName: "tgw-poc-instance-sg",
-      description: "Demo Instance Security Group",
-      allowAllOutbound: true,
-    });
-    demoInstanceSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allIcmp());
+      securityGroupName: 'tgw-poc-instance-sg',
+      description: 'Demo Instance Security Group',
+      allowAllOutbound: true
+    })
+    demoInstanceSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allIcmp())
 
     const latestLinuxAMI = ec2.MachineImage.latestAmazonLinux2023({
-      cpuType: ec2.AmazonLinuxCpuType.ARM_64,
-    });
+      cpuType: ec2.AmazonLinuxCpuType.ARM_64
+    })
 
-    const ssmRole = new iam.Role(this, "ssm-role", {
-      assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
+    const ssmRole = new iam.Role(this, 'ssm-role', {
+      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName(
-          "AmazonSSMManagedInstanceCore"
+          'AmazonSSMManagedInstanceCore'
         ),
         iam.ManagedPolicy.fromAwsManagedPolicyName(
-          "CloudWatchAgentServerPolicy"
-        ),
+          'CloudWatchAgentServerPolicy'
+        )
       ],
       // optional inline policy for S3 SSM
       inlinePolicies: {
@@ -187,40 +187,40 @@ export class TransitGateway extends Stack {
           statements: [
             new iam.PolicyStatement({
               effect: iam.Effect.ALLOW,
-              actions: ["s3:GetObject"],
+              actions: ['s3:GetObject'],
               resources: [
-                "arn:aws:s3:::aws-ssm-" + this.region + "/*",
-                "arn:aws:s3:::aws-windows-downloads-" + this.region + "/*",
-                "arn:aws:s3:::amazon-ssm-" + this.region + "/*",
-                "arn:aws:s3:::amazon-ssm-packages-" + this.region + "/*",
-                "arn:aws:s3:::" + this.region + "-birdwatcher-prod/*",
-                "arn:aws:s3:::patch-baseline-snapshot-" + this.region + "/*",
-              ],
-            }),
-          ],
-        }),
-      },
-    });
+                'arn:aws:s3:::aws-ssm-' + this.region + '/*',
+                'arn:aws:s3:::aws-windows-downloads-' + this.region + '/*',
+                'arn:aws:s3:::amazon-ssm-' + this.region + '/*',
+                'arn:aws:s3:::amazon-ssm-packages-' + this.region + '/*',
+                'arn:aws:s3:::' + this.region + '-birdwatcher-prod/*',
+                'arn:aws:s3:::patch-baseline-snapshot-' + this.region + '/*'
+              ]
+            })
+          ]
+        })
+      }
+    })
 
-    new ec2.CfnInstance(this, "demo-instance", {
+    new ec2.CfnInstance(this, 'demo-instance', {
       subnetId: vpc1.isolatedSubnets[0].subnetId,
       imageId: latestLinuxAMI.getImage(this).imageId,
-      instanceType: "t4g.nano",
+      instanceType: 't4g.nano',
       iamInstanceProfile: new iam.CfnInstanceProfile(
         this,
-        "demo-instance-profile",
+        'demo-instance-profile',
         {
-          roles: [ssmRole.roleName],
+          roles: [ssmRole.roleName]
         }
       ).ref,
       tags: [
         {
-          key: "Name",
-          value: "tgw-poc-demo-instance",
-        },
+          key: 'Name',
+          value: 'tgw-poc-demo-instance'
+        }
       ],
-      securityGroupIds: [demoInstanceSG.securityGroupId],
-    });
+      securityGroupIds: [demoInstanceSG.securityGroupId]
+    })
 
     // ------------------------------------------------------------------------------------
     // VPN
@@ -228,105 +228,102 @@ export class TransitGateway extends Stack {
     //   Gateway and the simulated customer's on-prem environment is not required)
     // ------------------------------------------------------------------------------------
 
-    const customerVpc = new ec2.Vpc(this, "tgw-poc-customer-vpc", {
-      ipAddresses: ec2.IpAddresses.cidr("30.0.0.0/16"),
+    const customerVpc = new ec2.Vpc(this, 'tgw-poc-customer-vpc', {
+      ipAddresses: ec2.IpAddresses.cidr('30.0.0.0/16'),
       maxAzs: 1,
       natGateways: 1,
-      vpcName: "tgw-poc-customer-vpc",
+      vpcName: 'tgw-poc-customer-vpc',
       subnetConfiguration: [
         {
           cidrMask: 24,
-          name: "Public",
-          subnetType: ec2.SubnetType.PUBLIC,
+          name: 'Public',
+          subnetType: ec2.SubnetType.PUBLIC
         },
         {
           cidrMask: 24,
-          name: "Private",
-          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-        },
-      ],
-    });
+          name: 'Private',
+          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS
+        }
+      ]
+    })
 
-    const elasticIp = new ec2.CfnEIP(
-      this,
-      "elastic-ip-for-strongswan-instance"
-    );
+    const elasticIp = new ec2.CfnEIP(this, 'elastic-ip-for-strongswan-instance')
 
-    const cgw = new ec2.CfnCustomerGateway(this, "tgw-poc-cgw", {
+    const cgw = new ec2.CfnCustomerGateway(this, 'tgw-poc-cgw', {
       bgpAsn: 65000,
       ipAddress: elasticIp.ref,
-      type: "ipsec.1",
+      type: 'ipsec.1',
 
       tags: [
         {
-          key: "Name",
-          value: "tgw-poc-cgw",
-        },
-      ],
-    });
+          key: 'Name',
+          value: 'tgw-poc-cgw'
+        }
+      ]
+    })
 
-    new ec2.CfnVPNConnection(this, "tgw-poc-vpn", {
+    new ec2.CfnVPNConnection(this, 'tgw-poc-vpn', {
       customerGatewayId: cgw.ref,
-      type: "ipsec.1",
+      type: 'ipsec.1',
 
       staticRoutesOnly: false,
       tags: [
         {
-          key: "Name",
-          value: "tgw-poc-vpn",
-        },
+          key: 'Name',
+          value: 'tgw-poc-vpn'
+        }
       ],
       transitGatewayId: tgw.ref,
       vpnTunnelOptionsSpecifications: [
         {
-          preSharedKey: "tgw.poc.psk1",
-          tunnelInsideCidr: "169.254.7.0/30",
+          preSharedKey: 'tgw.poc.psk1',
+          tunnelInsideCidr: '169.254.7.0/30'
         },
         {
-          preSharedKey: "tgw.poc.psk2",
-          tunnelInsideCidr: "169.254.8.0/30",
-        },
-      ],
-    });
+          preSharedKey: 'tgw.poc.psk2',
+          tunnelInsideCidr: '169.254.8.0/30'
+        }
+      ]
+    })
 
     const demoInstance2SG = new ec2.SecurityGroup(
       this,
-      "tgw-poc-instance-2-sg",
+      'tgw-poc-instance-2-sg',
       {
         vpc: customerVpc,
-        securityGroupName: "tgw-poc-instance-2-sg",
-        description: "Demo Instance 2 Security Group",
-        allowAllOutbound: true,
+        securityGroupName: 'tgw-poc-instance-2-sg',
+        description: 'Demo Instance 2 Security Group',
+        allowAllOutbound: true
       }
-    );
-    demoInstance2SG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allIcmp());
+    )
+    demoInstance2SG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allIcmp())
 
-    new ec2.CfnInstance(this, "demo-instance-2", {
+    new ec2.CfnInstance(this, 'demo-instance-2', {
       subnetId: customerVpc.privateSubnets[0].subnetId,
       imageId: latestLinuxAMI.getImage(this).imageId,
-      instanceType: "t4g.nano",
+      instanceType: 't4g.nano',
       iamInstanceProfile: new iam.CfnInstanceProfile(
         this,
-        "demo-instance-2-profile",
+        'demo-instance-2-profile',
         {
-          roles: [ssmRole.roleName],
+          roles: [ssmRole.roleName]
         }
       ).ref,
       tags: [
         {
-          key: "Name",
-          value: "tgw-poc-demo-instance-2",
-        },
+          key: 'Name',
+          value: 'tgw-poc-demo-instance-2'
+        }
       ],
-      securityGroupIds: [demoInstance2SG.securityGroupId],
-    });
+      securityGroupIds: [demoInstance2SG.securityGroupId]
+    })
 
-    new CfnOutput(this, "CustomerGatewayElasticIpAddress", {
-      value: elasticIp.ref,
-    });
+    new CfnOutput(this, 'CustomerGatewayElasticIpAddress', {
+      value: elasticIp.ref
+    })
 
-    new CfnOutput(this, "CustomerGatewayElasticIpAllocationId", {
-      value: elasticIp.attrAllocationId,
-    });
+    new CfnOutput(this, 'CustomerGatewayElasticIpAllocationId', {
+      value: elasticIp.attrAllocationId
+    })
   }
 }

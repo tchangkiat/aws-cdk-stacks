@@ -1,137 +1,137 @@
-import { Construct } from "constructs";
-import { Stack, StackProps, CfnOutput, Tags } from "aws-cdk-lib";
-import * as ec2 from "aws-cdk-lib/aws-ec2";
-import * as iam from "aws-cdk-lib/aws-iam";
-import * as eks from "aws-cdk-lib/aws-eks";
-import { KubectlLayer } from "aws-cdk-lib/lambda-layer-kubectl";
+import { type Construct } from 'constructs'
+import { Stack, type StackProps, CfnOutput, Tags } from 'aws-cdk-lib'
+import type * as ec2 from 'aws-cdk-lib/aws-ec2'
+import * as iam from 'aws-cdk-lib/aws-iam'
+import * as eks from 'aws-cdk-lib/aws-eks'
+import { KubectlLayer } from 'aws-cdk-lib/lambda-layer-kubectl'
 
-import { ManagedNodeGroup, ClusterAutoscaler } from "../constructs/eks";
-import { StandardVpc } from "../constructs/network";
-import { BastionHost } from "../constructs/bastion-host";
-import { Autoscaler } from "../constants";
+import { ManagedNodeGroup, ClusterAutoscaler } from '../constructs/eks'
+import { StandardVpc } from '../constructs/network'
+import { BastionHost } from '../constructs/bastion-host'
+import { Autoscaler } from '../constants'
 
 export class EKS extends Stack {
-  constructor(
+  constructor (
     scope: Construct,
     id: string,
     autoscaler?: string,
     props?: StackProps
   ) {
-    super(scope, id, props);
+    super(scope, id, props)
 
     // ----------------------------
     // Configuration
     // ----------------------------
 
-    const bastionHostSshKeyName = "EC2DefaultKeyPair";
+    const bastionHostSshKeyName = 'EC2DefaultKeyPair'
 
-    const eksClusterKubernetesVersion = eks.KubernetesVersion.V1_28;
+    const eksClusterKubernetesVersion = eks.KubernetesVersion.V1_28
 
-    const eksClusterName = id + "-demo";
+    const eksClusterName = id + '-demo'
 
     // ----------------------------
     // VPC
     // ----------------------------
 
-    const vpc = new StandardVpc(this, "vpc", {
-      vpcName: eksClusterName,
-    }) as ec2.Vpc;
+    const vpc = new StandardVpc(this, 'vpc', {
+      vpcName: eksClusterName
+    }) as ec2.Vpc
 
     for (const subnet of vpc.publicSubnets) {
       // Tags for AWS Load Balancer Controller
-      Tags.of(subnet).add("kubernetes.io/cluster/" + eksClusterName, "owned");
-      Tags.of(subnet).add("kubernetes.io/role/elb", "1");
+      Tags.of(subnet).add('kubernetes.io/cluster/' + eksClusterName, 'owned')
+      Tags.of(subnet).add('kubernetes.io/role/elb', '1')
     }
     for (const subnet of vpc.privateSubnets) {
       // Tags for AWS Load Balancer Controller
-      Tags.of(subnet).add("kubernetes.io/cluster/" + eksClusterName, "owned");
-      Tags.of(subnet).add("kubernetes.io/role/internal-elb", "1");
+      Tags.of(subnet).add('kubernetes.io/cluster/' + eksClusterName, 'owned')
+      Tags.of(subnet).add('kubernetes.io/role/internal-elb', '1')
       // Tag for Karpenter
-      Tags.of(subnet).add("karpenter.sh/discovery", eksClusterName);
+      Tags.of(subnet).add('karpenter.sh/discovery', eksClusterName)
     }
 
     // ----------------------------
     // IAM
     // ----------------------------
 
-    const eksMasterRole = new iam.Role(this, "master-role", {
+    const eksMasterRole = new iam.Role(this, 'master-role', {
       assumedBy: new iam.AccountRootPrincipal(),
-      roleName: eksClusterName + "-master",
-    });
+      roleName: eksClusterName + '-master'
+    })
 
     // ----------------------------
     // EKS
     // ----------------------------
 
-    const cluster = new eks.Cluster(this, "cluster", {
+    const cluster = new eks.Cluster(this, 'cluster', {
       clusterLogging: [
         eks.ClusterLoggingTypes.API,
-        eks.ClusterLoggingTypes.AUDIT,
+        eks.ClusterLoggingTypes.AUDIT
       ],
       clusterName: eksClusterName,
       defaultCapacity: 0,
       endpointAccess: eks.EndpointAccess.PRIVATE,
-      kubectlLayer: new KubectlLayer(this, "kubectl-layer"),
+      kubectlLayer: new KubectlLayer(this, 'kubectl-layer'),
       mastersRole: eksMasterRole,
       version: eksClusterKubernetesVersion,
       vpc,
       tags: {
-        "eks-cost-cluster": eksClusterName,
-        "eks-cost-workload": "Proof-of-Concept",
-        "eks-cost-team": "tck",
-      },
-    });
+        'eks-cost-cluster': eksClusterName,
+        'eks-cost-workload': 'Proof-of-Concept',
+        'eks-cost-team': 'tck'
+      }
+    })
 
     // Equivalent to executing `eksctl utils associate-iam-oidc-provider`
-    /*new iam.OpenIdConnectProvider(this, "iam-oidc-provider", {
+    /* new iam.OpenIdConnectProvider(this, "iam-oidc-provider", {
       clientIds: ["sts.amazonaws.com"],
       url: cluster.clusterOpenIdConnectIssuerUrl,
-    });*/
+    }); */
 
     // ----------------------------
     // Addons NodeGroup
     // ----------------------------
 
-    const addons_mng = new ManagedNodeGroup(this, "addons-mng", {
+    const addonsMng = new ManagedNodeGroup(this, 'addons-mng', {
       cluster,
-      nodeGroupName: "addons",
+      nodeGroupName: 'addons',
       taints: [
         {
           effect: eks.TaintEffect.NO_SCHEDULE,
-          key: "CriticalAddonsOnly",
-          value: "true",
-        },
-      ],
-    }) as eks.Nodegroup;
+          key: 'CriticalAddonsOnly',
+          value: 'true'
+        }
+      ]
+    }) as eks.Nodegroup
 
     // ----------------------------
     // Bastion Host
     // ----------------------------
 
-    const bastionHost = new BastionHost(this, "bastion-host", vpc, {
-      instanceName: eksClusterName + "/bastion-host",
+    const bastionHost = new BastionHost(this, 'bastion-host', vpc, {
+      instanceName: eksClusterName + '/bastion-host',
       userData: [
-        "sudo yum update -y",
+        'sudo yum update -y',
         // Git
-        "sudo yum install git -y",
+        'sudo yum install git -y',
         // AWS CLI
         'curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"',
-        "unzip awscliv2.zip",
-        "sudo ./aws/install",
+        'unzip awscliv2.zip',
+        'sudo ./aws/install',
         // kubectl
-        "curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.2/2023-10-17/bin/linux/arm64/kubectl",
-        "chmod +x ./kubectl",
-        "mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin",
+        'curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.2/2023-10-17/bin/linux/arm64/kubectl',
+        'chmod +x ./kubectl',
+        'mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin',
         "echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc",
         // helm
-        "curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3",
-        "chmod 700 get_helm.sh",
-        "./get_helm.sh",
+        'curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3',
+        'chmod 700 get_helm.sh',
+        './get_helm.sh',
         // eksctl
         'curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_arm64.tar.gz" | tar xz -C /tmp',
-        "sudo mv /tmp/eksctl /usr/local/bin",
+        'sudo mv /tmp/eksctl /usr/local/bin',
         // jq
-        "sudo yum install jq -y",
+        'sudo yum install jq -y',
         // Environment Variables
         "echo 'export AWS_ACCOUNT_ID=" +
           this.account +
@@ -147,84 +147,84 @@ export class EKS extends Stack {
           "' >> /home/ec2-user/.bashrc",
         "echo 'export CONTAINER_IMAGE_URL=" +
           this.account +
-          ".dkr.ecr." +
+          '.dkr.ecr.' +
           this.region +
           ".amazonaws.com/mapl:latest' >> /home/ec2-user/.bashrc",
         // Download script to set up bastion host
-        "curl -o /home/ec2-user/setup-bastion-host.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/setup-bastion-host.sh",
-        "chmod +x /home/ec2-user/setup-bastion-host.sh",
+        'curl -o /home/ec2-user/setup-bastion-host.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/setup-bastion-host.sh',
+        'chmod +x /home/ec2-user/setup-bastion-host.sh',
         // Alias
         "echo 'alias k=kubectl' >> /home/ec2-user/.bashrc",
-        "echo 'export KUBE_EDITOR=nano' >> /home/ec2-user/.bashrc",
-      ],
-    }) as ec2.Instance;
+        "echo 'export KUBE_EDITOR=nano' >> /home/ec2-user/.bashrc"
+      ]
+    }) as ec2.Instance
 
-    bastionHost.addSecurityGroup(cluster.clusterSecurityGroup);
-    Tags.of(bastionHost).add("eks-cost-cluster", eksClusterName);
-    Tags.of(bastionHost).add("eks-cost-workload", "Proof-of-Concept");
-    Tags.of(bastionHost).add("eks-cost-team", "tck");
-    bastionHost.node.addDependency(cluster);
+    bastionHost.addSecurityGroup(cluster.clusterSecurityGroup)
+    Tags.of(bastionHost).add('eks-cost-cluster', eksClusterName)
+    Tags.of(bastionHost).add('eks-cost-workload', 'Proof-of-Concept')
+    Tags.of(bastionHost).add('eks-cost-team', 'tck')
+    bastionHost.node.addDependency(cluster)
 
-    new CfnOutput(this, "Bastion Host SSH Command", {
+    new CfnOutput(this, 'Bastion Host SSH Command', {
       value:
-        "ssh -i " +
+        'ssh -i ' +
         bastionHostSshKeyName +
-        ".pem ec2-user@" +
-        bastionHost.instancePublicIp,
-    });
+        '.pem ec2-user@' +
+        bastionHost.instancePublicIp
+    })
 
-    new CfnOutput(this, "Bastion Host Instance Connect URL", {
+    new CfnOutput(this, 'Bastion Host Instance Connect URL', {
       value:
-        "https://" +
+        'https://' +
         this.region +
-        ".console.aws.amazon.com/ec2/v2/home?region=" +
+        '.console.aws.amazon.com/ec2/v2/home?region=' +
         this.region +
-        "#ConnectToInstance:instanceId=" +
-        bastionHost.instanceId,
-    });
+        '#ConnectToInstance:instanceId=' +
+        bastionHost.instanceId
+    })
 
     // ----------------------------
     // Autoscaler
     // ----------------------------
 
-    if (autoscaler == Autoscaler.ClusterAutoscaler) {
+    if (autoscaler === Autoscaler.ClusterAutoscaler) {
       // Grant Cluster Autoscaler permissions to modify Auto Scaling Groups via the node role.
-      const autoscalerStmt = new iam.PolicyStatement();
-      autoscalerStmt.addResources("*");
+      const autoscalerStmt = new iam.PolicyStatement()
+      autoscalerStmt.addResources('*')
       autoscalerStmt.addActions(
-        "autoscaling:DescribeAutoScalingGroups",
-        "autoscaling:DescribeAutoScalingInstances",
-        "autoscaling:DescribeLaunchConfigurations",
-        "autoscaling:DescribeTags",
-        "autoscaling:SetDesiredCapacity",
-        "autoscaling:TerminateInstanceInAutoScalingGroup",
-        "ec2:DescribeLaunchTemplateVersions",
-        "ec2:DescribeInstanceTypes"
-      );
+        'autoscaling:DescribeAutoScalingGroups',
+        'autoscaling:DescribeAutoScalingInstances',
+        'autoscaling:DescribeLaunchConfigurations',
+        'autoscaling:DescribeTags',
+        'autoscaling:SetDesiredCapacity',
+        'autoscaling:TerminateInstanceInAutoScalingGroup',
+        'ec2:DescribeLaunchTemplateVersions',
+        'ec2:DescribeInstanceTypes'
+      )
       const autoscalerPolicy = new iam.Policy(
         this,
-        "cluster-autoscaler-policy",
+        'cluster-autoscaler-policy',
         {
-          policyName: eksClusterName + "-ClusterAutoscalerPolicy",
-          statements: [autoscalerStmt],
+          policyName: eksClusterName + '-ClusterAutoscalerPolicy',
+          statements: [autoscalerStmt]
         }
-      );
-      autoscalerPolicy.attachToRole(addons_mng.role);
+      )
+      autoscalerPolicy.attachToRole(addonsMng.role)
 
       // Create a NodeGroup to run workloads on spot instances
-      const spot_mng = new ManagedNodeGroup(this, "spot-mng", {
+      const spotMng = new ManagedNodeGroup(this, 'spot-mng', {
         cluster,
         amiType: eks.NodegroupAmiType.BOTTLEROCKET_X86_64,
         capacityType: eks.CapacityType.SPOT,
-        instanceType: "t3.medium",
-        nodeGroupName: "spot",
-      }) as eks.Nodegroup;
+        instanceType: 't3.medium',
+        nodeGroupName: 'spot'
+      }) as eks.Nodegroup
 
-      const ca = new ClusterAutoscaler(this, "cluster-autoscaler", {
-        cluster,
-      });
+      const ca = new ClusterAutoscaler(this, 'cluster-autoscaler', {
+        cluster
+      })
 
-      ca.addNodeGroups(eksClusterName, [addons_mng, spot_mng]);
+      ca.addNodeGroups(eksClusterName, [addonsMng, spotMng])
     }
   }
 }

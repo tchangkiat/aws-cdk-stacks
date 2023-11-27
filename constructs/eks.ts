@@ -1,128 +1,128 @@
-import { Construct } from "constructs";
-import * as ec2 from "aws-cdk-lib/aws-ec2";
-import * as iam from "aws-cdk-lib/aws-iam";
-import * as eks from "aws-cdk-lib/aws-eks";
-import { Tags } from "aws-cdk-lib";
+import { Construct } from 'constructs'
+import * as ec2 from 'aws-cdk-lib/aws-ec2'
+import * as iam from 'aws-cdk-lib/aws-iam'
+import * as eks from 'aws-cdk-lib/aws-eks'
+import { Tags } from 'aws-cdk-lib'
 
 export interface ManagedNodeGroupProps {
-  cluster: eks.Cluster;
-  nodeGroupName: string;
-  instanceType?: string;
-  amiType?: eks.NodegroupAmiType;
-  capacityType?: eks.CapacityType;
-  taints?: object[];
-  tags?: {};
+  cluster: eks.Cluster
+  nodeGroupName: string
+  instanceType?: string
+  amiType?: eks.NodegroupAmiType
+  capacityType?: eks.CapacityType
+  taints?: object[]
+  tags?: Record<string, string>
 }
 
 export class ManagedNodeGroup extends Construct {
-  constructor(scope: Construct, id: string, props: ManagedNodeGroupProps) {
-    super(scope, id);
+  constructor (scope: Construct, id: string, props: ManagedNodeGroupProps) {
+    super(scope, id)
 
-    const cluster = props.cluster;
-    const nodeGroupName = props.nodeGroupName;
+    const cluster = props.cluster
+    const nodeGroupName = props.nodeGroupName
 
-    const eksNodeRole = new iam.Role(this, id + "-node-role", {
-      assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
-      roleName: cluster.clusterName + "-" + id + "-node",
+    const eksNodeRole = new iam.Role(this, id + '-node-role', {
+      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+      roleName: cluster.clusterName + '-' + id + '-node',
       managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKS_CNI_Policy"),
-        iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSWorkerNodePolicy"),
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKS_CNI_Policy'),
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSWorkerNodePolicy'),
         iam.ManagedPolicy.fromAwsManagedPolicyName(
-          "AmazonEC2ContainerRegistryReadOnly"
+          'AmazonEC2ContainerRegistryReadOnly'
         ),
         iam.ManagedPolicy.fromAwsManagedPolicyName(
-          "AmazonSSMManagedInstanceCore"
+          'AmazonSSMManagedInstanceCore'
         ),
-        iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMPatchAssociation"),
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMPatchAssociation'),
         // For X-Ray Daemon to send logs to X-Ray
-        iam.ManagedPolicy.fromAwsManagedPolicyName("AWSXRayDaemonWriteAccess"),
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AWSXRayDaemonWriteAccess'),
         // For nodes to send logs and metrics to CloudWatch (Container Insights)
         iam.ManagedPolicy.fromAwsManagedPolicyName(
-          "CloudWatchAgentServerPolicy"
+          'CloudWatchAgentServerPolicy'
         ),
         // For EBS CSI to provision EBS volumes
         iam.ManagedPolicy.fromManagedPolicyArn(
           this,
-          "ebs-csi-driver-policy",
-          "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-        ),
-      ],
-    });
+          'ebs-csi-driver-policy',
+          'arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy'
+        )
+      ]
+    })
 
     const launchTemplate = new ec2.CfnLaunchTemplate(
       this,
-      id + "-launch-template",
+      id + '-launch-template',
       {
-        launchTemplateName: cluster.clusterName + "/" + nodeGroupName,
+        launchTemplateName: cluster.clusterName + '/' + nodeGroupName,
         launchTemplateData: {
           blockDeviceMappings: [
             {
-              deviceName: "/dev/xvda",
+              deviceName: '/dev/xvda',
               ebs: {
                 deleteOnTermination: true,
-                volumeType: "gp3",
-              },
+                volumeType: 'gp3'
+              }
             },
             {
-              deviceName: "/dev/xvdb",
+              deviceName: '/dev/xvdb',
               ebs: {
                 deleteOnTermination: true,
-                volumeType: "gp3",
-              },
-            },
+                volumeType: 'gp3'
+              }
+            }
           ],
-          instanceType: props.instanceType || "c6g.xlarge",
+          instanceType: props.instanceType ?? 'c6g.xlarge',
           tagSpecifications: [
             {
-              resourceType: "instance",
+              resourceType: 'instance',
               tags: [
                 {
-                  key: "Name",
-                  value: cluster.clusterName + "/" + nodeGroupName,
+                  key: 'Name',
+                  value: cluster.clusterName + '/' + nodeGroupName
                 },
                 {
-                  key: "eks-cost-cluster",
-                  value: cluster.clusterName,
+                  key: 'eks-cost-cluster',
+                  value: cluster.clusterName
                 },
                 {
-                  key: "eks-cost-workload",
-                  value: "Proof-of-Concept",
+                  key: 'eks-cost-workload',
+                  value: 'Proof-of-Concept'
                 },
                 {
-                  key: "eks-cost-team",
-                  value: "tck",
-                },
-              ],
+                  key: 'eks-cost-team',
+                  value: 'tck'
+                }
+              ]
             },
             {
-              resourceType: "volume",
+              resourceType: 'volume',
               tags: [
                 {
-                  key: "Name",
-                  value: cluster.clusterName + "/" + nodeGroupName + "/volume",
+                  key: 'Name',
+                  value: cluster.clusterName + '/' + nodeGroupName + '/volume'
                 },
                 {
-                  key: "eks-cost-cluster",
-                  value: cluster.clusterName,
+                  key: 'eks-cost-cluster',
+                  value: cluster.clusterName
                 },
                 {
-                  key: "eks-cost-workload",
-                  value: "Proof-of-Concept",
+                  key: 'eks-cost-workload',
+                  value: 'Proof-of-Concept'
                 },
                 {
-                  key: "eks-cost-team",
-                  value: "tck",
-                },
-              ],
-            },
-          ],
-        },
+                  key: 'eks-cost-team',
+                  value: 'tck'
+                }
+              ]
+            }
+          ]
+        }
       }
-    );
+    )
 
     return cluster.addNodegroupCapacity(id, {
-      amiType: props.amiType || eks.NodegroupAmiType.BOTTLEROCKET_ARM_64,
-      capacityType: props.capacityType || eks.CapacityType.ON_DEMAND,
+      amiType: props.amiType ?? eks.NodegroupAmiType.BOTTLEROCKET_ARM_64,
+      capacityType: props.capacityType ?? eks.CapacityType.ON_DEMAND,
       desiredSize: 1,
       minSize: 0,
       maxSize: 3,
@@ -130,299 +130,299 @@ export class ManagedNodeGroup extends Construct {
       nodeRole: eksNodeRole,
       launchTemplateSpec: {
         id: launchTemplate.ref,
-        version: launchTemplate.attrLatestVersionNumber,
+        version: launchTemplate.attrLatestVersionNumber
       },
-      taints: props.taints || [],
-      tags: props.tags || {},
-    });
+      taints: props.taints ?? [],
+      tags: props.tags ?? {}
+    })
   }
 }
 
 export interface ClusterAutoscalerProps {
-  cluster: eks.Cluster;
+  cluster: eks.Cluster
 }
 
 export class ClusterAutoscaler extends Construct {
-  constructor(scope: Construct, id: string, props: ClusterAutoscalerProps) {
-    super(scope, id);
+  constructor (scope: Construct, id: string, props: ClusterAutoscalerProps) {
+    super(scope, id)
 
     // Best practice: Cluster Autoscaler version must match the Kubernetes control plane version
-    const eksClusterAutoscalerVersion = "v1.28.0";
+    const eksClusterAutoscalerVersion = 'v1.28.0'
 
-    const cluster = props.cluster;
+    const cluster = props.cluster
 
-    new eks.KubernetesManifest(this, "cluster-autoscaler", {
-      cluster: cluster,
+    new eks.KubernetesManifest(this, 'cluster-autoscaler', {
+      cluster,
       manifest: [
         {
-          apiVersion: "v1",
-          kind: "ServiceAccount",
+          apiVersion: 'v1',
+          kind: 'ServiceAccount',
           metadata: {
-            name: "cluster-autoscaler",
-            namespace: "kube-system",
+            name: 'cluster-autoscaler',
+            namespace: 'kube-system',
             labels: {
-              "k8s-addon": "cluster-autoscaler.addons.k8s.io",
-              "k8s-app": "cluster-autoscaler",
-            },
-          },
+              'k8s-addon': 'cluster-autoscaler.addons.k8s.io',
+              'k8s-app': 'cluster-autoscaler'
+            }
+          }
         },
         {
-          apiVersion: "rbac.authorization.k8s.io/v1",
-          kind: "ClusterRole",
+          apiVersion: 'rbac.authorization.k8s.io/v1',
+          kind: 'ClusterRole',
           metadata: {
-            name: "cluster-autoscaler",
-            namespace: "kube-system",
+            name: 'cluster-autoscaler',
+            namespace: 'kube-system',
             labels: {
-              "k8s-addon": "cluster-autoscaler.addons.k8s.io",
-              "k8s-app": "cluster-autoscaler",
-            },
+              'k8s-addon': 'cluster-autoscaler.addons.k8s.io',
+              'k8s-app': 'cluster-autoscaler'
+            }
           },
           rules: [
             {
-              apiGroups: [""],
-              resources: ["events", "endpoints"],
-              verbs: ["create", "patch"],
+              apiGroups: [''],
+              resources: ['events', 'endpoints'],
+              verbs: ['create', 'patch']
             },
             {
-              apiGroups: [""],
-              resources: ["pods/eviction"],
-              verbs: ["create"],
+              apiGroups: [''],
+              resources: ['pods/eviction'],
+              verbs: ['create']
             },
             {
-              apiGroups: [""],
-              resources: ["pods/status"],
-              verbs: ["update"],
+              apiGroups: [''],
+              resources: ['pods/status'],
+              verbs: ['update']
             },
             {
-              apiGroups: [""],
-              resources: ["endpoints"],
-              resourceNames: ["cluster-autoscaler"],
-              verbs: ["get", "update"],
+              apiGroups: [''],
+              resources: ['endpoints'],
+              resourceNames: ['cluster-autoscaler'],
+              verbs: ['get', 'update']
             },
             {
-              apiGroups: ["coordination.k8s.io"],
-              resources: ["leases"],
-              verbs: ["watch", "list", "get", "patch", "create", "update"],
+              apiGroups: ['coordination.k8s.io'],
+              resources: ['leases'],
+              verbs: ['watch', 'list', 'get', 'patch', 'create', 'update']
             },
             {
-              apiGroups: [""],
-              resources: ["nodes"],
-              verbs: ["watch", "list", "get", "update"],
+              apiGroups: [''],
+              resources: ['nodes'],
+              verbs: ['watch', 'list', 'get', 'update']
             },
             {
-              apiGroups: [""],
+              apiGroups: [''],
               resources: [
-                "pods",
-                "services",
-                "replicationcontrollers",
-                "persistentvolumeclaims",
-                "persistentvolumes",
+                'pods',
+                'services',
+                'replicationcontrollers',
+                'persistentvolumeclaims',
+                'persistentvolumes'
               ],
-              verbs: ["watch", "list", "get"],
+              verbs: ['watch', 'list', 'get']
             },
             {
-              apiGroups: ["extensions"],
-              resources: ["replicasets", "daemonsets"],
-              verbs: ["watch", "list", "get"],
+              apiGroups: ['extensions'],
+              resources: ['replicasets', 'daemonsets'],
+              verbs: ['watch', 'list', 'get']
             },
             {
-              apiGroups: ["policy"],
-              resources: ["poddisruptionbudgets"],
-              verbs: ["watch", "list"],
+              apiGroups: ['policy'],
+              resources: ['poddisruptionbudgets'],
+              verbs: ['watch', 'list']
             },
             {
-              apiGroups: ["apps"],
-              resources: ["statefulsets", "replicasets", "daemonsets"],
-              verbs: ["watch", "list", "get"],
+              apiGroups: ['apps'],
+              resources: ['statefulsets', 'replicasets', 'daemonsets'],
+              verbs: ['watch', 'list', 'get']
             },
             {
-              apiGroups: ["storage.k8s.io"],
-              resources: ["storageclasses", "csinodes"],
-              verbs: ["watch", "list", "get"],
+              apiGroups: ['storage.k8s.io'],
+              resources: ['storageclasses', 'csinodes'],
+              verbs: ['watch', 'list', 'get']
             },
             {
-              apiGroups: ["batch", "extensions"],
-              resources: ["jobs"],
-              verbs: ["get", "list", "watch", "patch"],
-            },
-          ],
+              apiGroups: ['batch', 'extensions'],
+              resources: ['jobs'],
+              verbs: ['get', 'list', 'watch', 'patch']
+            }
+          ]
         },
         {
-          apiVersion: "rbac.authorization.k8s.io/v1",
-          kind: "Role",
+          apiVersion: 'rbac.authorization.k8s.io/v1',
+          kind: 'Role',
           metadata: {
-            name: "cluster-autoscaler",
-            namespace: "kube-system",
+            name: 'cluster-autoscaler',
+            namespace: 'kube-system',
             labels: {
-              "k8s-addon": "cluster-autoscaler.addons.k8s.io",
-              "k8s-app": "cluster-autoscaler",
-            },
+              'k8s-addon': 'cluster-autoscaler.addons.k8s.io',
+              'k8s-app': 'cluster-autoscaler'
+            }
           },
           rules: [
             {
-              apiGroups: [""],
-              resources: ["configmaps"],
-              verbs: ["create", "list", "watch"],
+              apiGroups: [''],
+              resources: ['configmaps'],
+              verbs: ['create', 'list', 'watch']
             },
             {
-              apiGroups: [""],
-              resources: ["configmaps"],
+              apiGroups: [''],
+              resources: ['configmaps'],
               resourceNames: [
-                "cluster-autoscaler-status",
-                "cluster-autoscaler-priority-expander",
+                'cluster-autoscaler-status',
+                'cluster-autoscaler-priority-expander'
               ],
-              verbs: ["delete", "get", "update", "watch"],
-            },
-          ],
+              verbs: ['delete', 'get', 'update', 'watch']
+            }
+          ]
         },
         {
-          apiVersion: "rbac.authorization.k8s.io/v1",
-          kind: "ClusterRoleBinding",
+          apiVersion: 'rbac.authorization.k8s.io/v1',
+          kind: 'ClusterRoleBinding',
           metadata: {
-            name: "cluster-autoscaler",
-            namespace: "kube-system",
+            name: 'cluster-autoscaler',
+            namespace: 'kube-system',
             labels: {
-              "k8s-addon": "cluster-autoscaler.addons.k8s.io",
-              "k8s-app": "cluster-autoscaler",
-            },
+              'k8s-addon': 'cluster-autoscaler.addons.k8s.io',
+              'k8s-app': 'cluster-autoscaler'
+            }
           },
           roleRef: {
-            apiGroup: "rbac.authorization.k8s.io",
-            kind: "ClusterRole",
-            name: "cluster-autoscaler",
+            apiGroup: 'rbac.authorization.k8s.io',
+            kind: 'ClusterRole',
+            name: 'cluster-autoscaler'
           },
           subjects: [
             {
-              kind: "ServiceAccount",
-              name: "cluster-autoscaler",
-              namespace: "kube-system",
-            },
-          ],
+              kind: 'ServiceAccount',
+              name: 'cluster-autoscaler',
+              namespace: 'kube-system'
+            }
+          ]
         },
         {
-          apiVersion: "rbac.authorization.k8s.io/v1",
-          kind: "RoleBinding",
+          apiVersion: 'rbac.authorization.k8s.io/v1',
+          kind: 'RoleBinding',
           metadata: {
-            name: "cluster-autoscaler",
-            namespace: "kube-system",
+            name: 'cluster-autoscaler',
+            namespace: 'kube-system',
             labels: {
-              "k8s-addon": "cluster-autoscaler.addons.k8s.io",
-              "k8s-app": "cluster-autoscaler",
-            },
+              'k8s-addon': 'cluster-autoscaler.addons.k8s.io',
+              'k8s-app': 'cluster-autoscaler'
+            }
           },
           roleRef: {
-            apiGroup: "rbac.authorization.k8s.io",
-            kind: "Role",
-            name: "cluster-autoscaler",
+            apiGroup: 'rbac.authorization.k8s.io',
+            kind: 'Role',
+            name: 'cluster-autoscaler'
           },
           subjects: [
             {
-              kind: "ServiceAccount",
-              name: "cluster-autoscaler",
-              namespace: "kube-system",
-            },
-          ],
+              kind: 'ServiceAccount',
+              name: 'cluster-autoscaler',
+              namespace: 'kube-system'
+            }
+          ]
         },
         {
-          apiVersion: "apps/v1",
-          kind: "Deployment",
+          apiVersion: 'apps/v1',
+          kind: 'Deployment',
           metadata: {
-            name: "cluster-autoscaler",
-            namespace: "kube-system",
+            name: 'cluster-autoscaler',
+            namespace: 'kube-system',
             labels: {
-              app: "cluster-autoscaler",
+              app: 'cluster-autoscaler'
             },
             annotations: {
-              "cluster-autoscaler.kubernetes.io/safe-to-evict": "false",
-            },
+              'cluster-autoscaler.kubernetes.io/safe-to-evict': 'false'
+            }
           },
           spec: {
             replicas: 1,
             selector: {
               matchLabels: {
-                app: "cluster-autoscaler",
-              },
+                app: 'cluster-autoscaler'
+              }
             },
             template: {
               metadata: {
                 labels: {
-                  app: "cluster-autoscaler",
+                  app: 'cluster-autoscaler'
                 },
                 annotations: {
-                  "prometheus.io/scrape": "true",
-                  "prometheus.io/port": "8085",
-                },
+                  'prometheus.io/scrape': 'true',
+                  'prometheus.io/port': '8085'
+                }
               },
               spec: {
-                serviceAccountName: "cluster-autoscaler",
+                serviceAccountName: 'cluster-autoscaler',
                 containers: [
                   {
                     image:
-                      "k8s.gcr.io/autoscaling/cluster-autoscaler:" +
+                      'k8s.gcr.io/autoscaling/cluster-autoscaler:' +
                       eksClusterAutoscalerVersion,
-                    name: "cluster-autoscaler",
+                    name: 'cluster-autoscaler',
                     resources: {
                       limits: {
-                        cpu: "100m",
-                        memory: "300Mi",
+                        cpu: '100m',
+                        memory: '300Mi'
                       },
                       requests: {
-                        cpu: "100m",
-                        memory: "300Mi",
-                      },
+                        cpu: '100m',
+                        memory: '300Mi'
+                      }
                     },
                     command: [
-                      "./cluster-autoscaler",
-                      "--v=4",
-                      "--stderrthreshold=info",
-                      "--cloud-provider=aws",
-                      "--skip-nodes-with-local-storage=false",
-                      "--expander=least-waste",
-                      "--node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/" +
+                      './cluster-autoscaler',
+                      '--v=4',
+                      '--stderrthreshold=info',
+                      '--cloud-provider=aws',
+                      '--skip-nodes-with-local-storage=false',
+                      '--expander=least-waste',
+                      '--node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/' +
                         cluster.clusterName,
-                      "--balance-similar-node-groups",
+                      '--balance-similar-node-groups'
                     ],
                     volumeMounts: [
                       {
-                        name: "ssl-certs",
-                        mountPath: "/etc/ssl/certs/ca-certificates.crt",
-                        readOnly: true,
-                      },
+                        name: 'ssl-certs',
+                        mountPath: '/etc/ssl/certs/ca-certificates.crt',
+                        readOnly: true
+                      }
                     ],
-                    imagePullPolicy: "Always",
-                  },
+                    imagePullPolicy: 'Always'
+                  }
                 ],
                 tolerations: [
                   {
-                    key: "CriticalAddonsOnly",
-                    operator: "Exists",
-                    effect: "NoSchedule",
-                  },
+                    key: 'CriticalAddonsOnly',
+                    operator: 'Exists',
+                    effect: 'NoSchedule'
+                  }
                 ],
                 volumes: [
                   {
-                    name: "ssl-certs",
+                    name: 'ssl-certs',
                     hostPath: {
-                      path: "/etc/ssl/certs/ca-bundle.crt",
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        },
-      ],
-    });
+                      path: '/etc/ssl/certs/ca-bundle.crt'
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    })
   }
 
-  addNodeGroups(clusterName: string, nodeGroups: eks.Nodegroup[]) {
-    for (var ng of nodeGroups) {
-      Tags.of(ng).add(`k8s.io/cluster-autoscaler/${clusterName}`, "owned", {
-        applyToLaunchedInstances: true,
-      });
-      Tags.of(ng).add("k8s.io/cluster-autoscaler/enabled", "true", {
-        applyToLaunchedInstances: true,
-      });
+  addNodeGroups (clusterName: string, nodeGroups: eks.Nodegroup[]): void {
+    for (const ng of nodeGroups) {
+      Tags.of(ng).add(`k8s.io/cluster-autoscaler/${clusterName}`, 'owned', {
+        applyToLaunchedInstances: true
+      })
+      Tags.of(ng).add('k8s.io/cluster-autoscaler/enabled', 'true', {
+        applyToLaunchedInstances: true
+      })
     }
   }
 }
