@@ -1,20 +1,22 @@
-const { Stack, RemovalPolicy } = require("aws-cdk-lib");
-const ecr = require("aws-cdk-lib/aws-ecr");
-const codepipeline = require("aws-cdk-lib/aws-codepipeline");
-const codepipeline_actions = require("aws-cdk-lib/aws-codepipeline-actions");
-const codebuild = require("aws-cdk-lib/aws-codebuild");
-const iam = require("aws-cdk-lib/aws-iam");
-const s3 = require("aws-cdk-lib/aws-s3");
-const logs = require("aws-cdk-lib/aws-logs");
+import { Construct } from "constructs";
+import { Stack, StackProps, RemovalPolicy } from "aws-cdk-lib";
+import * as ecr from "aws-cdk-lib/aws-ecr";
+import * as codepipeline from "aws-cdk-lib/aws-codepipeline";
+import * as codepipeline_actions from "aws-cdk-lib/aws-codepipeline-actions";
+import * as codebuild from "aws-cdk-lib/aws-codebuild";
+import * as iam from "aws-cdk-lib/aws-iam";
+import * as s3 from "aws-cdk-lib/aws-s3";
+import * as logs from "aws-cdk-lib/aws-logs";
 
-class MultiArchPipeline extends Stack {
-  /**
-   *
-   * @param {Construct} scope
-   * @param {string} id
-   * @param {StackProps=} props
-   */
-  constructor(scope, id, props) {
+import { GitHubProps } from "../github-props";
+
+export class MultiArchPipeline extends Stack {
+  constructor(
+    scope: Construct,
+    id: string,
+    github: GitHubProps,
+    props?: StackProps
+  ) {
     super(scope, id, props);
 
     // ----------------------------
@@ -142,9 +144,9 @@ class MultiArchPipeline extends Stack {
             SOURCE_REPO_URL: {
               value:
                 "https://github.com/" +
-                props.env.github_owner +
+                github.owner +
                 "/" +
-                props.env.github_repo +
+                github.repository +
                 ".git",
             },
           },
@@ -188,9 +190,9 @@ class MultiArchPipeline extends Stack {
             SOURCE_REPO_URL: {
               value:
                 "https://github.com/" +
-                props.env.github_owner +
+                github.owner +
                 "/" +
-                props.env.github_repo +
+                github.repository +
                 ".git",
             },
           },
@@ -239,7 +241,7 @@ class MultiArchPipeline extends Stack {
                 "docker manifest inspect $IMAGE_REPO_URL",
                 "echo Writing image definitions file",
                 'printf \'[{"name":"' +
-                  props.env.github_repo +
+                  github.repository +
                   '","imageUri":"%s"}]\' $IMAGE_REPO_URL:$IMAGE_TAG > imagedefinitions.json',
               ],
             },
@@ -281,7 +283,7 @@ class MultiArchPipeline extends Stack {
       }
     );
 
-    const pipeline = new codepipeline.Pipeline(this, "CodePipeline", {
+    new codepipeline.Pipeline(this, "CodePipeline", {
       artifactBucket: artifactBucket,
       pipelineName: "mapl",
       stages: [
@@ -290,10 +292,10 @@ class MultiArchPipeline extends Stack {
           actions: [
             new codepipeline_actions.CodeStarConnectionsSourceAction({
               actionName: "Retrieve-Source-Code-From-GitHub",
-              owner: props.env.github_owner,
-              repo: props.env.github_repo,
+              owner: github.owner,
+              repo: github.repository,
               output: sourceArtifact,
-              connectionArn: props.env.github_connection_arn,
+              connectionArn: github.connectionArn,
             }),
           ],
         },
@@ -327,5 +329,3 @@ class MultiArchPipeline extends Stack {
     });
   }
 }
-
-module.exports = { MultiArchPipeline };

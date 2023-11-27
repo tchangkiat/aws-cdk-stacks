@@ -1,20 +1,16 @@
-const { Stack, CfnOutput } = require("aws-cdk-lib");
-const apigateway = require("aws-cdk-lib/aws-apigateway");
-const lambda = require("aws-cdk-lib/aws-lambda");
-const { AutoScalingGroup } = require("aws-cdk-lib/aws-autoscaling");
-const ec2 = require("aws-cdk-lib/aws-ec2");
-const iam = require("aws-cdk-lib/aws-iam");
-const elbv2 = require("aws-cdk-lib/aws-elasticloadbalancingv2");
-const { StandardVpc } = require("../constructs/Network");
+import { Construct } from "constructs";
+import { Stack, StackProps, CfnOutput } from "aws-cdk-lib";
+import * as apigateway from "aws-cdk-lib/aws-apigateway";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import { AutoScalingGroup } from "aws-cdk-lib/aws-autoscaling";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as iam from "aws-cdk-lib/aws-iam";
+import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 
-class ApiGateway extends Stack {
-  /**
-   *
-   * @param {Construct} scope
-   * @param {string} id
-   * @param {StackProps=} props
-   */
-  constructor(scope, id, props) {
+import { StandardVpc } from "../constructs/network";
+
+export class ApiGateway extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     // ----------------------------
@@ -66,7 +62,7 @@ class ApiGateway extends Stack {
     // Network
     // ----------------------------
 
-    const vpc = new StandardVpc(this, "vpc", { vpcName: "api-gw" });
+    const vpc = new StandardVpc(this, "vpc", { vpcName: "api-gw" }) as ec2.Vpc;
 
     // ----------------------------
     // Application Fleet
@@ -88,7 +84,7 @@ class ApiGateway extends Stack {
     );
 
     const userData = ec2.UserData.forLinux();
-    userData.addCommands([
+    userData.addCommands(
       [
         "sudo yum update -y",
         "sudo amazon-linux-extras enable epel",
@@ -96,8 +92,8 @@ class ApiGateway extends Stack {
         // nginx
         "sudo yum install nginx -y",
         "sudo systemctl start nginx",
-      ].join("\n"),
-    ]);
+      ].join("\n")
+    );
 
     const ec2LaunchTemplate = new ec2.LaunchTemplate(
       this,
@@ -115,9 +111,7 @@ class ApiGateway extends Stack {
         ),
         keyName: sshKeyName,
         launchTemplateName: "api-gateway-ec2",
-        machineImage: ec2.MachineImage.latestAmazonLinux2023({
-          generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2023,
-        }),
+        machineImage: ec2.MachineImage.latestAmazonLinux2023(),
         role: new iam.Role(this, "instance-profile-role", {
           assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
           managedPolicies: [
@@ -177,5 +171,3 @@ class ApiGateway extends Stack {
     albResource.addMethod("GET", httpIntegration);
   }
 }
-
-module.exports = { ApiGateway };

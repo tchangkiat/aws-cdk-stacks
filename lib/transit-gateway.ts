@@ -1,23 +1,13 @@
-const { Stack, CfnOutput } = require("aws-cdk-lib");
-const ec2 = require("aws-cdk-lib/aws-ec2");
-const iam = require("aws-cdk-lib/aws-iam");
-const { StandardVpc } = require("../constructs/Network");
+import { Construct } from "constructs";
+import { Stack, StackProps, CfnOutput } from "aws-cdk-lib";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as iam from "aws-cdk-lib/aws-iam";
 
-class TransitGateway extends Stack {
-  /**
-   *
-   * @param {Construct} scope
-   * @param {string} id
-   * @param {StackProps=} props
-   */
-  constructor(scope, id, props) {
+import { StandardVpc } from "../constructs/network";
+
+export class TransitGateway extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
-
-    // ----------------------------
-    // Configuration
-    // ----------------------------
-
-    const bastionHostSshKeyName = "EC2DefaultKeyPair";
 
     // ----------------------------
     // VPC
@@ -26,7 +16,7 @@ class TransitGateway extends Stack {
     const egressVpc = new StandardVpc(this, "tgw-poc-vpc-egress", {
       maxAzs: 1,
       vpcName: "tgw-poc-vpc-egress",
-    });
+    }) as ec2.Vpc;
 
     const vpc1 = new ec2.Vpc(this, "tgw-poc-vpc-1", {
       ipAddresses: ec2.IpAddresses.cidr("20.0.0.0/16"),
@@ -181,7 +171,6 @@ class TransitGateway extends Stack {
     demoInstanceSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allIcmp());
 
     const latestLinuxAMI = ec2.MachineImage.latestAmazonLinux2023({
-      generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2023,
       cpuType: ec2.AmazonLinuxCpuType.ARM_64,
     });
 
@@ -344,5 +333,3 @@ class TransitGateway extends Stack {
     });
   }
 }
-
-module.exports = { TransitGateway };

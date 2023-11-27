@@ -1,8 +1,16 @@
-const { Construct } = require("constructs");
-const ec2 = require("aws-cdk-lib/aws-ec2");
+import { Construct } from "constructs";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
 
-class StandardVpc extends Construct {
-  constructor(scope, id, props = {}) {
+export interface StandardVpcProps {
+  cidr?: string;
+  maxAzs?: number;
+  natGateways?: number;
+  vpcName?: string;
+  subnetConfiguration?: ec2.SubnetConfiguration[];
+}
+
+export class StandardVpc extends Construct {
+  constructor(scope: Construct, id: string, props: StandardVpcProps = {}) {
     super(scope, id);
 
     const vpc = new ec2.Vpc(this, "vpc", {
@@ -14,12 +22,12 @@ class StandardVpc extends Construct {
       vpcName: props.vpcName || "Standard",
       subnetConfiguration: props.subnetConfiguration || [
         {
-          cidrMask: props.cidrMask || 24,
+          cidrMask: 24,
           name: "Public",
           subnetType: ec2.SubnetType.PUBLIC,
         },
         {
-          cidrMask: props.cidrMask || 24,
+          cidrMask: 24,
           name: "Private",
           subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
         },
@@ -29,5 +37,3 @@ class StandardVpc extends Construct {
     return vpc;
   }
 }
-
-module.exports = { StandardVpc };

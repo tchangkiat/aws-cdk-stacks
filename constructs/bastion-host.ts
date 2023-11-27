@@ -1,8 +1,18 @@
-const { Construct } = require("constructs");
-const ec2 = require("aws-cdk-lib/aws-ec2");
+import { Construct } from "constructs";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
 
-class BastionHost extends Construct {
-  constructor(scope, id, vpc, props = {}) {
+export interface BastionHostProps {
+  instanceName?: string;
+  userData?: string[];
+}
+
+export class BastionHost extends Construct {
+  constructor(
+    scope: Construct,
+    id: string,
+    vpc: ec2.Vpc,
+    props?: BastionHostProps
+  ) {
     super(scope, id);
 
     const securityGroup = new ec2.SecurityGroup(this, id + "-sg", {
@@ -26,13 +36,12 @@ class BastionHost extends Construct {
           }),
         },
       ],
-      instanceName: props.instanceName || id,
+      instanceName: props?.instanceName || id,
       instanceType: ec2.InstanceType.of(
         ec2.InstanceClass.T4G,
         ec2.InstanceSize.MICRO
       ),
       machineImage: ec2.MachineImage.latestAmazonLinux2023({
-        generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2023,
         cpuType: ec2.AmazonLinuxCpuType.ARM_64,
       }),
       securityGroup,
@@ -40,7 +49,7 @@ class BastionHost extends Construct {
       vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
     });
 
-    var userData = props.userData
+    var userData = props?.userData
       ? ["sudo yum update -y"].concat(props.userData)
       : ["sudo yum update -y"];
     instance.addUserData(userData.join("\n"));
@@ -48,5 +57,3 @@ class BastionHost extends Construct {
     return instance;
   }
 }
-
-module.exports = { BastionHost };

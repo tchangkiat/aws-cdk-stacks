@@ -1,20 +1,24 @@
-const { Stack, RemovalPolicy } = require("aws-cdk-lib");
-const ecr = require("aws-cdk-lib/aws-ecr");
-const ecs = require("aws-cdk-lib/aws-ecs");
-const codepipeline = require("aws-cdk-lib/aws-codepipeline");
-const codepipeline_actions = require("aws-cdk-lib/aws-codepipeline-actions");
-const codebuild = require("aws-cdk-lib/aws-codebuild");
-const iam = require("aws-cdk-lib/aws-iam");
-const s3 = require("aws-cdk-lib/aws-s3");
+import { Construct } from "constructs";
+import { Stack, StackProps, RemovalPolicy } from "aws-cdk-lib";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as ecr from "aws-cdk-lib/aws-ecr";
+import * as ecs from "aws-cdk-lib/aws-ecs";
+import * as codepipeline from "aws-cdk-lib/aws-codepipeline";
+import * as codepipeline_actions from "aws-cdk-lib/aws-codepipeline-actions";
+import * as codebuild from "aws-cdk-lib/aws-codebuild";
+import * as iam from "aws-cdk-lib/aws-iam";
+import * as s3 from "aws-cdk-lib/aws-s3";
 
-class CicdEcs extends Stack {
-  /**
-   *
-   * @param {Construct} scope
-   * @param {string} id
-   * @param {StackProps=} props
-   */
-  constructor(scope, id, props) {
+import { GitHubProps } from "../github-props";
+
+export class CicdEcs extends Stack {
+  constructor(
+    scope: Construct,
+    id: string,
+    vpc: ec2.Vpc,
+    github: GitHubProps,
+    props?: StackProps
+  ) {
     super(scope, id, props);
 
     const prefix = id + "-demo";
@@ -62,6 +66,7 @@ class CicdEcs extends Stack {
 
     const cluster = ecs.Cluster.fromClusterAttributes(this, "cluster", {
       clusterName: "ecs-demo",
+      vpc,
     });
 
     const fargateService = ecs.FargateService.fromFargateServiceAttributes(
@@ -117,7 +122,7 @@ class CicdEcs extends Stack {
             "docker push $IMAGE_REPO_URL:$IMAGE_TAG",
             "echo Writing image definitions file...",
             'printf \'[{"name":"' +
-              props.env.github_repo +
+              github.repository +
               '","imageUri":"%s"}]\' $IMAGE_REPO_URL:$IMAGE_TAG > imagedefinitions.json',
           ],
         },
@@ -156,9 +161,9 @@ class CicdEcs extends Stack {
             SOURCE_REPO_URL: {
               value:
                 "https://github.com/" +
-                props.env.github_owner +
+                github.owner +
                 "/" +
-                props.env.github_repo +
+                github.repository +
                 ".git",
             },
           },
@@ -181,10 +186,10 @@ class CicdEcs extends Stack {
           actions: [
             new codepipeline_actions.CodeStarConnectionsSourceAction({
               actionName: "GitHub_Source",
-              owner: props.env.github_owner,
-              repo: props.env.github_repo,
+              owner: github.owner,
+              repo: github.repository,
               output: sourceArtifact,
-              connectionArn: props.env.github_connection_arn,
+              connectionArn: github.connectionArn,
             }),
           ],
         },
@@ -215,5 +220,3 @@ class CicdEcs extends Stack {
     });
   }
 }
-
-module.exports = { CicdEcs };
