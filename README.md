@@ -488,7 +488,7 @@ Deploy an egress VPC with Transit Gateway. VPN-related resources are deployed fo
 
 ## Testing the network connectivity
 
-1. Connect to `egress-vpc-demo-instance` and `egress-vpc-demo-instance-2` using Session Manager. If you encounter the error `Unable to start command: failed to start pty since RunAs user ssm-user does not exist`, ensure that the `Run As` config is `ec2-user` instead of `ssm-user`.
+1. Connect to `egress-vpc-demo-instance` and `egress-vpc-demo-instance-2` using Session Manager. If you encounter the error `Unable to start command: failed to start pty since RunAs user ssm-user does not exist`, ensure that the `Run As` configuration in Session Manager > Preferences is `ec2-user`.
 
 2. Use `ifconfig` in the instances to retrieve the private IP addresses
 
