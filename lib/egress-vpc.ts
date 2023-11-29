@@ -5,7 +5,7 @@ import * as iam from 'aws-cdk-lib/aws-iam'
 
 import { StandardVpc } from '../constructs/network'
 
-export class TransitGateway extends Stack {
+export class EgressVpc extends Stack {
   constructor (scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props)
 

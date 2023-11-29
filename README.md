@@ -20,7 +20,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [AWS App Mesh](#aws-app-mesh)
   - [Amazon VPC Lattice](#amazon-vpc-lattice)
   - [Distributed ML with Ray](#distributed-ml-with-ray)
-- [Transit Gateway](#transit-gateway)
+- [Egress VPC](#egress-vpc)
 - [Application Load Balancer (ALB) Rule Restriction](#application-load-balancer-alb-rule-restriction)
 
 # Initial Setup
@@ -451,15 +451,15 @@ JupyterHub Password: <generated password>
 ./eks-add-ons.sh -r "karpenter load-balancer-controller ebs-csi-driver"
 ```
 
-# Transit Gateway
+# Egress VPC
 
-![Transit Gateway Architecture](./diagrams/TransitGateway.jpg)
+![Egress VPC Architecture](./diagrams/egress-vpc.jpg)
 
 ```bash
-cdk deploy transit-gateway
+cdk deploy egress-vpc
 ```
 
-Deploy an egress VPC solution with Transit Gateway. VPN-related resources are deployed for the VPN connection between the Transit Gateway and the simulated customer's on-prem environment. Comment away the code in the section `VPN` of `TransitGateway.js` if the VPN connection is not required.
+Deploy an egress VPC with Transit Gateway. VPN-related resources are deployed for the VPN connection between the Transit Gateway and the simulated customer's on-prem environment. Comment away the code in the section `VPN` of `egress-vpc.ts` if the VPN connection is not required.
 
 ## Establish VPN connection from the Transit Gateway to a simulated customer on-prem environment
 

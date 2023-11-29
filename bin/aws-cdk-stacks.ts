@@ -10,7 +10,7 @@ import { CicdEcs } from '../lib/cicd-ecs'
 import { ECS } from '../lib/ecs'
 import { EKS } from '../lib/eks'
 import { MultiArchPipeline } from '../lib/multi-arch-pipeline'
-import { TransitGateway } from '../lib/transit-gateway'
+import { EgressVpc } from '../lib/egress-vpc'
 
 import { Autoscaler } from '../constants'
 import { type GitHubProps } from '../github-props'
@@ -38,4 +38,4 @@ new EKS(app, 'eks-ca', Autoscaler.ClusterAutoscaler)
 
 new MultiArchPipeline(app, 'mapl', github)
 
-new TransitGateway(app, 'transit-gateway')
+new EgressVpc(app, 'egress-vpc')
