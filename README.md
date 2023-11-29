@@ -505,7 +505,7 @@ Deploy an egress VPC with Transit Gateway. VPN-related resources are deployed fo
 
 # Application Load Balancer (ALB) Rule Restriction
 
-![Application Load Balancer (ALB) Rule Restriction Architecture](./diagrams/ALBRuleRestriction.jpg)
+![Application Load Balancer (ALB) Rule Restriction Architecture](./diagrams/alb-rule-restriction.jpg)
 
 ## Setup
 
