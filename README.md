@@ -2,7 +2,11 @@
 
 This repository contains stacks for various solutions in AWS. These stacks are used for Proof-of-Concept (POC) and demonstration.
 
-❗ These stacks are not suitable for production.
+## ❗ Warning ❗
+
+- **Review and change the configurations before using it for production**: the current configuration should not be used for production without further review and adaptation.
+
+- **Be mindful of the costs incurred**: while this solution is developed to be cost-effective, please be mindful of the costs incurred.
 
 # Table of Content
 
@@ -459,43 +463,45 @@ JupyterHub Password: <generated password>
 cdk deploy egress-vpc
 ```
 
-Deploy an egress VPC with Transit Gateway. VPN-related resources are deployed for the VPN connection between the Transit Gateway and the simulated customer's on-prem environment. Comment away the code in the section `VPN` of `egress-vpc.ts` if the VPN connection is not required.
+Deploy an egress VPC with Transit Gateway. VPN-related resources are deployed for the VPN connection between the Transit Gateway and the simulated customer's on-prem environment.
 
 ## Establish VPN connection from the Transit Gateway to a simulated customer on-prem environment
 
-1. Create 2 secrets in AWS Secrets Manager: `tgw-poc-psk1` and `tgw-poc-psk2`. Plaintext values of the respective secrets should be `{"psk":"tgw.poc.psk1"}` and `{"psk":"tgw.poc.psk2"}`.
+1. Follow section 4 and 5 in the following article to deploy an EC2 instance with strongSwan to establish a Site-to-Site VPN -> [Simulating Site-to-Site VPN Customer Gateways Using strongSwan](https://aws.amazon.com/blogs/networking-and-content-delivery/simulating-site-to-site-vpn-customer-gateways-strongswan/).<br/><br/> Below are the values to fill up some of the parameters of the CloudFormation template used in the article above (for the other parameters, follow the instructions in the section 5 of the article):
 
-2. Un-comment the code in the section `VPN` of `TransitGateway.js`.
+   - Stack Name: `egress-vpc-vpn`
 
-3. Follow section 4 and 5 in the following article to deploy an EC2 instance with strongSwan to establish a Site-to-Site VPN -> [Simulating Site-to-Site VPN Customer Gateways Using strongSwan](https://aws.amazon.com/blogs/networking-and-content-delivery/simulating-site-to-site-vpn-customer-gateways-strongswan/).<br/><br/> Below are the values to fill up some of the parameters of the CloudFormation template used in the article above (for the other parameters, follow the instructions in the section 5 of the article):
-
-   - Name of secret in AWS Secrets Manager for VPN Tunnel 1 Pre-Shared Key: `tgw-poc-psk1`
-   - Name of secret in AWS Secrets Manager for VPN Tunnel 2 Pre-Shared Key: `tgw-poc-psk2`
-   - VPC ID: select `tgw-poc-customer-vpc`
+   - Name of secret in AWS Secrets Manager for VPN Tunnel 1 Pre-Shared Key: `egress-vpc-psk1`
+   - Name of secret in AWS Secrets Manager for VPN Tunnel 2 Pre-Shared Key: `egress-vpc-psk2`
+   - VPC ID: select `egress-vpc-customer-vpc`
    - VPC CIDR Block: `30.0.0.0/16`
-   - Subnet ID for VPN Gateway: select `tgw-poc-customer-vpc/PublicSubnet1`
+   - Subnet ID for VPN Gateway: select `egress-vpc-customer-vpc/PublicSubnet1`
    - Elastic IP Address Allocation ID: can be found in the output of the CDK stack. The value should start with `eipalloc-`
 
-> ❗ Wait until the VPN Gateway (EC2 Instance) is created and verify that both IPSec tunnels are 'UP' (Site-to-Site VPN Connections > tgw-poc-vpn > Tunnel details), before proceeding to step 4 and 5. This will take a few minutes.
+> ❗ Wait until the VPN Gateway (EC2 Instance) is created and verify that both IPSec tunnels are 'UP' (Site-to-Site VPN Connections > egress-vpc-vpn > Tunnel details), before proceeding to step 4 and 5. This will take a few minutes.
 
-4. Add a route to `20.0.0.0/16` in the route table (Target: Instance > infra-vpngw-test) of `tgw-poc-customer-vpc/PrivateSubnet1` in order to route requests from instances in `tgw-poc-customer-vpc/PrivateSubnet1` to instances in `tgw-poc-vpc-1/PrivateSubnet1`.
+2. Add a route to `20.0.0.0/16` in the route table (Target: Instance > infra-vpngw-test) of `egress-vpc-customer-vpc/PrivateSubnet1` in order to route requests from instances in `egress-vpc-customer-vpc/PrivateSubnet1` to instances in `egress-vpc-vpc-1/PrivateSubnet1`.
 
-5. Create a Transit Gateway Association and Propagation in the Transit Gateway Route Table for the VPN Transit Gateway attachment. Once you completed this step successfully, you should see a route `30.0.0.0/16` propagated in the Transit Gateway Route Table. Note: this step cannot be automated because there is no way to retrieve the VPN Transit Gateway attachment and then create an association and propagation programmatically.
+3. Create a Transit Gateway Association and Propagation in the Transit Gateway Route Table for the VPN Transit Gateway attachment. Once you completed this step successfully, you should see a route `30.0.0.0/16` propagated in the Transit Gateway Route Table. Note: this step cannot be automated because there is no way to retrieve the VPN Transit Gateway attachment and then create an association and propagation programmatically.
 
-> ❗ The connection between `tgw-poc-vpc-1` and `tgw-poc-customer-vpc` will be established in a few minutes after completing step 5.
+> ❗ The connection between `egress-vpc-vpc-1` and `egress-vpc-customer-vpc` will be established in a few minutes after completing step 3.
 
 ## Testing the network connectivity
 
-1. Connect to `tgw-poc-demo-instance` and `tgw-poc-demo-instance-2` using Session Manager
+1. Connect to `egress-vpc-demo-instance` and `egress-vpc-demo-instance-2` using Session Manager. If you encounter the error `Unable to start command: failed to start pty since RunAs user ssm-user does not exist`, ensure that the `Run As` config is `ec2-user` instead of `ssm-user`.
 
 2. Use `ifconfig` in the instances to retrieve the private IP addresses
 
-3. Ping each other using the private IP addresses - e.g. `ping 30.0.1.30` in `tgw-poc-demo-instance`
+3. Ping each other using the private IP addresses - e.g. `ping 30.0.1.30` in `egress-vpc-demo-instance`. You should receive similar results as shown below:
 
-4. You should receive similar results as those below:
+- `egress-vpc-demo-instance`: 64 bytes from 30.0.1.30: icmp_seq=1 ttl=253 time=2.49 ms
+- `egress-vpc-demo-instance-2`: 64 bytes from 20.0.0.20: icmp_seq=1 ttl=252 time=3.52 ms
 
-- `tgw-poc-demo-instance`: 64 bytes from 30.0.1.30: icmp_seq=1 ttl=253 time=2.49 ms
-- `tgw-poc-demo-instance-2`: 64 bytes from 20.0.0.20: icmp_seq=1 ttl=252 time=3.52 ms
+4. Ping a domain (e.g. amazon.com) in one of these instances. You should observe similar results as shown above.
+
+## Cleanup
+
+1. Delete `egress-vpc-vpn` and `egress-vpc` CloudFormation stacks.
 
 # Application Load Balancer (ALB) Rule Restriction
 

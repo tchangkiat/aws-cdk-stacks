@@ -1,7 +1,8 @@
 import { type Construct } from 'constructs'
-import { Stack, type StackProps, CfnOutput } from 'aws-cdk-lib'
+import { Stack, type StackProps, CfnOutput, SecretValue } from 'aws-cdk-lib'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import * as iam from 'aws-cdk-lib/aws-iam'
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager'
 
 import { StandardVpc } from '../constructs/network'
 
@@ -9,20 +10,40 @@ export class EgressVpc extends Stack {
   constructor (scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props)
 
+    const prefix = id + '-'
+
+    // ----------------------------
+    // Secrets Manager
+    // ----------------------------
+
+    new secretsmanager.Secret(this, 'psk1', {
+      secretName: prefix + 'psk1',
+      secretObjectValue: {
+        psk: SecretValue.unsafePlainText('egress.vpc.psk1')
+      }
+    })
+
+    new secretsmanager.Secret(this, 'psk2', {
+      secretName: prefix + 'psk2',
+      secretObjectValue: {
+        psk: SecretValue.unsafePlainText('egress.vpc.psk2')
+      }
+    })
+
     // ----------------------------
     // VPC
     // ----------------------------
 
-    const egressVpc = new StandardVpc(this, 'tgw-poc-vpc-egress', {
+    const egressVpc = new StandardVpc(this, 'egress-vpc', {
       maxAzs: 1,
-      vpcName: 'tgw-poc-vpc-egress'
+      vpcName: 'egress-vpc'
     }) as ec2.Vpc
 
-    const vpc1 = new ec2.Vpc(this, 'tgw-poc-vpc-1', {
+    const vpc1 = new ec2.Vpc(this, 'vpc-1', {
       ipAddresses: ec2.IpAddresses.cidr('20.0.0.0/16'),
       maxAzs: 1,
       natGateways: 0,
-      vpcName: 'tgw-poc-vpc-1',
+      vpcName: prefix + 'vpc-1',
       subnetConfiguration: [
         {
           cidrMask: 24,
@@ -36,7 +57,7 @@ export class EgressVpc extends Stack {
     // Transit Gateway
     // ----------------------------
 
-    const tgw = new ec2.CfnTransitGateway(this, 'tgw', {
+    const tgw = new ec2.CfnTransitGateway(this, 'transit-gateway', {
       description: 'Transit Gateway',
       vpnEcmpSupport: 'enable',
       defaultRouteTableAssociation: 'disable',
@@ -44,14 +65,14 @@ export class EgressVpc extends Stack {
       tags: [
         {
           key: 'Name',
-          value: 'tgw-poc'
+          value: prefix + 'tgw'
         }
       ]
     })
 
     const tgwAttachmentVpcEgress = new ec2.CfnTransitGatewayAttachment(
       this,
-      'tgw-attachment-vpc-egress',
+      'tgw-attachment-egress-vpc',
       {
         transitGatewayId: tgw.ref,
         vpcId: egressVpc.vpcId,
@@ -59,7 +80,7 @@ export class EgressVpc extends Stack {
         tags: [
           {
             key: 'Name',
-            value: 'tgw-attachment-vpc-egress'
+            value: 'tgw-attachment-egress-vpc'
           }
         ]
       }
@@ -113,7 +134,7 @@ export class EgressVpc extends Stack {
       }
     )
 
-    new ec2.CfnTransitGatewayRoute(this, 'tgw-route-vpc-egress', {
+    new ec2.CfnTransitGatewayRoute(this, 'tgw-route-egress-vpc', {
       transitGatewayRouteTableId: tgwRouteTable.ref,
       transitGatewayAttachmentId: tgwAttachmentVpcEgress.ref,
       destinationCidrBlock: '0.0.0.0/0'
@@ -121,7 +142,7 @@ export class EgressVpc extends Stack {
 
     new ec2.CfnTransitGatewayRouteTableAssociation(
       this,
-      'tgw-route-table-association-vpc-egress',
+      'tgw-route-table-association-egress-vpc',
       {
         transitGatewayAttachmentId: tgwAttachmentVpcEgress.ref,
         transitGatewayRouteTableId: tgwRouteTable.ref
@@ -159,10 +180,9 @@ export class EgressVpc extends Stack {
     // EC2
     // ----------------------------
 
-    const demoInstanceSG = new ec2.SecurityGroup(this, 'tgw-poc-instance-sg', {
+    const demoInstanceSG = new ec2.SecurityGroup(this, 'instance-sg', {
       vpc: vpc1,
-      securityGroupName: 'tgw-poc-instance-sg',
-      description: 'Demo Instance Security Group',
+      securityGroupName: prefix + 'instance-sg',
       allowAllOutbound: true
     })
     demoInstanceSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allIcmp())
@@ -216,7 +236,7 @@ export class EgressVpc extends Stack {
       tags: [
         {
           key: 'Name',
-          value: 'tgw-poc-demo-instance'
+          value: prefix + 'demo-instance'
         }
       ],
       securityGroupIds: [demoInstanceSG.securityGroupId]
@@ -224,15 +244,13 @@ export class EgressVpc extends Stack {
 
     // ------------------------------------------------------------------------------------
     // VPN
-    // - Comment all the code in this section if VPN connection between the Transit
-    //   Gateway and the simulated customer's on-prem environment is not required)
     // ------------------------------------------------------------------------------------
 
-    const customerVpc = new ec2.Vpc(this, 'tgw-poc-customer-vpc', {
+    const customerVpc = new ec2.Vpc(this, 'customer-vpc', {
       ipAddresses: ec2.IpAddresses.cidr('30.0.0.0/16'),
       maxAzs: 1,
       natGateways: 1,
-      vpcName: 'tgw-poc-customer-vpc',
+      vpcName: prefix + 'customer-vpc',
       subnetConfiguration: [
         {
           cidrMask: 24,
@@ -249,7 +267,7 @@ export class EgressVpc extends Stack {
 
     const elasticIp = new ec2.CfnEIP(this, 'elastic-ip-for-strongswan-instance')
 
-    const cgw = new ec2.CfnCustomerGateway(this, 'tgw-poc-cgw', {
+    const customerGateway = new ec2.CfnCustomerGateway(this, 'customer-gateway', {
       bgpAsn: 65000,
       ipAddress: elasticIp.ref,
       type: 'ipsec.1',
@@ -257,30 +275,30 @@ export class EgressVpc extends Stack {
       tags: [
         {
           key: 'Name',
-          value: 'tgw-poc-cgw'
+          value: prefix + 'cgw'
         }
       ]
     })
 
-    new ec2.CfnVPNConnection(this, 'tgw-poc-vpn', {
-      customerGatewayId: cgw.ref,
+    new ec2.CfnVPNConnection(this, 'vpn', {
+      customerGatewayId: customerGateway.ref,
       type: 'ipsec.1',
 
       staticRoutesOnly: false,
       tags: [
         {
           key: 'Name',
-          value: 'tgw-poc-vpn'
+          value: prefix + 'vpn'
         }
       ],
       transitGatewayId: tgw.ref,
       vpnTunnelOptionsSpecifications: [
         {
-          preSharedKey: 'tgw.poc.psk1',
+          preSharedKey: 'egress.vpc.psk1',
           tunnelInsideCidr: '169.254.7.0/30'
         },
         {
-          preSharedKey: 'tgw.poc.psk2',
+          preSharedKey: 'egress.vpc.psk2',
           tunnelInsideCidr: '169.254.8.0/30'
         }
       ]
@@ -288,11 +306,10 @@ export class EgressVpc extends Stack {
 
     const demoInstance2SG = new ec2.SecurityGroup(
       this,
-      'tgw-poc-instance-2-sg',
+      'instance-2-sg',
       {
         vpc: customerVpc,
-        securityGroupName: 'tgw-poc-instance-2-sg',
-        description: 'Demo Instance 2 Security Group',
+        securityGroupName: prefix + 'instance-2-sg',
         allowAllOutbound: true
       }
     )
@@ -312,7 +329,7 @@ export class EgressVpc extends Stack {
       tags: [
         {
           key: 'Name',
-          value: 'tgw-poc-demo-instance-2'
+          value: prefix + 'demo-instance-2'
         }
       ],
       securityGroupIds: [demoInstance2SG.securityGroupId]

@@ -32,10 +32,10 @@ const ecs = new ECS(app, 'ecs')
 
 new CicdEcs(app, 'cicd-ecs', ecs.Vpc, github)
 
+new EgressVpc(app, 'egress-vpc')
+
 new EKS(app, 'eks')
 
 new EKS(app, 'eks-ca', Autoscaler.ClusterAutoscaler)
 
 new MultiArchPipeline(app, 'mapl', github)
-
-new EgressVpc(app, 'egress-vpc')
