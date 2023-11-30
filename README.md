@@ -58,7 +58,7 @@ The pipeline will create Docker images for x86 and arm64 architectures and store
 
 ## ECS Cluster Setup
 
-> ❗ Prerequisite: Deploy the Multi-Architecture Pipeline using `cdk deploy mapl`.
+> ❗ Prerequisite: Deploy the Multi-Architecture Pipeline.
 
 ```bash
 cdk deploy ecs
@@ -186,7 +186,7 @@ Example #3: Remove multiple add-ons
 
 ## Sample Application
 
-> ❗ Prerequisite #1: Deploy the Multi-Architecture Pipeline using `cdk deploy mapl`. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
+> ❗ Prerequisite #1: Deploy the Multi-Architecture Pipeline. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
 
 > ❗ Prerequisite #2: Install AWS Load Balancer Controller.
 
@@ -369,7 +369,7 @@ chmod +x remove-app-mesh.sh
 
 ## Amazon VPC Lattice
 
-> ❗ Prerequisite #1: Deploy the Multi-Architecture Pipeline using `cdk deploy mapl`. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
+> ❗ Prerequisite #1: Deploy the Multi-Architecture Pipeline. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
 
 > ❗ Prerequisite #2: Install [AWS Load Balancer Controller](#aws-load-balancer-controller).
 
