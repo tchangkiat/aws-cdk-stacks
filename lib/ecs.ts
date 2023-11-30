@@ -31,19 +31,12 @@ export class ECS extends Stack {
     })
     ecsTaskExecutionRole.addToPolicy(
       new iam.PolicyStatement({
-        resources: [repository.repositoryArn],
+        resources: ['*'],
         actions: [
+          'ecr:GetAuthorizationToken',
           'ecr:BatchCheckLayerAvailability',
           'ecr:BatchGetImage',
           'ecr:GetDownloadUrlForLayer'
-        ]
-      })
-    )
-    ecsTaskExecutionRole.addToPolicy(
-      new iam.PolicyStatement({
-        resources: ['*'],
-        actions: [
-          'ecr:GetAuthorizationToken'
         ]
       })
     )
