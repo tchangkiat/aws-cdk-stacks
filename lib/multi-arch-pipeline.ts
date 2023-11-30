@@ -20,20 +20,35 @@ export class MultiArchPipeline extends Stack {
     super(scope, id, props)
 
     // ----------------------------
+    // ECR
+    // ----------------------------
+
+    const ecrRepo = new ecr.Repository(this, 'ecr-repo', {
+      lifecycleRules: [
+        {
+          description: 'Keep only 6 images',
+          maxImageCount: 6
+        }
+      ],
+      repositoryName: id,
+      removalPolicy: RemovalPolicy.DESTROY
+    })
+
+    // ----------------------------
     // IAM Roles
     // ----------------------------
 
-    const codebuildServiceRole = new iam.Role(this, 'CodeBuildServiceRole', {
-      assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com')
+    const codebuildServiceRole = new iam.Role(this, 'codebuild-service-role', {
+      assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com'),
+      roleName: id + '-codebuild-service-role'
     })
     codebuildServiceRole.addToPolicy(
       new iam.PolicyStatement({
-        resources: ['*'],
+        resources: [ecrRepo.repositoryArn],
         actions: [
           'ecr:BatchCheckLayerAvailability',
           'ecr:BatchGetImage',
           'ecr:CompleteLayerUpload',
-          'ecr:GetAuthorizationToken',
           'ecr:GetDownloadUrlForLayer',
           'ecr:InitiateLayerUpload',
           'ecr:PutImage',
@@ -41,27 +56,20 @@ export class MultiArchPipeline extends Stack {
         ]
       })
     )
-
-    // ----------------------------
-    // ECR
-    // ----------------------------
-
-    const imgRepo = new ecr.Repository(this, 'ImageRepository', {
-      lifecycleRules: [
-        {
-          description: 'Keep only 6 images',
-          maxImageCount: 6
-        }
-      ],
-      repositoryName: 'mapl',
-      removalPolicy: RemovalPolicy.DESTROY
-    })
+    codebuildServiceRole.addToPolicy(
+      new iam.PolicyStatement({
+        resources: ['*'],
+        actions: [
+          'ecr:GetAuthorizationToken'
+        ]
+      })
+    )
 
     // ----------------------------
     // S3
     // ----------------------------
 
-    const artifactBucket = new s3.Bucket(this, 'ArtifactBucket', {
+    const artifactBucket = new s3.Bucket(this, 'artifact-bucket', {
       removalPolicy: RemovalPolicy.DESTROY
     })
 
@@ -69,7 +77,7 @@ export class MultiArchPipeline extends Stack {
     // CloudWatch Log Group
     // ----------------------------
 
-    const codeBuildLogGroup = new logs.LogGroup(this, 'codeBuildLogGroup', {
+    const codeBuildLogGroup = new logs.LogGroup(this, 'codebuild-log-group', {
       retention: logs.RetentionDays.THREE_DAYS,
       removalPolicy: RemovalPolicy.DESTROY
     })
@@ -79,7 +87,7 @@ export class MultiArchPipeline extends Stack {
     // ----------------------------
 
     const sourceArtifact = new codepipeline.Artifact('SourceArtifact')
-    const buildArtifact = new codepipeline.Artifact('BuildArtifact')
+    const outputArtifact = new codepipeline.Artifact('OutputArtifact')
 
     const buildSpec = codebuild.BuildSpec.fromObject({
       version: '0.2',
@@ -115,12 +123,12 @@ export class MultiArchPipeline extends Stack {
       }
     })
 
-    const buildx86Project = new codebuild.PipelineProject(
+    const x86Project = new codebuild.PipelineProject(
       this,
-      'CodeBuildX86',
+      'codebuild-x86',
       {
         buildSpec,
-        projectName: 'maplBuildX86',
+        projectName: id + '-x86',
         environment: {
           buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_4,
           computeType: codebuild.ComputeType.SMALL,
@@ -133,10 +141,10 @@ export class MultiArchPipeline extends Stack {
               value: this.account
             },
             IMAGE_REPO: {
-              value: imgRepo.repositoryName
+              value: ecrRepo.repositoryName
             },
             IMAGE_REPO_URL: {
-              value: imgRepo.repositoryUri
+              value: ecrRepo.repositoryUri
             },
             IMAGE_TAG: {
               value: 'amd64-latest'
@@ -161,12 +169,12 @@ export class MultiArchPipeline extends Stack {
       }
     )
 
-    const buildArm64Project = new codebuild.PipelineProject(
+    const arm64Project = new codebuild.PipelineProject(
       this,
-      'CodeBuildArm64',
+      'codebuild-arm64',
       {
         buildSpec,
-        projectName: 'maplBuildArm64',
+        projectName: id + '-arm64',
         environment: {
           buildImage: codebuild.LinuxArmBuildImage.AMAZON_LINUX_2_STANDARD_3_0,
           computeType: codebuild.ComputeType.SMALL,
@@ -179,10 +187,10 @@ export class MultiArchPipeline extends Stack {
               value: this.account
             },
             IMAGE_REPO: {
-              value: imgRepo.repositoryName
+              value: ecrRepo.repositoryName
             },
             IMAGE_REPO_URL: {
-              value: imgRepo.repositoryUri
+              value: ecrRepo.repositoryUri
             },
             IMAGE_TAG: {
               value: 'arm64-latest'
@@ -207,9 +215,9 @@ export class MultiArchPipeline extends Stack {
       }
     )
 
-    const buildManifestProject = new codebuild.PipelineProject(
+    const manifestProject = new codebuild.PipelineProject(
       this,
-      'CodeBuildManifest',
+      'codebuild-manifest',
       {
         buildSpec: codebuild.BuildSpec.fromObject({
           version: '0.2',
@@ -250,7 +258,7 @@ export class MultiArchPipeline extends Stack {
             files: 'imagedefinitions.json'
           }
         }),
-        projectName: 'maplBuildManifest',
+        projectName: id + '-manifest',
         environment: {
           buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_4,
           computeType: codebuild.ComputeType.SMALL,
@@ -263,10 +271,10 @@ export class MultiArchPipeline extends Stack {
               value: this.account
             },
             IMAGE_REPO: {
-              value: imgRepo.repositoryName
+              value: ecrRepo.repositoryName
             },
             IMAGE_REPO_URL: {
-              value: imgRepo.repositoryUri
+              value: ecrRepo.repositoryUri
             },
             IMAGE_TAG: {
               value: 'latest'
@@ -285,13 +293,13 @@ export class MultiArchPipeline extends Stack {
 
     new codepipeline.Pipeline(this, 'CodePipeline', {
       artifactBucket,
-      pipelineName: 'mapl',
+      pipelineName: id,
       stages: [
         {
           stageName: 'Source',
           actions: [
             new codepipeline_actions.CodeStarConnectionsSourceAction({
-              actionName: 'Retrieve-Source-Code-From-GitHub',
+              actionName: 'get-source-code',
               owner: github.owner,
               repo: github.repository,
               output: sourceArtifact,
@@ -300,28 +308,28 @@ export class MultiArchPipeline extends Stack {
           ]
         },
         {
-          stageName: 'Build',
+          stageName: 'Create-Images',
           actions: [
             new codepipeline_actions.CodeBuildAction({
-              actionName: 'Build-Image-For-x86',
-              project: buildx86Project,
+              actionName: 'create-x86',
+              project: x86Project,
               input: sourceArtifact
             }),
             new codepipeline_actions.CodeBuildAction({
-              actionName: 'Build-Image-For-ARM64',
-              project: buildArm64Project,
+              actionName: 'create-arm64',
+              project: arm64Project,
               input: sourceArtifact
             })
           ]
         },
         {
-          stageName: 'Build-Manifest',
+          stageName: 'Create-Manifest',
           actions: [
             new codepipeline_actions.CodeBuildAction({
-              actionName: 'Build-Manifest',
-              project: buildManifestProject,
+              actionName: 'create-manifest',
+              project: manifestProject,
               input: sourceArtifact,
-              outputs: [buildArtifact]
+              outputs: [outputArtifact]
             })
           ]
         }

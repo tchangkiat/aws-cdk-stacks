@@ -38,4 +38,4 @@ new EKS(app, 'eks')
 
 new EKS(app, 'eks-ca', Autoscaler.ClusterAutoscaler)
 
-new MultiArchPipeline(app, 'mapl', github)
+new MultiArchPipeline(app, 'multi-arch-pipeline', github)

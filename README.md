@@ -49,10 +49,10 @@ aws configure set output json
 # Multi-Architecture Pipeline
 
 ```bash
-cdk deploy mapl
+cdk deploy multi-arch-pipeline
 ```
 
-The pipeline will build Docker images for x86 and ARM64 architectures and store them in Elastic Container Registry (ECR). A Docker manifest will also be built and uploaded to the registry so that the Docker images for the respective architectures can be retrieved automatically with the 'latest' tag.
+The pipeline will create Docker images for x86 and arm64 architectures and store them in an Elastic Container Registry (ECR) repository. A Docker manifest will also be created and uploaded to the registry so that the Docker images for the respective architectures can be retrieved automatically with the 'latest' tag.
 
 # Elastic Container Service (ECS)
 
