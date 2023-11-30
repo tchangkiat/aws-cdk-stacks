@@ -7,15 +7,16 @@ import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns'
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch'
 // import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import * as iam from 'aws-cdk-lib/aws-iam'
-import * as ecr from 'aws-cdk-lib/aws-ecr'
+import type * as ecr from 'aws-cdk-lib/aws-ecr'
 import * as logs from 'aws-cdk-lib/aws-logs'
 
 import { StandardVpc } from '../constructs/network'
 
 export class ECS extends Stack {
-  public Vpc: ec2.Vpc
+  public Cluster: ecs.Cluster
+  public FargateService: ecs.FargateService
 
-  constructor (scope: Construct, id: string, props?: StackProps) {
+  constructor (scope: Construct, id: string, repository: ecr.Repository, props?: StackProps) {
     super(scope, id, props)
 
     const prefix = id + '-demo'
@@ -30,12 +31,19 @@ export class ECS extends Stack {
     })
     ecsTaskExecutionRole.addToPolicy(
       new iam.PolicyStatement({
-        resources: ['*'],
+        resources: [repository.repositoryArn],
         actions: [
           'ecr:BatchCheckLayerAvailability',
           'ecr:BatchGetImage',
-          'ecr:GetAuthorizationToken',
           'ecr:GetDownloadUrlForLayer'
+        ]
+      })
+    )
+    ecsTaskExecutionRole.addToPolicy(
+      new iam.PolicyStatement({
+        resources: ['*'],
+        actions: [
+          'ecr:GetAuthorizationToken'
         ]
       })
     )
@@ -57,27 +65,16 @@ export class ECS extends Stack {
     )
 
     // ----------------------------
-    // ECR
-    // ----------------------------
-
-    const imgRepo = ecr.Repository.fromRepositoryName(
-      this,
-      'image-repository',
-      'mapl'
-    )
-
-    // ----------------------------
     // VPC
     // ----------------------------
 
     const vpc = new StandardVpc(this, 'vpc', { vpcName: prefix }) as ec2.Vpc
-    this.Vpc = vpc
 
     // ----------------------------
     // ECS Cluster
     // ----------------------------
 
-    const cluster = new ecs.Cluster(this, 'cluster', {
+    this.Cluster = new ecs.Cluster(this, 'ecs-cluster', {
       vpc,
       clusterName: prefix
     })
@@ -105,7 +102,7 @@ export class ECS extends Stack {
         capacityProviderName: "ec2",
       }
     );
-    cluster.addAsgCapacityProvider(ec2CapacityProvider);
+    this.Cluster.addAsgCapacityProvider(ec2CapacityProvider);
 
     // Task Definition
     const ec2TaskDefinition = new ecs.Ec2TaskDefinition(
@@ -121,7 +118,7 @@ export class ECS extends Stack {
     });
 
     const ec2Service = new ecs.Ec2Service(this, "Ec2Service", {
-      cluster,
+      cluster: this.Cluster,
       taskDefinition: ec2TaskDefinition,
       desiredCount: 1,
       placementStrategies: [
@@ -174,7 +171,7 @@ export class ECS extends Stack {
     )
 
     fgTaskDef.addContainer('sample-express-api', {
-      image: ecs.ContainerImage.fromEcrRepository(imgRepo),
+      image: ecs.ContainerImage.fromEcrRepository(repository),
       containerName: 'sample-express-api',
       portMappings: [{ containerPort: 8000 }],
       cpu: 256,
@@ -208,21 +205,20 @@ export class ECS extends Stack {
       memoryReservationMiB: 50
     })
 
-    const loadBalancedFargateService =
+    this.FargateService =
       new ecsPatterns.ApplicationLoadBalancedFargateService(
         this,
-        'FargateService',
+        'fg-service',
         {
-          cluster,
+          cluster: this.Cluster,
           desiredCount: 1,
           publicLoadBalancer: true,
           serviceName: prefix + '-fg-service',
           loadBalancerName: prefix + '-fg-service-lb',
           taskDefinition: fgTaskDef
         }
-      )
-    const fargateServiceScalability =
-      loadBalancedFargateService.service.autoScaleTaskCount({ maxCapacity: 3 })
+      ).service
+    const fargateServiceScalability = this.FargateService.autoScaleTaskCount({ maxCapacity: 3 })
     fargateServiceScalability.scaleOnCpuUtilization(
       'FargateServiceScalability',
       {
@@ -234,7 +230,7 @@ export class ECS extends Stack {
     // ECS Cluster > CloudWatch
     // ----------------------------
 
-    const dashboard = new cloudwatch.Dashboard(this, 'CWDashboard', {
+    const dashboard = new cloudwatch.Dashboard(this, 'cloudwatch-dashboard', {
       dashboardName: prefix
     })
 
@@ -243,11 +239,10 @@ export class ECS extends Stack {
       label: "EC2 CPU Utilization",
     }); */
 
-    const fargateCpuUtilizationMetric =
-      loadBalancedFargateService.service.metricCpuUtilization({
-        period: Duration.minutes(1),
-        label: 'Fargate CPU Utilization'
-      })
+    const fargateCpuUtilizationMetric = this.FargateService.metricCpuUtilization({
+      period: Duration.minutes(1),
+      label: 'Fargate CPU Utilization'
+    })
 
     dashboard.addWidgets(
       /* new cloudwatch.GraphWidget({

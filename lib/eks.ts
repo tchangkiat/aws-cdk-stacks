@@ -3,6 +3,7 @@ import { Stack, type StackProps, CfnOutput, Tags } from 'aws-cdk-lib'
 import type * as ec2 from 'aws-cdk-lib/aws-ec2'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import * as eks from 'aws-cdk-lib/aws-eks'
+import type * as ecr from 'aws-cdk-lib/aws-ecr'
 import { KubectlLayer } from 'aws-cdk-lib/lambda-layer-kubectl'
 
 import { ManagedNodeGroup, ClusterAutoscaler } from '../constructs/eks'
@@ -14,6 +15,7 @@ export class EKS extends Stack {
   constructor (
     scope: Construct,
     id: string,
+    ecrRepository: ecr.Repository,
     autoscaler?: string,
     props?: StackProps
   ) {
@@ -146,10 +148,8 @@ export class EKS extends Stack {
           eksMasterRole.roleArn +
           "' >> /home/ec2-user/.bashrc",
         "echo 'export CONTAINER_IMAGE_URL=" +
-          this.account +
-          '.dkr.ecr.' +
-          this.region +
-          ".amazonaws.com/mapl:latest' >> /home/ec2-user/.bashrc",
+          ecrRepository.repositoryUri +
+          ":latest' >> /home/ec2-user/.bashrc",
         // Download script to set up bastion host
         'curl -o /home/ec2-user/setup-bastion-host.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/setup-bastion-host.sh',
         'chmod +x /home/ec2-user/setup-bastion-host.sh',

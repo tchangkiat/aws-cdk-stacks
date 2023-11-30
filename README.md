@@ -56,9 +56,9 @@ The pipeline will create Docker images for x86 and arm64 architectures and store
 
 # Elastic Container Service (ECS)
 
-## ECS Cluster Setup
+> Dependency: Multi-Architecture Pipeline
 
-> ❗ Prerequisite: Deploy the Multi-Architecture Pipeline.
+## ECS Cluster
 
 ```bash
 cdk deploy ecs
@@ -66,19 +66,19 @@ cdk deploy ecs
 
 Creates a new VPC with a NAT gateway and a new ECS cluster. The ECS cluster has an EC2 Auto-Scaling Group (ASG) as the capacity provider that scales on 70% CPU utilization. An Application Load Balancer (ALB) will be created to expose the ECS service. A similar workload will also be created using Fargate. A CloudWatch dashboard will be created to visualize both workloads (EC2 and Fargate).
 
-## CICD Pipeline for ECS Cluster
-
-> ❗ Prerequisite: Deploy the ECS cluster using `cdk deploy ecs`.
+## ECS Cluster with CICD Pipeline
 
 ```bash
-cdk deploy cicd-ecs
+cdk deploy ecs-cicd
 ```
 
-Creates a new CodePipeline, ECR repository, and S3 bucket to build and deploy a container image to the ECS cluster created above.
+Creates a new CodePipeline, ECR repository, and S3 bucket to build and deploy a container image to the ECS cluster.
 
 # Elastic Kubernetes Service (EKS)
 
-## EKS Cluster Setup
+> Dependency: Multi-Architecture Pipeline
+
+## EKS Cluster
 
 ### 1. Provision an EKS cluster with one of these commands:
 

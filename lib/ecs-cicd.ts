@@ -1,8 +1,7 @@
 import { type Construct } from 'constructs'
 import { Stack, type StackProps, RemovalPolicy } from 'aws-cdk-lib'
-import type * as ec2 from 'aws-cdk-lib/aws-ec2'
 import * as ecr from 'aws-cdk-lib/aws-ecr'
-import * as ecs from 'aws-cdk-lib/aws-ecs'
+import type * as ecs from 'aws-cdk-lib/aws-ecs'
 import * as codepipeline from 'aws-cdk-lib/aws-codepipeline'
 import * as codepipeline_actions from 'aws-cdk-lib/aws-codepipeline-actions'
 import * as codebuild from 'aws-cdk-lib/aws-codebuild'
@@ -11,17 +10,30 @@ import * as s3 from 'aws-cdk-lib/aws-s3'
 
 import { type GitHubProps } from '../github-props'
 
-export class CicdEcs extends Stack {
+export class EcsCicd extends Stack {
   constructor (
     scope: Construct,
     id: string,
-    vpc: ec2.Vpc,
+    fargateService: ecs.FargateService,
     github: GitHubProps,
     props?: StackProps
   ) {
     super(scope, id, props)
 
     const prefix = id + '-demo'
+
+    // ----------------------------
+    // ECR
+    // ----------------------------
+
+    const ecrRepo = new ecr.Repository(this, 'ecr-repository', {
+      repositoryName: prefix,
+      removalPolicy: RemovalPolicy.DESTROY
+    })
+    ecrRepo.addLifecycleRule({
+      description: 'Keep only 6 images',
+      maxImageCount: 6
+    })
 
     // ----------------------------
     // IAM Roles
@@ -33,7 +45,7 @@ export class CicdEcs extends Stack {
     })
     codebuildServiceRole.addToPolicy(
       new iam.PolicyStatement({
-        resources: ['*'],
+        resources: [ecrRepo.repositoryArn],
         actions: [
           'ecr:BatchCheckLayerAvailability',
           'ecr:BatchGetImage',
@@ -46,40 +58,20 @@ export class CicdEcs extends Stack {
         ]
       })
     )
-
-    // ----------------------------
-    // ECR
-    // ----------------------------
-
-    const imgRepo = new ecr.Repository(this, 'ImageRepository', {
-      repositoryName: prefix,
-      removalPolicy: RemovalPolicy.DESTROY
-    })
-    imgRepo.addLifecycleRule({
-      description: 'Keep only 6 images',
-      maxImageCount: 6
-    })
-
-    // ----------------------------
-    // ECS Cluster
-    // ----------------------------
-
-    const cluster = ecs.Cluster.fromClusterAttributes(this, 'cluster', {
-      clusterName: 'ecs-demo',
-      vpc
-    })
-
-    const fargateService = ecs.FargateService.fromFargateServiceAttributes(
-      this,
-      'FargateService',
-      { cluster, serviceName: 'ecs-demo-fg-service' }
+    codebuildServiceRole.addToPolicy(
+      new iam.PolicyStatement({
+        resources: ['*'],
+        actions: [
+          'ecr:GetAuthorizationToken'
+        ]
+      })
     )
 
     // ----------------------------
     // S3
     // ----------------------------
 
-    const artifactBucket = new s3.Bucket(this, 'ArtifactBucket', {
+    const artifactBucket = new s3.Bucket(this, 'artifact-bucket', {
       removalPolicy: RemovalPolicy.DESTROY,
       bucketName: prefix + '-artifact-bucket'
     })
@@ -132,12 +124,12 @@ export class CicdEcs extends Stack {
       }
     })
 
-    const buildx86Project = new codebuild.PipelineProject(
+    const codebuildProject = new codebuild.PipelineProject(
       this,
-      'CodeBuildx86',
+      'codebuild-project',
       {
         buildSpec,
-        projectName: prefix + '-x86',
+        projectName: prefix,
         environment: {
           buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_4,
           computeType: codebuild.ComputeType.SMALL,
@@ -150,13 +142,13 @@ export class CicdEcs extends Stack {
               value: this.account
             },
             IMAGE_REPO: {
-              value: imgRepo.repositoryName
+              value: ecrRepo.repositoryName
             },
             IMAGE_REPO_URL: {
-              value: imgRepo.repositoryUri
+              value: ecrRepo.repositoryUri
             },
             IMAGE_TAG: {
-              value: 'amd64-latest'
+              value: 'latest'
             },
             SOURCE_REPO_URL: {
               value:
@@ -177,7 +169,7 @@ export class CicdEcs extends Stack {
       }
     )
 
-    new codepipeline.Pipeline(this, 'CodePipeline', {
+    new codepipeline.Pipeline(this, 'codepipeline', {
       artifactBucket,
       pipelineName: prefix + '-pipeline',
       stages: [
@@ -185,7 +177,7 @@ export class CicdEcs extends Stack {
           stageName: 'Source',
           actions: [
             new codepipeline_actions.CodeStarConnectionsSourceAction({
-              actionName: 'GitHub_Source',
+              actionName: 'get-source-code',
               owner: github.owner,
               repo: github.repository,
               output: sourceArtifact,
@@ -197,8 +189,8 @@ export class CicdEcs extends Stack {
           stageName: 'Build',
           actions: [
             new codepipeline_actions.CodeBuildAction({
-              actionName: 'x86',
-              project: buildx86Project,
+              actionName: 'create-container-image',
+              project: codebuildProject,
               input: sourceArtifact,
               outputs: [buildArtifact],
               runOrder: 1
@@ -209,7 +201,7 @@ export class CicdEcs extends Stack {
           stageName: 'Deploy',
           actions: [
             new codepipeline_actions.EcsDeployAction({
-              actionName: 'DeployToECSCluster',
+              actionName: 'deploy-to-ecs-cluster',
               service: fargateService,
               input: buildArtifact,
               runOrder: 1

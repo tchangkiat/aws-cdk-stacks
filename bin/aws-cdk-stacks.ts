@@ -6,7 +6,7 @@ import * as cdk from 'aws-cdk-lib'
 
 import { ALBRuleRestriction } from '../lib/alb-rule-restriction'
 import { ApiGateway } from '../lib/api-gateway'
-import { CicdEcs } from '../lib/cicd-ecs'
+import { EcsCicd } from '../lib/ecs-cicd'
 import { ECS } from '../lib/ecs'
 import { EKS } from '../lib/eks'
 import { MultiArchPipeline } from '../lib/multi-arch-pipeline'
@@ -24,18 +24,18 @@ const github: GitHubProps = {
 
 const app = new cdk.App()
 
-new ALBRuleRestriction(app, 'alb-rule-restriction')
+const multiArchPipeline = new MultiArchPipeline(app, 'multi-arch-pipeline', github)
 
-new ApiGateway(app, 'api-gateway')
+const ecs = new ECS(app, 'ecs', multiArchPipeline.Repository)
 
-const ecs = new ECS(app, 'ecs')
+new EcsCicd(app, 'ecs-cicd', ecs.FargateService, github)
 
-new CicdEcs(app, 'cicd-ecs', ecs.Vpc, github)
+new EKS(app, 'eks', multiArchPipeline.Repository)
+
+new EKS(app, 'eks-ca', multiArchPipeline.Repository, Autoscaler.ClusterAutoscaler)
 
 new EgressVpc(app, 'egress-vpc')
 
-new EKS(app, 'eks')
+new ALBRuleRestriction(app, 'alb-rule-restriction')
 
-new EKS(app, 'eks-ca', Autoscaler.ClusterAutoscaler)
-
-new MultiArchPipeline(app, 'multi-arch-pipeline', github)
+new ApiGateway(app, 'api-gateway')

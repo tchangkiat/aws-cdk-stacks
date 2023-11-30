@@ -11,6 +11,8 @@ import * as logs from 'aws-cdk-lib/aws-logs'
 import { type GitHubProps } from '../github-props'
 
 export class MultiArchPipeline extends Stack {
+  public Repository: ecr.Repository
+
   constructor (
     scope: Construct,
     id: string,
@@ -23,7 +25,7 @@ export class MultiArchPipeline extends Stack {
     // ECR
     // ----------------------------
 
-    const ecrRepo = new ecr.Repository(this, 'ecr-repo', {
+    this.Repository = new ecr.Repository(this, 'ecr-repo', {
       lifecycleRules: [
         {
           description: 'Keep only 6 images',
@@ -44,7 +46,7 @@ export class MultiArchPipeline extends Stack {
     })
     codebuildServiceRole.addToPolicy(
       new iam.PolicyStatement({
-        resources: [ecrRepo.repositoryArn],
+        resources: [this.Repository.repositoryArn],
         actions: [
           'ecr:BatchCheckLayerAvailability',
           'ecr:BatchGetImage',
@@ -141,10 +143,10 @@ export class MultiArchPipeline extends Stack {
               value: this.account
             },
             IMAGE_REPO: {
-              value: ecrRepo.repositoryName
+              value: this.Repository.repositoryName
             },
             IMAGE_REPO_URL: {
-              value: ecrRepo.repositoryUri
+              value: this.Repository.repositoryUri
             },
             IMAGE_TAG: {
               value: 'amd64-latest'
@@ -187,10 +189,10 @@ export class MultiArchPipeline extends Stack {
               value: this.account
             },
             IMAGE_REPO: {
-              value: ecrRepo.repositoryName
+              value: this.Repository.repositoryName
             },
             IMAGE_REPO_URL: {
-              value: ecrRepo.repositoryUri
+              value: this.Repository.repositoryUri
             },
             IMAGE_TAG: {
               value: 'arm64-latest'
@@ -271,10 +273,10 @@ export class MultiArchPipeline extends Stack {
               value: this.account
             },
             IMAGE_REPO: {
-              value: ecrRepo.repositoryName
+              value: this.Repository.repositoryName
             },
             IMAGE_REPO_URL: {
-              value: ecrRepo.repositoryUri
+              value: this.Repository.repositoryUri
             },
             IMAGE_TAG: {
               value: 'latest'
