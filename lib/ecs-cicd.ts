@@ -1,6 +1,6 @@
 import { type Construct } from 'constructs'
 import { Stack, type StackProps, RemovalPolicy } from 'aws-cdk-lib'
-import * as ecr from 'aws-cdk-lib/aws-ecr'
+import type * as ecr from 'aws-cdk-lib/aws-ecr'
 import type * as ecs from 'aws-cdk-lib/aws-ecs'
 import * as codepipeline from 'aws-cdk-lib/aws-codepipeline'
 import * as codepipeline_actions from 'aws-cdk-lib/aws-codepipeline-actions'
@@ -15,25 +15,13 @@ export class EcsCicd extends Stack {
     scope: Construct,
     id: string,
     fargateService: ecs.FargateService,
+    repository: ecr.Repository,
     github: GitHubProps,
     props?: StackProps
   ) {
     super(scope, id, props)
 
     const prefix = id + '-demo'
-
-    // ----------------------------
-    // ECR
-    // ----------------------------
-
-    const ecrRepo = new ecr.Repository(this, 'ecr-repository', {
-      repositoryName: prefix,
-      removalPolicy: RemovalPolicy.DESTROY
-    })
-    ecrRepo.addLifecycleRule({
-      description: 'Keep only 6 images',
-      maxImageCount: 6
-    })
 
     // ----------------------------
     // IAM Roles
@@ -45,7 +33,7 @@ export class EcsCicd extends Stack {
     })
     codebuildServiceRole.addToPolicy(
       new iam.PolicyStatement({
-        resources: [ecrRepo.repositoryArn],
+        resources: [repository.repositoryArn],
         actions: [
           'ecr:BatchCheckLayerAvailability',
           'ecr:BatchGetImage',
@@ -142,10 +130,10 @@ export class EcsCicd extends Stack {
               value: this.account
             },
             IMAGE_REPO: {
-              value: ecrRepo.repositoryName
+              value: repository.repositoryName
             },
             IMAGE_REPO_URL: {
-              value: ecrRepo.repositoryUri
+              value: repository.repositoryUri
             },
             IMAGE_TAG: {
               value: 'latest'

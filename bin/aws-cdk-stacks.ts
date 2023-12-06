@@ -28,7 +28,7 @@ const multiArchPipeline = new MultiArchPipeline(app, 'multi-arch-pipeline', gith
 
 const ecs = new ECS(app, 'ecs', multiArchPipeline.Repository)
 
-new EcsCicd(app, 'ecs-cicd', ecs.FargateService, github)
+new EcsCicd(app, 'ecs-cicd', ecs.FargateService, multiArchPipeline.Repository, github)
 
 new EKS(app, 'eks', multiArchPipeline.Repository)
 
