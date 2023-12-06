@@ -23,6 +23,21 @@ export class ECS extends Stack {
     const prefix = id + '-demo'
 
     // ----------------------------
+    // VPC
+    // ----------------------------
+
+    const vpc = new StandardVpc(this, 'vpc', { vpcName: prefix }) as ec2.Vpc
+
+    // ----------------------------
+    // ECS Cluster
+    // ----------------------------
+
+    this.Cluster = new ecs.Cluster(this, 'ecs-cluster', {
+      vpc,
+      clusterName: prefix
+    })
+
+    // ----------------------------
     // CloudWatch Log Group
     // ----------------------------
 
@@ -65,29 +80,15 @@ export class ECS extends Stack {
     })
     ecsTaskRole.addToPolicy(
       new iam.PolicyStatement({
-        resources: [logGroup.logGroupArn],
+        resources: [logGroup.logGroupArn, 'arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/containerinsights/' + prefix + '/application*'],
         actions: [
+          'logs:CreateLogGroup',
           'logs:CreateLogStream',
           'logs:DescribeLogStreams',
           'logs:PutLogEvents'
         ]
       })
     )
-
-    // ----------------------------
-    // VPC
-    // ----------------------------
-
-    const vpc = new StandardVpc(this, 'vpc', { vpcName: prefix }) as ec2.Vpc
-
-    // ----------------------------
-    // ECS Cluster
-    // ----------------------------
-
-    this.Cluster = new ecs.Cluster(this, 'ecs-cluster', {
-      vpc,
-      clusterName: prefix
-    })
 
     // ----------------------------
     // ECS Cluster > EC2 Capacity Provider
