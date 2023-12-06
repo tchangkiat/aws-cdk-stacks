@@ -15,7 +15,6 @@ import { StandardVpc } from '../constructs/network'
 export class ECS extends Stack {
   public Cluster: ecs.Cluster
   public FargateService: ecs.FargateService
-  public EcsTaskExecutionRole: iam.Role
 
   constructor (scope: Construct, id: string, repository: ecr.Repository, props?: StackProps) {
     super(scope, id, props)
@@ -51,11 +50,11 @@ export class ECS extends Stack {
     // IAM Roles
     // ----------------------------
 
-    this.EcsTaskExecutionRole = new iam.Role(this, 'ecs-task-execution-role', {
+    const ecsTaskExecutionRole = new iam.Role(this, 'ecs-task-execution-role', {
       assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
       roleName: prefix + '-ecs-task-execution'
     })
-    this.EcsTaskExecutionRole.addToPolicy(
+    ecsTaskExecutionRole.addToPolicy(
       new iam.PolicyStatement({
         resources: [repository.repositoryArn],
         actions: [
@@ -65,7 +64,7 @@ export class ECS extends Stack {
         ]
       })
     )
-    this.EcsTaskExecutionRole.addToPolicy(
+    ecsTaskExecutionRole.addToPolicy(
       new iam.PolicyStatement({
         resources: ['*'],
         actions: [
@@ -80,7 +79,7 @@ export class ECS extends Stack {
     })
     ecsTaskRole.addToPolicy(
       new iam.PolicyStatement({
-        resources: [logGroup.logGroupArn, 'arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/containerinsights/' + prefix + '/application*'],
+        resources: [logGroup.logGroupArn, 'arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/ecs/containerinsights/' + prefix + '/*'],
         actions: [
           'logs:CreateLogGroup',
           'logs:CreateLogStream',
@@ -174,7 +173,7 @@ export class ECS extends Stack {
       this,
       'fg-task-definition',
       {
-        executionRole: this.EcsTaskExecutionRole,
+        executionRole: ecsTaskExecutionRole,
         taskRole: ecsTaskRole,
         cpu: 512,
         memoryLimitMiB: 1024
@@ -191,7 +190,7 @@ export class ECS extends Stack {
         options: {
           Name: 'cloudwatch',
           region: 'ap-southeast-1',
-          log_group_name: '/aws/containerinsights/' + prefix + '/application',
+          log_group_name: '/aws/ecs/containerinsights/' + prefix + '/application',
           auto_create_group: 'true',
           log_stream_name: 'sample-express-api-$(ecs_task_id)',
           retry_limit: '2'
