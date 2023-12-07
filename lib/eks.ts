@@ -240,7 +240,7 @@ export class EKS extends Stack {
 
       caPolicy.attachToRole(addonsMng.role)
 
-      ca.addNodeGroups(eksClusterName, [spotMng])
+      ca.tagNodeGroups(eksClusterName, [spotMng])
     }
   }
 }

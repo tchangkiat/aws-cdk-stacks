@@ -200,11 +200,6 @@ export class ClusterAutoscaler extends Construct {
               verbs: ['get', 'update']
             },
             {
-              apiGroups: ['coordination.k8s.io'],
-              resources: ['leases'],
-              verbs: ['watch', 'list', 'get', 'patch', 'create', 'update']
-            },
-            {
               apiGroups: [''],
               resources: ['nodes'],
               verbs: ['watch', 'list', 'get', 'update']
@@ -212,6 +207,7 @@ export class ClusterAutoscaler extends Construct {
             {
               apiGroups: [''],
               resources: [
+                'namespaces',
                 'pods',
                 'services',
                 'replicationcontrollers',
@@ -237,13 +233,24 @@ export class ClusterAutoscaler extends Construct {
             },
             {
               apiGroups: ['storage.k8s.io'],
-              resources: ['storageclasses', 'csinodes'],
+              resources: ['storageclasses', 'csinodes', 'csidrivers', 'csistoragecapacities'],
               verbs: ['watch', 'list', 'get']
             },
             {
               apiGroups: ['batch', 'extensions'],
               resources: ['jobs'],
               verbs: ['get', 'list', 'watch', 'patch']
+            },
+            {
+              apiGroups: ['coordination.k8s.io'],
+              resources: ['leases'],
+              verbs: ['create']
+            },
+            {
+              apiGroups: ['coordination.k8s.io'],
+              resourceNames: ['cluster-autoscaler'],
+              resources: ['leases'],
+              verbs: ['get', 'update']
             }
           ]
         },
@@ -280,7 +287,6 @@ export class ClusterAutoscaler extends Construct {
           kind: 'ClusterRoleBinding',
           metadata: {
             name: 'cluster-autoscaler',
-            namespace: 'kube-system',
             labels: {
               'k8s-addon': 'cluster-autoscaler.addons.k8s.io',
               'k8s-app': 'cluster-autoscaler'
@@ -364,11 +370,11 @@ export class ClusterAutoscaler extends Construct {
                     resources: {
                       limits: {
                         cpu: '100m',
-                        memory: '300Mi'
+                        memory: '600Mi'
                       },
                       requests: {
                         cpu: '100m',
-                        memory: '300Mi'
+                        memory: '600Mi'
                       }
                     },
                     command: [
@@ -379,8 +385,7 @@ export class ClusterAutoscaler extends Construct {
                       '--skip-nodes-with-local-storage=false',
                       '--expander=least-waste',
                       '--node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/' +
-                        cluster.clusterName,
-                      '--balance-similar-node-groups'
+                        cluster.clusterName
                     ],
                     volumeMounts: [
                       {
@@ -389,7 +394,14 @@ export class ClusterAutoscaler extends Construct {
                         readOnly: true
                       }
                     ],
-                    imagePullPolicy: 'Always'
+                    imagePullPolicy: 'Always',
+                    securityContext: {
+                      allowPrivilegeEscalation: false,
+                      capabilities: {
+                        drop: ['ALL']
+                      },
+                      readOnlyRootFilesystem: true
+                    }
                   }
                 ],
                 tolerations: [
@@ -415,7 +427,7 @@ export class ClusterAutoscaler extends Construct {
     })
   }
 
-  addNodeGroups (clusterName: string, nodeGroups: eks.Nodegroup[]): void {
+  tagNodeGroups (clusterName: string, nodeGroups: eks.Nodegroup[]): void {
     for (const ng of nodeGroups) {
       Tags.of(ng).add(`k8s.io/cluster-autoscaler/${clusterName}`, 'owned', {
         applyToLaunchedInstances: true
