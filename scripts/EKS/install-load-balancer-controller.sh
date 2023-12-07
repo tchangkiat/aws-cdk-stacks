@@ -24,7 +24,8 @@ eksctl create iamserviceaccount \
 helm repo add eks https://aws.github.io/eks-charts
 helm repo update
 
-kubectl apply -k "https://raw.githubusercontent.com/aws/eks-charts/master/stable/aws-load-balancer-controller/crds/crds.yaml"
+curl -o aws-load-balancer-controller-crds.yaml https://raw.githubusercontent.com/aws/eks-charts/master/stable/aws-load-balancer-controller/crds/crds.yaml
+kubectl apply -f aws-load-balancer-controller-crds.yaml
 
 helm upgrade -i aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=$AWS_EKS_CLUSTER --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller \
     --set tolerations[0].key=CriticalAddonsOnly \
