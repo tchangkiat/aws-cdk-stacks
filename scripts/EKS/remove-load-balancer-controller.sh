@@ -4,7 +4,7 @@ rm aws-load-balancer-controller-policy.json
 
 helm uninstall aws-load-balancer-controller -n kube-system
 
-kubectl delete -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
+kubectl delete -k "https://raw.githubusercontent.com/aws/eks-charts/master/stable/aws-load-balancer-controller/crds/crds.yaml"
 
 eksctl delete iamserviceaccount \
 --cluster=$AWS_EKS_CLUSTER \
