@@ -70,7 +70,8 @@ export class ApiGateway extends Stack {
 
     const ec2Sg = new ec2.SecurityGroup(this, 'ec2-sg', {
       vpc,
-      securityGroupName: 'api-gateway-ec2-sg'
+      securityGroupName: 'api-gateway-ec2-sg',
+      description: 'Allows port 22 and 80 from all IP addresses'
     })
     ec2Sg.addIngressRule(
       ec2.Peer.anyIpv4(),

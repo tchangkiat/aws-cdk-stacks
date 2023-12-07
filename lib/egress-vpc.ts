@@ -183,7 +183,8 @@ export class EgressVpc extends Stack {
     const demoInstanceSG = new ec2.SecurityGroup(this, 'instance-sg', {
       vpc: vpc1,
       securityGroupName: prefix + 'instance-sg',
-      allowAllOutbound: true
+      allowAllOutbound: true,
+      description: 'Allows ping from all IP addresses'
     })
     demoInstanceSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allIcmp())
 
@@ -310,7 +311,8 @@ export class EgressVpc extends Stack {
       {
         vpc: customerVpc,
         securityGroupName: prefix + 'instance-2-sg',
-        allowAllOutbound: true
+        allowAllOutbound: true,
+        description: 'Allows ping from all IP addresses'
       }
     )
     demoInstance2SG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allIcmp())

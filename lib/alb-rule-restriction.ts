@@ -90,7 +90,8 @@ export class ALBRuleRestriction extends Stack {
 
     const ec2Sg = new ec2.SecurityGroup(this, id + '-ec2-sg', {
       vpc,
-      securityGroupName: id + '-sg'
+      securityGroupName: id + '-sg',
+      description: 'Allows port 80 and 8080 from all IP addresses'
     })
     ec2Sg.addIngressRule(
       ec2.Peer.anyIpv4(),

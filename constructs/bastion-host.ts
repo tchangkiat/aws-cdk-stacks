@@ -17,7 +17,8 @@ export class BastionHost extends Construct {
 
     const securityGroup = new ec2.SecurityGroup(this, id + '-sg', {
       vpc,
-      allowAllOutbound: true
+      allowAllOutbound: true,
+      description: 'Allows port 22 from all IP addresses.'
     })
     securityGroup.addIngressRule(
       ec2.Peer.anyIpv4(),
