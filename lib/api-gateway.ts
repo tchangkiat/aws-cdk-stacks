@@ -23,8 +23,8 @@ export class ApiGateway extends Stack {
     // Lambda
     // ----------------------------
 
-    const handler = new lambda.Function(this, 'lambdaFunction', {
-      runtime: lambda.Runtime.NODEJS_16_X,
+    const handler = new lambda.Function(this, 'lambda-function', {
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromInline(`
         exports.handler = async function(event, context) {
             try {

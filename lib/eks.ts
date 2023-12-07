@@ -200,7 +200,6 @@ export class EKS extends Stack {
       }) as eks.Nodegroup
 
       // Grant Cluster Autoscaler permissions to modify Auto Scaling Groups via the node role.
-      // Resources should be '*'
       const caPolicy = new iam.Policy(
         this,
         'cluster-autoscaler-policy',
@@ -208,7 +207,7 @@ export class EKS extends Stack {
           policyName: eksClusterName + '-ca-policy',
           statements: [
             new iam.PolicyStatement({
-              resources: ['*'],
+              resources: ['*'], // This should be '*'
               actions: [
                 'autoscaling:DescribeAutoScalingGroups',
                 'autoscaling:DescribeAutoScalingInstances',
