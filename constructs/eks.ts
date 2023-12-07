@@ -147,7 +147,7 @@ export class ClusterAutoscaler extends Construct {
     super(scope, id)
 
     // Best practice: Cluster Autoscaler version must match the Kubernetes control plane version
-    const eksClusterAutoscalerVersion = 'v1.28.0'
+    const eksClusterAutoscalerVersion = 'v1.28.2'
 
     const cluster = props.cluster
 
@@ -358,7 +358,7 @@ export class ClusterAutoscaler extends Construct {
                 containers: [
                   {
                     image:
-                      'k8s.gcr.io/autoscaling/cluster-autoscaler:' +
+                      'registry.k8s.io/autoscaling/cluster-autoscaler:' +
                       eksClusterAutoscalerVersion,
                     name: 'cluster-autoscaler',
                     resources: {

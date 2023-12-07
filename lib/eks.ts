@@ -188,28 +188,7 @@ export class EKS extends Stack {
     // ----------------------------
 
     if (autoscaler === Autoscaler.ClusterAutoscaler) {
-      // Grant Cluster Autoscaler permissions to modify Auto Scaling Groups via the node role.
-      const autoscalerStmt = new iam.PolicyStatement()
-      autoscalerStmt.addResources('*')
-      autoscalerStmt.addActions(
-        'autoscaling:DescribeAutoScalingGroups',
-        'autoscaling:DescribeAutoScalingInstances',
-        'autoscaling:DescribeLaunchConfigurations',
-        'autoscaling:DescribeTags',
-        'autoscaling:SetDesiredCapacity',
-        'autoscaling:TerminateInstanceInAutoScalingGroup',
-        'ec2:DescribeLaunchTemplateVersions',
-        'ec2:DescribeInstanceTypes'
-      )
-      const autoscalerPolicy = new iam.Policy(
-        this,
-        'cluster-autoscaler-policy',
-        {
-          policyName: eksClusterName + '-ClusterAutoscalerPolicy',
-          statements: [autoscalerStmt]
-        }
-      )
-      autoscalerPolicy.attachToRole(addonsMng.role)
+      const nodeGroupName = 'spot'
 
       // Create a NodeGroup to run workloads on spot instances
       const spotMng = new ManagedNodeGroup(this, 'spot-mng', {
@@ -217,14 +196,51 @@ export class EKS extends Stack {
         amiType: eks.NodegroupAmiType.BOTTLEROCKET_X86_64,
         capacityType: eks.CapacityType.SPOT,
         instanceType: 't3.medium',
-        nodeGroupName: 'spot'
+        nodeGroupName
       }) as eks.Nodegroup
+
+      // Grant Cluster Autoscaler permissions to modify Auto Scaling Groups via the node role.
+      // Resources should be '*'
+      const caPolicy = new iam.Policy(
+        this,
+        'cluster-autoscaler-policy',
+        {
+          policyName: eksClusterName + '-ca-policy',
+          statements: [
+            new iam.PolicyStatement({
+              resources: ['*'],
+              actions: [
+                'autoscaling:DescribeAutoScalingGroups',
+                'autoscaling:DescribeAutoScalingInstances',
+                'autoscaling:DescribeLaunchConfigurations',
+                'autoscaling:DescribeScalingActivities',
+                'autoscaling:DescribeTags',
+                'ec2:DescribeInstanceTypes',
+                'ec2:DescribeLaunchTemplateVersions'
+              ]
+            }),
+            // Only this policy statement should be updated to restrict the resources / add conditions
+            new iam.PolicyStatement({
+              resources: ['*'],
+              actions: [
+                'autoscaling:SetDesiredCapacity',
+                'autoscaling:TerminateInstanceInAutoScalingGroup',
+                'ec2:DescribeImages',
+                'ec2:GetInstanceTypesFromInstanceRequirements',
+                'eks:DescribeNodegroup'
+              ]
+            })
+          ]
+        }
+      )
 
       const ca = new ClusterAutoscaler(this, 'cluster-autoscaler', {
         cluster
       })
 
-      ca.addNodeGroups(eksClusterName, [addonsMng, spotMng])
+      caPolicy.attachToRole(addonsMng.role)
+
+      ca.addNodeGroups(eksClusterName, [spotMng])
     }
   }
 }
