@@ -17,7 +17,7 @@ export class ApiGateway extends Stack {
     // Configuration
     // ----------------------------
 
-    const sshKeyName = 'EC2DefaultKeyPair'
+    const sshKeyPairName = 'EC2DefaultKeyPair'
 
     // ----------------------------
     // Lambda
@@ -110,7 +110,7 @@ export class ApiGateway extends Stack {
           ec2.InstanceClass.T3,
           ec2.InstanceSize.SMALL
         ),
-        keyName: sshKeyName,
+        keyPair: ec2.KeyPair.fromKeyPairName(this, 'sshKeyPairName', sshKeyPairName),
         launchTemplateName: 'api-gateway-ec2',
         machineImage: ec2.MachineImage.latestAmazonLinux2023(),
         role: new iam.Role(this, 'instance-profile-role', {
