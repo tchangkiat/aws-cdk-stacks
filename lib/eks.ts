@@ -7,7 +7,6 @@ import type * as ecr from 'aws-cdk-lib/aws-ecr'
 import { KubectlLayer } from 'aws-cdk-lib/lambda-layer-kubectl'
 
 import { ManagedNodeGroup, ClusterAutoscaler } from '../constructs/eks'
-import { StandardVpc } from '../constructs/network'
 import { BastionHost } from '../constructs/bastion-host'
 import { Autoscaler } from '../constants'
 
@@ -15,6 +14,7 @@ export class EKS extends Stack {
   constructor (
     scope: Construct,
     id: string,
+    vpc: ec2.Vpc,
     ecrRepository: ecr.Repository,
     autoscaler?: string,
     props?: StackProps
@@ -30,14 +30,6 @@ export class EKS extends Stack {
     const eksClusterKubernetesVersion = eks.KubernetesVersion.V1_28
 
     const eksClusterName = id + '-demo'
-
-    // ----------------------------
-    // VPC
-    // ----------------------------
-
-    const vpc = new StandardVpc(this, 'vpc', {
-      vpcName: eksClusterName
-    }) as ec2.Vpc
 
     for (const subnet of vpc.publicSubnets) {
       // Tags for AWS Load Balancer Controller

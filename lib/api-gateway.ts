@@ -7,10 +7,8 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2'
 
-import { StandardVpc } from '../constructs/network'
-
 export class ApiGateway extends Stack {
-  constructor (scope: Construct, id: string, props?: StackProps) {
+  constructor (scope: Construct, id: string, vpc: ec2.Vpc, props?: StackProps) {
     super(scope, id, props)
 
     // ----------------------------
@@ -57,12 +55,6 @@ export class ApiGateway extends Stack {
       `),
       handler: 'index.handler'
     })
-
-    // ----------------------------
-    // Network
-    // ----------------------------
-
-    const vpc = new StandardVpc(this, 'vpc', { vpcName: 'api-gw' }) as ec2.Vpc
 
     // ----------------------------
     // Application Fleet

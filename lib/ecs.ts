@@ -10,22 +10,14 @@ import * as iam from 'aws-cdk-lib/aws-iam'
 import type * as ecr from 'aws-cdk-lib/aws-ecr'
 import * as logs from 'aws-cdk-lib/aws-logs'
 
-import { StandardVpc } from '../constructs/network'
-
 export class ECS extends Stack {
   public Cluster: ecs.Cluster
   public FargateService: ecs.FargateService
 
-  constructor (scope: Construct, id: string, repository: ecr.Repository, props?: StackProps) {
+  constructor (scope: Construct, id: string, vpc: ec2.Vpc, repository: ecr.Repository, props?: StackProps) {
     super(scope, id, props)
 
     const prefix = id + '-demo'
-
-    // ----------------------------
-    // VPC
-    // ----------------------------
-
-    const vpc = new StandardVpc(this, 'vpc', { vpcName: prefix }) as ec2.Vpc
 
     // ----------------------------
     // ECS Cluster
