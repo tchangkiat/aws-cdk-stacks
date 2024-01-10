@@ -8,14 +8,8 @@ import * as iam from 'aws-cdk-lib/aws-iam'
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2'
 
 export class ApiGateway extends Stack {
-  constructor (scope: Construct, id: string, vpc: ec2.Vpc, props?: StackProps) {
+  constructor (scope: Construct, id: string, vpc: ec2.Vpc, sshKeyPairName: string, props?: StackProps) {
     super(scope, id, props)
-
-    // ----------------------------
-    // Configuration
-    // ----------------------------
-
-    const sshKeyPairName = 'EC2DefaultKeyPair'
 
     // ----------------------------
     // Lambda

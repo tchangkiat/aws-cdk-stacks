@@ -16,6 +16,7 @@ export class EKS extends Stack {
     id: string,
     vpc: ec2.Vpc,
     ecrRepository: ecr.Repository,
+    sshKeyPairName: string,
     autoscaler?: string,
     props?: StackProps
   ) {
@@ -24,8 +25,6 @@ export class EKS extends Stack {
     // ----------------------------
     // Configuration
     // ----------------------------
-
-    const bastionHostSshKeyPairName = 'EC2DefaultKeyPair'
 
     const eksClusterKubernetesVersion = eks.KubernetesVersion.V1_28
 
@@ -160,7 +159,7 @@ export class EKS extends Stack {
     new CfnOutput(this, 'Bastion Host SSH Command', {
       value:
         'ssh -i ' +
-        bastionHostSshKeyPairName +
+        sshKeyPairName +
         '.pem ec2-user@' +
         bastionHost.instancePublicIp
     })

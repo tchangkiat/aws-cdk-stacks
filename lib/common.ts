@@ -22,7 +22,7 @@ export class Common extends Stack {
     this.SSHKeyPairName = 'EC2DefaultKeyPair'
 
     this.Vpc = new StandardVpc(this, 'vpc', {
-      vpcName: 'aws-cdk-stacks'
+      vpcName: 'cdk-stacks'
     }) as ec2.Vpc
   }
 }
