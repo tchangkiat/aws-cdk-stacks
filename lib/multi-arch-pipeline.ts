@@ -125,12 +125,12 @@ export class MultiArchPipeline extends Stack {
       }
     })
 
-    const x86Project = new codebuild.PipelineProject(
+    const amd64Project = new codebuild.PipelineProject(
       this,
-      'codebuild-x86',
+      'codebuild-amd64',
       {
         buildSpec,
-        projectName: id + '-x86',
+        projectName: id + '-amd64',
         environment: {
           buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_4,
           computeType: codebuild.ComputeType.SMALL,
@@ -164,7 +164,7 @@ export class MultiArchPipeline extends Stack {
         logging: {
           cloudWatch: {
             logGroup: codeBuildLogGroup,
-            prefix: 'x86'
+            prefix: 'amd64'
           }
         },
         role: codebuildServiceRole
@@ -313,8 +313,8 @@ export class MultiArchPipeline extends Stack {
           stageName: 'Create-Images',
           actions: [
             new codepipeline_actions.CodeBuildAction({
-              actionName: 'create-x86',
-              project: x86Project,
+              actionName: 'create-amd64',
+              project: amd64Project,
               input: sourceArtifact
             }),
             new codepipeline_actions.CodeBuildAction({
