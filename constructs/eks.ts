@@ -138,18 +138,12 @@ export class ManagedNodeGroup extends Construct {
   }
 }
 
-export interface ClusterAutoscalerProps {
-  cluster: eks.Cluster
-}
-
 export class ClusterAutoscaler extends Construct {
-  constructor (scope: Construct, id: string, props: ClusterAutoscalerProps) {
+  constructor (scope: Construct, id: string, cluster: eks.Cluster) {
     super(scope, id)
 
     // Best practice: Cluster Autoscaler version must match the Kubernetes control plane version
     const eksClusterAutoscalerVersion = 'v1.28.2'
-
-    const cluster = props.cluster
 
     new eks.KubernetesManifest(this, 'cluster-autoscaler', {
       cluster,

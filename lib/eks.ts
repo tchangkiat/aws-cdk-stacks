@@ -224,9 +224,7 @@ export class EKS extends Stack {
         }
       )
 
-      const ca = new ClusterAutoscaler(this, 'cluster-autoscaler', {
-        cluster
-      })
+      const ca = new ClusterAutoscaler(this, 'cluster-autoscaler', cluster)
 
       caPolicy.attachToRole(addonsMng.role)
 
