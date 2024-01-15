@@ -165,7 +165,6 @@ export class ClusterAutoscaler extends Construct {
           kind: 'ClusterRole',
           metadata: {
             name: 'cluster-autoscaler',
-            namespace: 'kube-system',
             labels: {
               'k8s-addon': 'cluster-autoscaler.addons.k8s.io',
               'k8s-app': 'cluster-autoscaler'
@@ -331,9 +330,6 @@ export class ClusterAutoscaler extends Construct {
             namespace: 'kube-system',
             labels: {
               app: 'cluster-autoscaler'
-            },
-            annotations: {
-              'cluster-autoscaler.kubernetes.io/safe-to-evict': 'false'
             }
           },
           spec: {
@@ -354,6 +350,14 @@ export class ClusterAutoscaler extends Construct {
                 }
               },
               spec: {
+                securityContext: {
+                  runAsNonRoot: true,
+                  runAsUser: 65534,
+                  fsGroup: 65534,
+                  seccompProfile: {
+                    type: 'RuntimeDefault'
+                  }
+                },
                 serviceAccountName: 'cluster-autoscaler',
                 containers: [
                   {
