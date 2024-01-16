@@ -28,9 +28,9 @@ const ecs = new ECS(app, 'ecs', common.Vpc, multiArchPipeline.Repository, { stac
 
 new EcsCicd(app, 'ecs-cicd', ecs.FargateService, multiArchPipeline.Repository, common.GitHub, { stackName: prefix + 'ecs-cicd', description: 'Deploys a pipeline to build and deploy an application to a Fargate service in ECS' })
 
-new EKS(app, 'eks', common.Vpc, multiArchPipeline.Repository, common.SSHKeyPairName, Autoscaler.Karpenter, { stackName: prefix + 'eks', description: 'Deploys an EKS cluster and a bastion host to manage the cluster' })
+new EKS(app, 'eks', multiArchPipeline.Repository, common.SSHKeyPairName, Autoscaler.Karpenter, { stackName: prefix + 'eks', description: 'Deploys an EKS cluster and a bastion host to manage the cluster' })
 
-new EKS(app, 'eks-ca', common.Vpc, multiArchPipeline.Repository, common.SSHKeyPairName, Autoscaler.ClusterAutoscaler, { stackName: prefix + 'eks-ca', description: 'Deploys an EKS cluster with Cluster Autoscaler and a bastion host to manage the cluster' })
+new EKS(app, 'eks-ca', multiArchPipeline.Repository, common.SSHKeyPairName, Autoscaler.ClusterAutoscaler, { stackName: prefix + 'eks-ca', description: 'Deploys an EKS cluster with Cluster Autoscaler and a bastion host to manage the cluster' })
 
 new EgressVpc(app, 'egress-vpc', { stackName: prefix + 'egress-vpc', description: 'Deploys an egress VPC with Transit Gateway' })
 

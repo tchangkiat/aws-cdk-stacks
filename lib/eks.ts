@@ -9,12 +9,12 @@ import { KubectlLayer } from 'aws-cdk-lib/lambda-layer-kubectl'
 import { ManagedNodeGroup, ClusterAutoscaler } from '../constructs/eks'
 import { BastionHost } from '../constructs/bastion-host'
 import { Autoscaler } from '../constants'
+import { StandardVpc } from '../constructs/network'
 
 export class EKS extends Stack {
   constructor (
     scope: Construct,
     id: string,
-    vpc: ec2.Vpc,
     ecrRepository: ecr.Repository,
     sshKeyPairName: string,
     autoscaler?: string,
@@ -29,6 +29,14 @@ export class EKS extends Stack {
     const eksClusterKubernetesVersion = eks.KubernetesVersion.V1_28
 
     const eksClusterName = id + '-demo'
+
+    // ----------------------------
+    // VPC
+    // ----------------------------
+
+    const vpc = new StandardVpc(this, 'vpc', {
+      vpcName: id
+    }) as ec2.Vpc
 
     for (const subnet of vpc.publicSubnets) {
       // Tags for AWS Load Balancer Controller
@@ -55,7 +63,7 @@ export class EKS extends Stack {
     })
 
     // ----------------------------
-    // EKS
+    // EKS Cluster
     // ----------------------------
 
     const cluster = new eks.Cluster(this, 'cluster', {
