@@ -11,7 +11,7 @@ helm install cert-manager jetstack/cert-manager --namespace cert-manager --creat
     --set tolerations[0].effect=NoSchedule
 
 # Install Ingress NGINX Controller
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/aws/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.5/deploy/static/provider/aws/deploy.yaml
 
 if [ ! -d ./ingress-nginx ]; then
   mkdir -p ./ingress-nginx;

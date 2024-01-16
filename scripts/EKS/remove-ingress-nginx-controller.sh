@@ -10,4 +10,4 @@ helm uninstall cert-manager --namespace cert-manager
 helm repo remove jetstack
 
 # helm uninstall ingress-nginx
-kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/aws/deploy.yaml
+kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.5/deploy/static/provider/aws/deploy.yaml
