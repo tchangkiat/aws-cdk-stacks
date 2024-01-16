@@ -73,11 +73,9 @@ spec:
           operator: In
           values: ["spot", "on-demand"]
       nodeClassRef:
-        apiVersion: karpenter.k8s.aws/v1beta1
-        kind: EC2NodeClass
         name: default
   limits:
-    cpu: "30"
+    cpu: 30
 ---
 apiVersion: karpenter.k8s.aws/v1beta1
 kind: EC2NodeClass

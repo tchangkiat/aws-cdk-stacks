@@ -19,14 +19,12 @@ spec:
           operator: In
           values: ["on-demand"]
       nodeClassRef:
-        apiVersion: karpenter.k8s.aws/v1beta1
-        kind: EC2NodeClass
         name: jupyterhub
   disruption:
     consolidationPolicy: WhenEmpty
     consolidateAfter: 30s
   limits:
-    cpu: "16"
+    cpu: 16
 ---
 apiVersion: karpenter.k8s.aws/v1beta1
 kind: EC2NodeClass

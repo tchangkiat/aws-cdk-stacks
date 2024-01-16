@@ -19,8 +19,6 @@ spec:
           operator: In
           values: ["on-demand"]
       nodeClassRef:
-        apiVersion: karpenter.k8s.aws/v1beta1
-        kind: EC2NodeClass
         name: ray-head
       taints:
         - key: ray-head
@@ -70,8 +68,6 @@ spec:
           operator: In
           values: ["spot"]
       nodeClassRef:
-        apiVersion: karpenter.k8s.aws/v1beta1
-        kind: EC2NodeClass
         name: ray-worker
       taints:
         - key: ray-worker
@@ -80,7 +76,7 @@ spec:
     consolidationPolicy: WhenEmpty
     consolidateAfter: 30s
   limits:
-    cpu: "32"
+    cpu: 32
 ---
 apiVersion: karpenter.k8s.aws/v1beta1
 kind: EC2NodeClass

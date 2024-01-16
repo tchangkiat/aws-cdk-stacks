@@ -40,7 +40,9 @@ export class EKS extends Stack {
       Tags.of(subnet).add('kubernetes.io/cluster/' + eksClusterName, 'owned')
       Tags.of(subnet).add('kubernetes.io/role/internal-elb', '1')
       // Tag for Karpenter
-      Tags.of(subnet).add('karpenter.sh/discovery', eksClusterName)
+      if (autoscaler === Autoscaler.Karpenter) {
+        Tags.of(subnet).add('karpenter.sh/discovery', eksClusterName)
+      }
     }
 
     // ----------------------------
