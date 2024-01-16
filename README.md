@@ -16,7 +16,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [ECS Cluster Setup](#ecs-cluster-setup)
   - [CICD Pipeline for ECS Cluster](#cicd-pipeline-for-ecs-cluster)
 - [Elastic Kubernetes Service (EKS)](#elastic-kubernetes-service-eks)
-  - [EKS Cluster Setup](#eks-cluster-setup)
+  - [EKS Cluster](#eks-cluster)
   - [Add-Ons](#add-ons)
   - [Sample Application](#sample-application)
   - [Metrics Server and Horizontal Pod Autoscaler (HPA)](#metrics-server-and-horizontal-pod-autoscaler-hpa)
@@ -64,7 +64,7 @@ The pipeline will create Docker images for amd64 and arm64 architectures and sto
 cdk deploy ecs
 ```
 
-Creates a new VPC with a NAT gateway and a new ECS cluster. The ECS cluster has an EC2 Auto-Scaling Group (ASG) as the capacity provider that scales on 70% CPU utilization. An Application Load Balancer (ALB) will be created to expose the ECS service. A similar workload will also be created using Fargate. A CloudWatch dashboard will be created to visualize both workloads (EC2 and Fargate).
+Creates a new ECS cluster. The ECS cluster has an ECS service that uses Fargate for compute resources. An Application Load Balancer (ALB) will be created to expose the ECS service. The cluster also has an EC2 Auto-Scaling Group (ASG) as the capacity provider that scales on 70% CPU utilization. A CloudWatch dashboard will be created to visualize the CPU utilization of both services.
 
 ## ECS Cluster with CICD Pipeline
 
