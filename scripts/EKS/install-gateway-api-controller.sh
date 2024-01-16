@@ -15,6 +15,8 @@ curl -o gateway-api-controller-namespace.yaml https://raw.githubusercontent.com/
 
 kubectl apply -f gateway-api-controller-namespace.yaml
 
+eksctl utils associate-iam-oidc-provider --region=$AWS_REGION --cluster=$AWS_EKS_CLUSTER --approve
+
 eksctl create iamserviceaccount \
    --cluster=$AWS_EKS_CLUSTER \
    --namespace=aws-application-networking-system \
@@ -25,11 +27,9 @@ eksctl create iamserviceaccount \
    --approve
 
 aws ecr-public get-login-password --region us-east-1 | helm registry login --username AWS --password-stdin public.ecr.aws
-helm upgrade -i gateway-api-controller \
-   oci://public.ecr.aws/aws-application-networking-k8s/aws-gateway-controller-chart\
-   --version=v0.0.9 \
-   --set=aws.region=$AWS_REGION --set=serviceAccount.create=false --namespace aws-application-networking-system
-   
+
+kubectl apply -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/deploy-v1.0.2.yaml
+
 curl -o gatewayclass.yaml https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/gatewayclass.yaml
 
 kubectl apply -f gatewayclass.yaml
