@@ -26,9 +26,10 @@ export class ECS extends Stack {
     this.Cluster = new ecs.Cluster(this, 'ecs-cluster', {
       vpc,
       clusterName: prefix,
-      enableFargateCapacityProviders: true
+      enableFargateCapacityProviders: true,
+      containerInsights: true
     })
-    this.Cluster.addDefaultCapacityProviderStrategy([{ capacityProvider: 'FARGATE', base: 1, weight: 1 }, { capacityProvider: 'FARGATE_SPOT', base: 0, weight: 3 }])
+    this.Cluster.addDefaultCapacityProviderStrategy([{ capacityProvider: 'FARGATE', base: 0, weight: 1 }, { capacityProvider: 'FARGATE_SPOT', base: 0, weight: 4 }])
 
     // ----------------------------
     // CloudWatch Log Group
@@ -243,7 +244,7 @@ export class ECS extends Stack {
           loadBalancerName: prefix + '-fg-service-lb',
           taskDefinition: fgTaskDef,
           enableECSManagedTags: true,
-          capacityProviderStrategies: [{ capacityProvider: 'FARGATE', base: 1, weight: 1 }, { capacityProvider: 'FARGATE_SPOT', base: 0, weight: 3 }],
+          capacityProviderStrategies: [{ capacityProvider: 'FARGATE', base: 0, weight: 1 }, { capacityProvider: 'FARGATE_SPOT', base: 0, weight: 4 }],
           propagateTags: ecs.PropagatedTagSource.SERVICE
         }
       ).service
