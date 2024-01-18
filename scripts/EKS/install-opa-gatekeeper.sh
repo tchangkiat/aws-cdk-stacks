@@ -2,7 +2,9 @@
 
 kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/v3.14.0/deploy/gatekeeper.yaml
 
+echo ""
 echo "Waiting for 75 seconds before setting up constraint to avoid errors..."
+echo ""
 sleep 75
 
 cat <<EOF >>opa-gatekeeper-constrainttemplate.yaml
@@ -21,7 +23,7 @@ spec:
       names:
         kind: K8sAllowedRepos
       validation:
-        # Schema for the `parameters` field
+        # Schema for the 'parameters' field
         openAPIV3Schema:
           type: object
           properties:
