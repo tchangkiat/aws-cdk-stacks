@@ -2,6 +2,8 @@
 
 kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/v3.14.0/deploy/gatekeeper.yaml
 
+sleep 5
+
 cat <<EOF | kubectl apply -f -
 apiVersion: templates.gatekeeper.sh/v1
 kind: ConstraintTemplate
@@ -58,6 +60,8 @@ spec:
           msg := sprintf("Deployment <%v> has a container that uses an invalid image repo <%v>, allowed repos are %v", [deployment_name, container.image, input.parameters.repos])
         }
 EOF
+
+sleep 20
 
 cat <<EOF | kubectl apply -f -
 apiVersion: constraints.gatekeeper.sh/v1beta1
