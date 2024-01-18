@@ -2,9 +2,10 @@
 
 kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/v3.14.0/deploy/gatekeeper.yaml
 
-sleep 5
+echo "Waiting for 75 seconds before setting up constraint to avoid errors..."
+sleep 75
 
-cat <<EOF | kubectl apply -f -
+cat <<EOF >>opa-gatekeeper-constrainttemplate.yaml
 apiVersion: templates.gatekeeper.sh/v1
 kind: ConstraintTemplate
 metadata:
@@ -61,9 +62,7 @@ spec:
         }
 EOF
 
-sleep 20
-
-cat <<EOF | kubectl apply -f -
+cat <<EOF >>opa-gatekeeper-constraint.yaml
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sAllowedRepos
 metadata:
@@ -80,3 +79,6 @@ spec:
       - "public.ecr.aws"
       - "amazonaws.com"
 EOF
+
+kubectl apply -f opa-gatekeeper-constrainttemplate.yaml
+kubectl apply -f opa-gatekeeper-constraint.yaml
