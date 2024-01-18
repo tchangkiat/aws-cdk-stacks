@@ -50,6 +50,9 @@ for install in "${installs[@]}"; do
             "12"|"argocd")
                 scripts+=("install-argocd.sh")
                 ;;
+            "13"|"opa-gatekeeper")
+                scripts+=("install-opa-gatekeeper.sh")
+                ;;
             *) echo "Invalid option $REPLY"
         esac
     done
@@ -94,6 +97,9 @@ for removal in "${removals[@]}"; do
                 ;;
             "12"|"argocd")
                 scripts+=("remove-argocd.sh")
+                ;;
+            "13"|"opa-gatekeeper")
+                scripts+=("remove-opa-gatekeeper.sh")
                 ;;
             *) echo "Invalid option $REPLY"
         esac
@@ -153,6 +159,8 @@ List of add-ons (alias are in brackets):
     - Prerequisites: Karpenter
 12. Argo CD ("argocd")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
+13. Open Policy Agent Gatekeeper ("opa-gatekeeper")
+    - Includes a constraint template and constraint
 
 EndOfMessage
 fi
