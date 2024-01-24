@@ -218,19 +218,19 @@ export class ECS extends Stack {
       memoryReservationMiB: 256
     })
 
-    fgTaskDef.addFirelensLogRouter('firelens', {
-      essential: true,
-      image: ecs.ContainerImage.fromRegistry(
-        'public.ecr.aws/aws-observability/aws-for-fluent-bit:latest'
-      ),
-      containerName: 'firelens',
-      firelensConfig: { type: ecs.FirelensLogRouterType.FLUENTBIT },
-      logging: new ecs.AwsLogDriver({
-        streamPrefix: 'firelens',
-        logGroup
-      }),
-      memoryReservationMiB: 50
-    })
+    // fgTaskDef.addFirelensLogRouter('firelens', {
+    //   essential: true,
+    //   image: ecs.ContainerImage.fromRegistry(
+    //     'public.ecr.aws/aws-observability/aws-for-fluent-bit:latest'
+    //   ),
+    //   containerName: 'firelens',
+    //   firelensConfig: { type: ecs.FirelensLogRouterType.FLUENTBIT },
+    //   logging: new ecs.AwsLogDriver({
+    //     streamPrefix: 'firelens',
+    //     logGroup
+    //   }),
+    //   memoryReservationMiB: 50
+    // })
 
     this.FargateService =
       new ecsPatterns.ApplicationLoadBalancedFargateService(
