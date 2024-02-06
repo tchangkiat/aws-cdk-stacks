@@ -61,6 +61,15 @@ export class EKS extends Stack {
       assumedBy: new iam.AccountRootPrincipal(),
       roleName: eksClusterName + '-master'
     })
+    eksMasterRole.addToPolicy(
+      new iam.PolicyStatement({
+        resources: ["*"],
+        actions: [
+          'eks:ListClusters',
+          'ec2:DescribeInstances'
+        ]
+      })
+    )
 
     // ----------------------------
     // EKS Cluster
@@ -84,6 +93,15 @@ export class EKS extends Stack {
         'eks-cost-team': 'tck'
       }
     })
+
+    eksMasterRole.addToPolicy(
+      new iam.PolicyStatement({
+        resources: [cluster.clusterArn],
+        actions: [
+          'eks:*'
+        ]
+      })
+    )
 
     // Equivalent to executing `eksctl utils associate-iam-oidc-provider`
     /* new iam.OpenIdConnectProvider(this, "iam-oidc-provider", {
@@ -165,6 +183,17 @@ export class EKS extends Stack {
     Tags.of(bastionHost).add('eks-cost-workload', 'Proof-of-Concept')
     Tags.of(bastionHost).add('eks-cost-team', 'tck')
     bastionHost.node.addDependency(cluster)
+
+    eksMasterRole.addToPolicy(
+      new iam.PolicyStatement({
+        resources: ["arn:aws:ec2:" + this.region + ":" + this.account + ":instance/" + bastionHost.instanceId],
+        actions: [
+          'ec2-instance-connect:OpenTunnel',
+          'ec2-instance-connect:SendSSHPublicKey',
+          'ec2:osuser'
+        ]
+      })
+    )
 
     new CfnOutput(this, 'Bastion Host SSH Command', {
       value:
