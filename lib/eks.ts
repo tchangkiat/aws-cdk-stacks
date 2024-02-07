@@ -65,8 +65,11 @@ export class EKS extends Stack {
       new iam.PolicyStatement({
         resources: ["*"],
         actions: [
-          'eks:ListClusters',
-          'ec2:DescribeInstances'
+          'eks:AccessKubernetesApi',
+          'eks:List*',
+          'eks:Describe*',
+          'ec2:DescribeInstances',
+          'iam:ListRoles'
         ]
       })
     )
