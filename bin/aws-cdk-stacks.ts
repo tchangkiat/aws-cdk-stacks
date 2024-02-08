@@ -34,7 +34,7 @@ new EKS(app, 'eks-ca', multiArchPipeline.Repository, common.SSHKeyPairName, Auto
 
 new EgressVpc(app, 'egress-vpc', { stackName: prefix + 'egress-vpc', description: 'Deploys an egress VPC with Transit Gateway' })
 
-new ALBRuleRestriction(app, 'alb-rule-restriction', { stackName: prefix + 'alb-rule-restriction', description: 'Deploys a solution that uses ALB to restrict traffic from an IP range' })
+new ALBRuleRestriction(app, 'alb-rule-restriction', common.SSHKeyPairName, { stackName: prefix + 'alb-rule-restriction', description: 'Deploys a solution that uses ALB to restrict traffic from an IP range' })
 
 new ApiGateway(app, 'api-gateway', common.Vpc, common.SSHKeyPairName, { stackName: prefix + 'api-gateway', description: 'Deploys an API Gateway with two backends: Lambda function and ALB + EC2 instances' })
 

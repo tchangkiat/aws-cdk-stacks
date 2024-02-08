@@ -11,6 +11,7 @@ export class BastionHost extends Construct {
     scope: Construct,
     id: string,
     vpc: ec2.Vpc,
+    sshKeyPairName: string,
     props?: BastionHostProps
   ) {
     super(scope, id)
@@ -42,6 +43,7 @@ export class BastionHost extends Construct {
         ec2.InstanceClass.T4G,
         ec2.InstanceSize.MICRO
       ),
+      keyPair: ec2.KeyPair.fromKeyPairName(this, 'sshKeyPairName', sshKeyPairName),
       machineImage: ec2.MachineImage.latestAmazonLinux2023({
         cpuType: ec2.AmazonLinuxCpuType.ARM_64
       }),

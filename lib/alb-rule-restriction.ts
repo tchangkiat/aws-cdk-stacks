@@ -9,7 +9,7 @@ import { StandardVpc } from '../constructs/network'
 import { BastionHost } from '../constructs/bastion-host'
 
 export class ALBRuleRestriction extends Stack {
-  constructor (scope: Construct, id: string, props?: StackProps) {
+  constructor (scope: Construct, id: string, sshKeyPairName: string, props?: StackProps) {
     super(scope, id, props)
 
     // ----------------------------
@@ -86,7 +86,7 @@ export class ALBRuleRestriction extends Stack {
     // EC2 Instances
     // ----------------------------
 
-    new BastionHost(this, id + '-bastion-host', vpc2)
+    new BastionHost(this, id + '-bastion-host', vpc2, sshKeyPairName)
 
     const ec2Sg = new ec2.SecurityGroup(this, id + '-ec2-sg', {
       vpc,

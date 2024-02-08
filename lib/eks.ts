@@ -63,7 +63,7 @@ export class EKS extends Stack {
     })
     eksMasterRole.addToPolicy(
       new iam.PolicyStatement({
-        resources: ["*"],
+        resources: ['*'],
         actions: [
           'eks:AccessKubernetesApi',
           'eks:List*',
@@ -132,7 +132,7 @@ export class EKS extends Stack {
     // Bastion Host
     // ----------------------------
 
-    const bastionHost = new BastionHost(this, 'bastion-host', vpc, {
+    const bastionHost = new BastionHost(this, 'bastion-host', vpc, sshKeyPairName, {
       instanceName: eksClusterName + '/bastion-host',
       userData: [
         'sudo yum update -y',
@@ -189,7 +189,7 @@ export class EKS extends Stack {
 
     eksMasterRole.addToPolicy(
       new iam.PolicyStatement({
-        resources: ["arn:aws:ec2:" + this.region + ":" + this.account + ":instance/" + bastionHost.instanceId],
+        resources: ['arn:aws:ec2:' + this.region + ':' + this.account + ':instance/' + bastionHost.instanceId],
         actions: [
           'ec2-instance-connect:OpenTunnel',
           'ec2-instance-connect:SendSSHPublicKey',
