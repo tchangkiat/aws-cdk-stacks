@@ -1,8 +1,8 @@
 {
-  "name": "text-embeddings-pipeline",
+  "name": "aws-cdk-stacks",
   "version": "0.1.0",
   "bin": {
-    "text-embeddings-pipeline": "bin/text-embeddings-pipeline.js"
+    "aws-cdk-stacks": "bin/aws-cdk-stacks.js"
   },
   "scripts": {
     "build": "tsc",
@@ -10,11 +10,11 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@types/node": "20.11.16",
+    "@types/node": "20.11.20",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
     "@typescript-eslint/parser": "^6.20.0",
-    "aws-cdk": "2.126.0",
-    "eslint": "^8.56.0",
+    "aws-cdk": "2.130.0",
+    "eslint": "^8.57.0",
     "eslint-config-standard-with-typescript": "^43.0.1",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-n": "^16.6.2",
@@ -23,9 +23,9 @@
     "typescript": "~5.3.3"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.126.0",
+    "aws-cdk-lib": "2.130.0",
     "constructs": "^10.3.0",
-    "dotenv": "^16.4.1",
+    "dotenv": "^16.4.5",
     "source-map-support": "^0.5.21"
   }
 }
