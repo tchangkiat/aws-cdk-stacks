@@ -100,7 +100,8 @@ export class MultiArchPipeline extends Stack {
         pre_build: {
           commands: [
             'echo Logging in to Amazon ECR',
-            'aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com'
+            'aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com',
+            'COMMIT_ID=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -b -8)'
           ]
         },
         build: {
@@ -110,16 +111,17 @@ export class MultiArchPipeline extends Stack {
             // 'echo Detecting secrets in the repository with TruffleHog',
             // 'docker run -i -v "$PWD:/pwd" trufflesecurity/trufflehog:latest github --repo $SOURCE_REPO_URL',
             'echo Build started on `date`',
-            'echo Building the Docker image',
-            'docker build -t $IMAGE_REPO:$IMAGE_TAG .',
-            'docker tag $IMAGE_REPO:$IMAGE_TAG $IMAGE_REPO_URL:$IMAGE_TAG'
+            'echo Building the Docker images',
+            'docker build -t $IMAGE_REPO:$IMAGE_TAG_PREFIX-$COMMIT_ID -t $IMAGE_REPO:$IMAGE_TAG_PREFIX-latest .',
+            'docker tag $IMAGE_REPO:$IMAGE_TAG_PREFIX-$COMMIT_ID $IMAGE_REPO_URL:$IMAGE_TAG_PREFIX-$COMMIT_ID',
+            'docker tag $IMAGE_REPO:$IMAGE_TAG_PREFIX-latest $IMAGE_REPO_URL:$IMAGE_TAG_PREFIX-latest'
           ]
         },
         post_build: {
           commands: [
             'echo Build completed on `date`',
-            'echo Pushing the Docker image to ECR',
-            'docker push $IMAGE_REPO_URL:$IMAGE_TAG'
+            'echo Pushing the Docker images to ECR',
+            'docker push $IMAGE_REPO_URL --all-tags'
           ]
         }
       }
@@ -132,7 +134,7 @@ export class MultiArchPipeline extends Stack {
         buildSpec,
         projectName: id + '-amd64',
         environment: {
-          buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_4,
+          buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_5,
           computeType: codebuild.ComputeType.SMALL,
           privileged: true,
           environmentVariables: {
@@ -148,8 +150,8 @@ export class MultiArchPipeline extends Stack {
             IMAGE_REPO_URL: {
               value: this.Repository.repositoryUri
             },
-            IMAGE_TAG: {
-              value: 'amd64-latest'
+            IMAGE_TAG_PREFIX: {
+              value: 'amd64'
             },
             SOURCE_REPO_URL: {
               value:
@@ -194,8 +196,8 @@ export class MultiArchPipeline extends Stack {
             IMAGE_REPO_URL: {
               value: this.Repository.repositoryUri
             },
-            IMAGE_TAG: {
-              value: 'arm64-latest'
+            IMAGE_TAG_PREFIX: {
+              value: 'arm64'
             },
             SOURCE_REPO_URL: {
               value:
@@ -230,7 +232,8 @@ export class MultiArchPipeline extends Stack {
             pre_build: {
               commands: [
                 'echo Logging in to Amazon ECR',
-                '$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)'
+                'aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com',
+                'COMMIT_ID=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -b -8)'
               ]
             },
             build: {
@@ -238,21 +241,26 @@ export class MultiArchPipeline extends Stack {
                 'echo Build started on `date`',
                 'echo Building the Docker manifest',
                 'export DOCKER_CLI_EXPERIMENTAL=enabled',
-                'docker manifest create $IMAGE_REPO_URL $IMAGE_REPO_URL:arm64-latest $IMAGE_REPO_URL:amd64-latest',
-                'docker manifest annotate --arch arm64 $IMAGE_REPO_URL $IMAGE_REPO_URL:arm64-latest',
-                'docker manifest annotate --arch amd64 $IMAGE_REPO_URL $IMAGE_REPO_URL:amd64-latest'
+                'docker manifest create $IMAGE_REPO_URL:latest $IMAGE_REPO_URL:arm64-latest $IMAGE_REPO_URL:amd64-latest',
+                'docker manifest annotate --arch arm64 $IMAGE_REPO_URL:latest $IMAGE_REPO_URL:arm64-latest',
+                'docker manifest annotate --arch amd64 $IMAGE_REPO_URL:latest $IMAGE_REPO_URL:amd64-latest',
+                'docker manifest create $IMAGE_REPO_URL:$COMMIT_ID $IMAGE_REPO_URL:arm64-$COMMIT_ID $IMAGE_REPO_URL:amd64-$COMMIT_ID',
+                'docker manifest annotate --arch arm64 $IMAGE_REPO_URL:$COMMIT_ID $IMAGE_REPO_URL:arm64-$COMMIT_ID',
+                'docker manifest annotate --arch amd64 $IMAGE_REPO_URL:$COMMIT_ID $IMAGE_REPO_URL:amd64-$COMMIT_ID'
               ]
             },
             post_build: {
               commands: [
                 'echo Build completed on `date`',
                 'echo Pushing the Docker manifest to ECR',
-                'docker manifest push $IMAGE_REPO_URL',
-                'docker manifest inspect $IMAGE_REPO_URL',
+                'docker manifest push $IMAGE_REPO_URL:latest',
+                'docker manifest push $IMAGE_REPO_URL:$COMMIT_ID',
+                'docker manifest inspect $IMAGE_REPO_URL:latest',
+                'docker manifest inspect $IMAGE_REPO_URL:$COMMIT_ID',
                 'echo Writing image definitions file',
                 'printf \'[{"name":"' +
                   github.repository +
-                  '","imageUri":"%s"}]\' $IMAGE_REPO_URL:$IMAGE_TAG > imagedefinitions.json'
+                  '","imageUri":"%s"}]\' $IMAGE_REPO_URL:$COMMIT_ID > imagedefinitions.json'
               ]
             }
           },
@@ -262,7 +270,7 @@ export class MultiArchPipeline extends Stack {
         }),
         projectName: id + '-manifest',
         environment: {
-          buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_4,
+          buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_5,
           computeType: codebuild.ComputeType.SMALL,
           privileged: true,
           environmentVariables: {
@@ -277,9 +285,6 @@ export class MultiArchPipeline extends Stack {
             },
             IMAGE_REPO_URL: {
               value: this.Repository.repositoryUri
-            },
-            IMAGE_TAG: {
-              value: 'latest'
             }
           }
         },
