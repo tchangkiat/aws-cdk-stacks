@@ -19,7 +19,7 @@ metadata:
     gateway: $1-gateway
     appmesh.k8s.aws/sidecarInjectorWebhook: enabled
     pod-security.kubernetes.io/warn: restricted
-    pod-security.kubernetes.io/warn-version: v1.25
+    pod-security.kubernetes.io/warn-version: latest
 EOF
 
 cat <<EOF >>appmesh/mesh.yaml
