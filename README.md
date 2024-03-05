@@ -336,6 +336,8 @@ chmod +x setup-app-mesh.sh
 
 4. After App Mesh resources are set up, execute `kubectl rollout restart deployment sample-express-api -n sample` to restart the deployment. Verify if the Envoy proxy container is injected into each Pod of the deployment with `kubectl describe pod <Pod Name> -n sample`.
 
+5. Execute `kubectl rollout restart deployment sample-express-api-gateway -n sample` to re-create the Virtual Gateway Pod. This resolves the "readiness probe failed" error (i.e. status is "Running" but "Ready" is "0/1").
+
 ### [Optional] AWS X-Ray Integration
 
 > ❗ Modify your source code to use the AWS X-Ray SDK. This was already done for the [Sample Application](#sample-application).
@@ -355,6 +357,8 @@ helm upgrade -i appmesh-controller eks/appmesh-controller --namespace appmesh-sy
 ```
 
 2. Execute `kubectl rollout restart deployment sample-express-api -n sample` to restart the deployment. Verify if the X-Ray Daemon container is injected into each Pod of the deployment with `kubectl describe pod <Pod Name> -n sample`.
+
+3. Execute `kubectl rollout restart deployment sample-express-api-gateway -n sample` to re-create the Virtual Gateway Pod. The "Ready" value of the Pod should be "2/2" because the x-ray-daemon container is injected in the Pod.
 
 ### Clean Up
 
