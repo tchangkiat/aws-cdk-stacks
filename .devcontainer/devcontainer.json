@@ -8,13 +8,18 @@
 		"ghcr.io/devcontainers-contrib/features/aws-cdk:2": {
 			"version": "latest"
 		},
-		"ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {
-			"plugins": "ssh-agent npm",
-			"omzPlugins": "https://github.com/zsh-users/zsh-autosuggestions"
-		},
-		"ghcr.io/schlich/devcontainer-features/powerlevel10k:1": {},
 		"ghcr.io/devcontainers/features/aws-cli:1": {
 			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": true,
+			"configureZshAsDefaultShell": true,
+			"installOhMyZsh": true,
+			"installOhMyZshConfig": true,
+			"upgradePackages": true,
+			"username": "vscode",
+			"userUid": "automatic",
+			"userGid": "automatic"
 		}
 	}
 	// Features to add to the dev container. More info: https://containers.dev/features.
