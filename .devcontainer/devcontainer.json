@@ -10,8 +10,7 @@
 		},
 		"ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {
 			"plugins": "ssh-agent npm",
-			"omzPlugins": "https://github.com/zsh-users/zsh-autosuggestions",
-			"username": "vscode"
+			"omzPlugins": "https://github.com/zsh-users/zsh-autosuggestions"
 		},
 		"ghcr.io/schlich/devcontainer-features/powerlevel10k:1": {},
 		"ghcr.io/devcontainers/features/aws-cli:1": {
