@@ -1,8 +1,14 @@
 #!/bin/bash
 
 export AWS_PARTITION="aws" # if you are not using standard partitions, you may need to configure to aws-cn / aws-us-gov
-export KARPENTER_VERSION=v0.35.4
-export KARPENTER_NAMESPACE=kube-system
+export KARPENTER_VERSION="v0.35.4"
+
+export K8S_VERSION=$(kubectl version -o json | jq -r ".serverVersion.major")
+K8S_VERSION+="."
+K8S_VERSION+=$(kubectl version -o json | jq -r ".serverVersion.minor")
+K8S_VERSION=${K8S_VERSION//+} # Remove plus sign at the end of the minor version
+
+export KARPENTER_NAMESPACE="kube-system"
 export CLUSTER_NAME="${AWS_EKS_CLUSTER}"
 export AWS_DEFAULT_REGION="${AWS_REGION}"
 export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
