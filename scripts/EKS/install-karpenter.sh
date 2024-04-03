@@ -1,12 +1,15 @@
 #!/bin/bash
 
 export AWS_PARTITION="aws" # if you are not using standard partitions, you may need to configure to aws-cn / aws-us-gov
-export KARPENTER_VERSION=v0.33.2
+export KARPENTER_VERSION=v0.35.4
 export KARPENTER_NAMESPACE=kube-system
 export CLUSTER_NAME="${AWS_EKS_CLUSTER}"
 export AWS_DEFAULT_REGION="${AWS_REGION}"
 export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
 export TEMPOUT=$(mktemp)
+export ARM_AMI_ID="$(aws ssm get-parameter --name /aws/service/eks/optimized-ami/${K8S_VERSION}/amazon-linux-2-arm64/recommended/image_id --query Parameter.Value --output text)"
+export AMD_AMI_ID="$(aws ssm get-parameter --name /aws/service/eks/optimized-ami/${K8S_VERSION}/amazon-linux-2/recommended/image_id --query Parameter.Value --output text)"
+export GPU_AMI_ID="$(aws ssm get-parameter --name /aws/service/eks/optimized-ami/${K8S_VERSION}/amazon-linux-2-gpu/recommended/image_id --query Parameter.Value --output text)"
 
 curl -fsSL https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/karpenter.yaml  > $TEMPOUT \
 && aws cloudformation deploy \
@@ -90,6 +93,11 @@ spec:
   securityGroupSelectorTerms:
     - tags:
         "aws:eks:cluster-name": ${CLUSTER_NAME}
+  amiSelectorTerms:
+    - id: "${ARM_AMI_ID}"
+    - id: "${AMD_AMI_ID}"
+#   - id: "${GPU_AMI_ID}" # <- GPU Optimized AMD AMI 
+#   - name: "amazon-eks-node-${K8S_VERSION}-*" # <- automatically upgrade when a new AL2 EKS Optimized AMI is released. This is unsafe for production workloads. Validate AMIs in lower environments before deploying them to production.
   tags:
     Name: ${CLUSTER_NAME}/karpenter/default
     eks-cost-cluster: ${CLUSTER_NAME}
