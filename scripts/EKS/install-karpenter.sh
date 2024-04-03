@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export AWS_PARTITION="aws" # if you are not using standard partitions, you may need to configure to aws-cn / aws-us-gov
-export KARPENTER_VERSION="v0.35.4"
+export KARPENTER_VERSION="0.35.4"
 
 export K8S_VERSION=$(kubectl version -o json | jq -r ".serverVersion.major")
 K8S_VERSION+="."
