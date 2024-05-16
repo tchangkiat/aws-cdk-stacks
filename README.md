@@ -46,7 +46,7 @@ aws configure set output json
 
 5. Rename 'sample.env' to '.env' and fill up all the values.
 
-6. Set up a connection in [Developer Tools](https://console.aws.amazon.com/codesuite/settings/connections). Remember to switch to the right region before creating. Copy the ARN of the connection to your `.env` file. This is required for solutions like Multi-Architecture Pipeline.
+6. Create a connection in [Developer Tools](https://console.aws.amazon.com/codesuite/settings/connections) (ensure that you are creating in your ideal region). Copy the ARN of the connection to your `.env` file. This is required for solutions like Multi-Architecture Pipeline.
 
 # Multi-Architecture Pipeline
 
