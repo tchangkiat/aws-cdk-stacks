@@ -31,9 +31,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 
 1. Install npm packages with `npm install`.
 
-2. Rename 'sample.env' to '.env' and fill up all the values.
-
-3. Configure AWS CLI in order to bootstrap your AWS account for the CDK.
+2. Configure AWS CLI in order to bootstrap your AWS account for the CDK.
 
 ```bash
 aws configure set aws_access_key_id {{ACCESS_KEY_ID}}
@@ -42,9 +40,13 @@ aws configure set region {{REGION, e.g. ap-southeast-1}}
 aws configure set output json
 ```
 
-4. Bootstrap AWS account for CDK with `cdk bootstrap`.
+3. Bootstrap AWS account for CDK with `cdk bootstrap`.
 
-5. Create an EC2 Key Pair named "EC2DefaultKeyPair".
+4. Create an EC2 Key Pair named "EC2DefaultKeyPair" (leave other settings as default).
+
+5. Rename 'sample.env' to '.env' and fill up all the values.
+
+6. Set up a connection in [Developer Tools](https://console.aws.amazon.com/codesuite/settings/connections). Remember to switch to the right region before creating. Copy the ARN of the connection to your `.env` file. This is required for solutions like Multi-Architecture Pipeline.
 
 # Multi-Architecture Pipeline
 
@@ -185,7 +187,7 @@ Example #3: Remove multiple add-ons
     - Prerequisites: Karpenter, AWS Load Balancer Controller
 
 13. Open Policy Agent Gatekeeper ("opa-gatekeeper")
-    
+
     - Includes a constraint template and constraint
 
 ## Sample Application
