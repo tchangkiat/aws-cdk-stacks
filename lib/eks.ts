@@ -26,7 +26,7 @@ export class EKS extends Stack {
 		// Configuration
 		// ----------------------------
 
-		const eksClusterKubernetesVersion = eks.KubernetesVersion.V1_28
+		const eksClusterKubernetesVersion = eks.KubernetesVersion.V1_30
 
 		const eksClusterName = id + '-demo'
 
@@ -143,7 +143,7 @@ export class EKS extends Stack {
 				'unzip awscliv2.zip',
 				'sudo ./aws/install',
 				// kubectl
-				'curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.2/2023-10-17/bin/linux/arm64/kubectl',
+				'curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.0/2024-05-12/bin/linux/arm64/kubectl',
 				'chmod +x ./kubectl',
 				'mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin',
 				'echo \'export PATH=$PATH:$HOME/bin\' >> ~/.bashrc',

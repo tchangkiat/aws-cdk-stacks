@@ -5,7 +5,7 @@ eksctl utils associate-iam-oidc-provider \
     --cluster $AWS_EKS_CLUSTER \
     --approve
 
-curl -o aws-load-balancer-controller-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.6.2/docs/install/iam_policy.json
+curl -o aws-load-balancer-controller-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.8.1/docs/install/iam_policy.json
 
 aws iam create-policy \
  --policy-name $AWS_EKS_CLUSTER-aws-load-balancer-controller \
