@@ -108,9 +108,9 @@ export class EKS extends Stack {
 
 		// Equivalent to executing `eksctl utils associate-iam-oidc-provider`
 		/* new iam.OpenIdConnectProvider(this, "iam-oidc-provider", {
-      clientIds: ["sts.amazonaws.com"],
-      url: cluster.clusterOpenIdConnectIssuerUrl,
-    }); */
+	  clientIds: ["sts.amazonaws.com"],
+	  url: cluster.clusterOpenIdConnectIssuerUrl,
+	}); */
 
 		// ----------------------------
 		// Addons NodeGroup
@@ -158,20 +158,20 @@ export class EKS extends Stack {
 				'sudo yum install jq -y',
 				// Environment Variables
 				'echo \'export AWS_ACCOUNT_ID=' +
-          this.account +
-          '\' >> /home/ec2-user/.bashrc',
+				this.account +
+				'\' >> /home/ec2-user/.bashrc',
 				'echo \'export AWS_REGION=' +
-          this.region +
-          '\' >> /home/ec2-user/.bashrc',
+				this.region +
+				'\' >> /home/ec2-user/.bashrc',
 				'echo \'export AWS_EKS_CLUSTER=' +
-          cluster.clusterName +
-          '\' >> /home/ec2-user/.bashrc',
+				cluster.clusterName +
+				'\' >> /home/ec2-user/.bashrc',
 				'echo \'export AWS_EKS_CLUSTER_MASTER_ROLE=' +
-          eksMasterRole.roleArn +
-          '\' >> /home/ec2-user/.bashrc',
+				eksMasterRole.roleArn +
+				'\' >> /home/ec2-user/.bashrc',
 				'echo \'export CONTAINER_IMAGE_URL=' +
-          ecrRepository.repositoryUri +
-          ':latest\' >> /home/ec2-user/.bashrc',
+				ecrRepository.repositoryUri +
+				':latest\' >> /home/ec2-user/.bashrc',
 				// Download script to set up bastion host
 				'curl -o /home/ec2-user/setup-bastion-host.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/setup-bastion-host.sh',
 				'chmod +x /home/ec2-user/setup-bastion-host.sh',
@@ -200,20 +200,20 @@ export class EKS extends Stack {
 
 		new CfnOutput(this, 'Bastion Host SSH Command', {
 			value:
-        'ssh -i ' +
-        sshKeyPairName +
-        '.pem ec2-user@' +
-        bastionHost.instancePublicIp
+				'ssh -i ' +
+				sshKeyPairName +
+				'.pem ec2-user@' +
+				bastionHost.instancePublicIp
 		})
 
 		new CfnOutput(this, 'Bastion Host Instance Connect URL', {
 			value:
-        'https://' +
-        this.region +
-        '.console.aws.amazon.com/ec2/v2/home?region=' +
-        this.region +
-        '#ConnectToInstance:instanceId=' +
-        bastionHost.instanceId
+				'https://' +
+				this.region +
+				'.console.aws.amazon.com/ec2/v2/home?region=' +
+				this.region +
+				'#ConnectToInstance:instanceId=' +
+				bastionHost.instanceId
 		})
 
 		// ----------------------------

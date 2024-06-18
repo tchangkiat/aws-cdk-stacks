@@ -102,8 +102,8 @@ export class EcsCicd extends Stack {
 						'docker push $IMAGE_REPO_URL:$IMAGE_TAG',
 						'echo Writing image definitions file...',
 						'printf \'[{"name":"' +
-              github.repository +
-              '","imageUri":"%s"}]\' $IMAGE_REPO_URL:$IMAGE_TAG > imagedefinitions.json'
+						github.repository +
+						'","imageUri":"%s"}]\' $IMAGE_REPO_URL:$IMAGE_TAG > imagedefinitions.json'
 					]
 				}
 			},
@@ -140,19 +140,19 @@ export class EcsCicd extends Stack {
 						},
 						SOURCE_REPO_URL: {
 							value:
-                'https://github.com/' +
-                github.owner +
-                '/' +
-                github.repository +
-                '.git'
+								'https://github.com/' +
+								github.owner +
+								'/' +
+								github.repository +
+								'.git'
 						}
 					}
 				},
 				/* logging: {
-          cloudWatch: {
-            enabled: false,
-          },
-        }, */
+		  cloudWatch: {
+			enabled: false,
+		  },
+		}, */
 				role: codebuildServiceRole
 			}
 		)

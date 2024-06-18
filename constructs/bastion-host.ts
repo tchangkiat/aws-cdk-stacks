@@ -2,8 +2,8 @@ import { Construct } from 'constructs'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
 
 export interface BastionHostProps {
-  instanceName?: string
-  userData?: string[]
+	instanceName?: string
+	userData?: string[]
 }
 
 export class BastionHost extends Construct {

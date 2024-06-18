@@ -155,11 +155,11 @@ export class MultiArchPipeline extends Stack {
 						},
 						SOURCE_REPO_URL: {
 							value:
-                'https://github.com/' +
-                github.owner +
-                '/' +
-                github.repository +
-                '.git'
+								'https://github.com/' +
+								github.owner +
+								'/' +
+								github.repository +
+								'.git'
 						}
 					}
 				},
@@ -201,11 +201,11 @@ export class MultiArchPipeline extends Stack {
 						},
 						SOURCE_REPO_URL: {
 							value:
-                'https://github.com/' +
-                github.owner +
-                '/' +
-                github.repository +
-                '.git'
+								'https://github.com/' +
+								github.owner +
+								'/' +
+								github.repository +
+								'.git'
 						}
 					}
 				},
@@ -259,8 +259,8 @@ export class MultiArchPipeline extends Stack {
 								'docker manifest inspect $IMAGE_REPO_URL:$COMMIT_ID',
 								'echo Writing image definitions file',
 								'printf \'[{"name":"' +
-                  github.repository +
-                  '","imageUri":"%s"}]\' $IMAGE_REPO_URL:$COMMIT_ID > imagedefinitions.json'
+								github.repository +
+								'","imageUri":"%s"}]\' $IMAGE_REPO_URL:$COMMIT_ID > imagedefinitions.json'
 							]
 						}
 					},

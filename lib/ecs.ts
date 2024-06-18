@@ -233,7 +233,7 @@ export class ECS extends Stack {
 		// })
 
 		this.FargateService = new ecsPatterns.ApplicationLoadBalancedFargateService(this, 'fg-service', {
-			cluster: this.Cluster, 
+			cluster: this.Cluster,
 			desiredCount: 1,
 			publicLoadBalancer: true,
 			serviceName: prefix + '-fg-service',

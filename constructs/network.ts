@@ -2,11 +2,11 @@ import { Construct } from 'constructs'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
 
 export interface StandardVpcProps {
-  cidr?: string
-  maxAzs?: number
-  natGateways?: number
-  vpcName?: string
-  subnetConfiguration?: ec2.SubnetConfiguration[]
+	cidr?: string
+	maxAzs?: number
+	natGateways?: number
+	vpcName?: string
+	subnetConfiguration?: ec2.SubnetConfiguration[]
 }
 
 export class StandardVpc extends Construct {

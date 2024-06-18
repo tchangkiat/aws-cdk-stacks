@@ -5,13 +5,13 @@ import * as eks from 'aws-cdk-lib/aws-eks'
 import { Tags } from 'aws-cdk-lib'
 
 export interface ManagedNodeGroupProps {
-  cluster: eks.Cluster
-  nodeGroupName: string
-  instanceType?: string
-  amiType?: eks.NodegroupAmiType
-  capacityType?: eks.CapacityType
-  taints?: object[]
-  tags?: Record<string, string>
+	cluster: eks.Cluster
+	nodeGroupName: string
+	instanceType?: string
+	amiType?: eks.NodegroupAmiType
+	capacityType?: eks.CapacityType
+	taints?: object[]
+	tags?: Record<string, string>
 }
 
 export class ManagedNodeGroup extends Construct {
@@ -362,8 +362,8 @@ export class ClusterAutoscaler extends Construct {
 								containers: [
 									{
 										image:
-                      'registry.k8s.io/autoscaling/cluster-autoscaler:' +
-                      eksClusterAutoscalerVersion,
+											'registry.k8s.io/autoscaling/cluster-autoscaler:' +
+											eksClusterAutoscalerVersion,
 										name: 'cluster-autoscaler',
 										resources: {
 											limits: {
@@ -383,7 +383,7 @@ export class ClusterAutoscaler extends Construct {
 											'--skip-nodes-with-local-storage=false',
 											'--expander=least-waste',
 											'--node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/' +
-                        cluster.clusterName
+											cluster.clusterName
 										],
 										volumeMounts: [
 											{
@@ -425,7 +425,7 @@ export class ClusterAutoscaler extends Construct {
 		})
 	}
 
-	tagNodeGroups (clusterName: string, nodeGroups: eks.Nodegroup[]): void {
+	tagNodeGroups(clusterName: string, nodeGroups: eks.Nodegroup[]): void {
 		for (const ng of nodeGroups) {
 			Tags.of(ng).add(`k8s.io/cluster-autoscaler/${clusterName}`, 'owned', {
 				applyToLaunchedInstances: true
