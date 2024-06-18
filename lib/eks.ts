@@ -4,7 +4,7 @@ import type * as ec2 from 'aws-cdk-lib/aws-ec2'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import * as eks from 'aws-cdk-lib/aws-eks'
 import type * as ecr from 'aws-cdk-lib/aws-ecr'
-import { KubectlLayer } from 'aws-cdk-lib/lambda-layer-kubectl'
+import { KubectlV30Layer } from '@aws-cdk/lambda-layer-kubectl-v30';
 
 import { ManagedNodeGroup, ClusterAutoscaler } from '../constructs/eks'
 import { BastionHost } from '../constructs/bastion-host'
@@ -86,7 +86,7 @@ export class EKS extends Stack {
 			clusterName: eksClusterName,
 			defaultCapacity: 0,
 			endpointAccess: eks.EndpointAccess.PRIVATE,
-			kubectlLayer: new KubectlLayer(this, 'kubectl-layer'),
+			kubectlLayer: new KubectlV30Layer(this, 'kubectl-layer'),
 			mastersRole: eksMasterRole,
 			version: eksClusterKubernetesVersion,
 			vpc,
