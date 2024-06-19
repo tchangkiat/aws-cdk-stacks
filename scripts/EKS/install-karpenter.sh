@@ -1,14 +1,13 @@
 #!/bin/bash
 
-export AWS_PARTITION="aws" # if you are not using standard partitions, you may need to configure to aws-cn / aws-us-gov
+export KARPENTER_NAMESPACE="kube-system"
 export KARPENTER_VERSION="0.37.0"
-
 export K8S_VERSION=$(kubectl version -o json | jq -r ".serverVersion.major")
 K8S_VERSION+="."
 K8S_VERSION+=$(kubectl version -o json | jq -r ".serverVersion.minor")
 K8S_VERSION=${K8S_VERSION//+} # Remove plus sign at the end of the minor version
 
-export KARPENTER_NAMESPACE="kube-system"
+export AWS_PARTITION="aws" # if you are not using standard partitions, you may need to configure to aws-cn / aws-us-gov
 export CLUSTER_NAME="${AWS_EKS_CLUSTER}"
 export AWS_DEFAULT_REGION="${AWS_REGION}"
 export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
@@ -99,10 +98,10 @@ spec:
   securityGroupSelectorTerms:
     - tags:
         "aws:eks:cluster-name": ${CLUSTER_NAME}
-  amiSelectorTerms:
-    - id: "${ARM_AMI_ID}"
-    - id: "${AMD_AMI_ID}"
-#   - id: "${GPU_AMI_ID}" # <- GPU Optimized AMD AMI 
+#  amiSelectorTerms:
+#    - id: "${ARM_AMI_ID}"
+#    - id: "${AMD_AMI_ID}"
+#    - id: "${GPU_AMI_ID}" # <- GPU Optimized AMD AMI 
   tags:
     Name: ${CLUSTER_NAME}/karpenter/default
     eks-cost-cluster: ${CLUSTER_NAME}
