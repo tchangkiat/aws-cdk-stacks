@@ -5,7 +5,7 @@ phases:
     commands:
       - echo "Installing dependencies..."
       - npm install -g aws-cdk
-      - npm install
+      - npm install --force
   pre_build:
     commands:
       - echo "Synth started on `date`"
