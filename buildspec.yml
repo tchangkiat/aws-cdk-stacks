@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Installing dependencies..."
+      - npm install -g aws-cdk
+      - npm install
+  pre_build:
+    commands:
+      - echo "Synth started on `date`"
+  build:
+    commands:
+      - echo "Synthesizing CDK app..."
+      - cdk synth
+artifacts:
+  base-directory: cdk.out
+  files:
+    - '**/*'
