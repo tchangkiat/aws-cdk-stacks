@@ -17,6 +17,7 @@ const compat = new FlatCompat({
 export default [...compat.extends(
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:eslint-plugin-prettier/recommended"
 ), {
     plugins: {
         "@typescript-eslint": typescriptEslint,
@@ -33,8 +34,13 @@ export default [...compat.extends(
     },
 
     rules: {
-        indent: ["error", "tab"],
-        quotes: ["error", "single"],
-        semi: ["error", "never"],
+        "indent": "off",
+        "prettier/prettier":[
+            "error",
+            {
+                "tabWidth": 1,
+                "useTabs": true,
+            }
+        ]
     },
 }];
