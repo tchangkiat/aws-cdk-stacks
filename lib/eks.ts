@@ -82,7 +82,7 @@ export class EKS extends Stack {
 			clusterLogging: [eks.ClusterLoggingTypes.API, eks.ClusterLoggingTypes.AUDIT],
 			clusterName: eksClusterName,
 			defaultCapacity: 0,
-			endpointAccess: eks.EndpointAccess.PRIVATE,
+			endpointAccess: eks.EndpointAccess.PUBLIC_AND_PRIVATE.onlyFrom("0.0.0.0/0"),
 			kubectlLayer: new KubectlV30Layer(this, "kubectl-layer"),
 			mastersRole: eksMasterRole,
 			version: eksClusterKubernetesVersion,
@@ -103,9 +103,9 @@ export class EKS extends Stack {
 
 		// Equivalent to executing `eksctl utils associate-iam-oidc-provider`
 		/* new iam.OpenIdConnectProvider(this, "iam-oidc-provider", {
-	  clientIds: ["sts.amazonaws.com"],
-	  url: cluster.clusterOpenIdConnectIssuerUrl,
-	}); */
+			clientIds: ["sts.amazonaws.com"],
+			url: cluster.clusterOpenIdConnectIssuerUrl,
+		}); */
 
 		// ----------------------------
 		// Addons NodeGroup
