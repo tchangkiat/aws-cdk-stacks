@@ -8,6 +8,7 @@ import { ALBRuleRestriction } from "../lib/alb-rule-restriction";
 import { ApiGateway } from "../lib/api-gateway";
 import { Common } from "../lib/common";
 import { EcsCicd } from "../lib/ecs-cicd";
+import { EcsAdot } from "../lib/ecs-adot";
 import { ECS } from "../lib/ecs";
 import { EKS } from "../lib/eks";
 import { MultiArchPipeline } from "../lib/multi-arch-pipeline";
@@ -53,6 +54,11 @@ new EcsCicd(
 			"Deploys a pipeline to build and deploy an application to a Fargate service in ECS",
 	},
 );
+
+new EcsAdot(app, "ecs-adot", common.Vpc, {
+	stackName: prefix + "ecs-adot",
+	description: "Deploys an ECS cluster with ADOT as sidecar running on Fargate",
+});
 
 new EKS(
 	app,
