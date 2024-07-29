@@ -34,6 +34,7 @@ export class MultiArchPipeline extends Stack {
 			],
 			repositoryName: id,
 			removalPolicy: RemovalPolicy.DESTROY,
+			emptyOnDelete: true,
 		});
 
 		// ----------------------------
@@ -71,6 +72,7 @@ export class MultiArchPipeline extends Stack {
 
 		const artifactBucket = new s3.Bucket(this, "artifact-bucket", {
 			removalPolicy: RemovalPolicy.DESTROY,
+			autoDeleteObjects: true,
 		});
 
 		// ----------------------------
