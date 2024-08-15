@@ -19,6 +19,8 @@ spec:
           operator: In
           values: ["on-demand"]
       nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
         name: jupyterhub
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized
@@ -26,7 +28,7 @@ spec:
   limits:
     cpu: 16
 ---
-apiVersion: karpenter.sh/v1
+apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
 metadata:
   name: jupyterhub
