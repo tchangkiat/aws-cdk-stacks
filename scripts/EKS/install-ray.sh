@@ -44,6 +44,8 @@ spec:
   securityGroupSelectorTerms:
     - tags:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
+  amiSelectorTerms:
+    - alias: bottlerocket@latest
   tags:
     Name: ${AWS_EKS_CLUSTER}/karpenter/ray-head
     eks-cost-cluster: ${AWS_EKS_CLUSTER}
@@ -95,6 +97,8 @@ spec:
   securityGroupSelectorTerms:
     - tags:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
+  amiSelectorTerms:
+    - alias: bottlerocket@latest
   tags:
     Name: ${AWS_EKS_CLUSTER}/karpenter/ray-worker
     eks-cost-cluster: ${AWS_EKS_CLUSTER}

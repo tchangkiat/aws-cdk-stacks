@@ -100,8 +100,7 @@ spec:
     - tags:
         "aws:eks:cluster-name": ${CLUSTER_NAME}
   amiSelectorTerms:
-    - id: "${ARM_AMI_ID}"
-    - id: "${AMD_AMI_ID}"
+    - alias: bottlerocket@latest
   tags:
     Name: ${CLUSTER_NAME}/karpenter/default
     eks-cost-cluster: ${CLUSTER_NAME}

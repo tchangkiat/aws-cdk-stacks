@@ -247,6 +247,8 @@ spec:
   securityGroupSelectorTerms:
     - tags:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
+  amiSelectorTerms:
+    - alias: bottlerocket@latest
   tags:
     Name: ${AWS_EKS_CLUSTER}/karpenter/daskhub-on-demand
     eks-cost-cluster: ${AWS_EKS_CLUSTER}

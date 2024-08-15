@@ -41,6 +41,8 @@ spec:
   securityGroupSelectorTerms:
     - tags:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
+  amiSelectorTerms:
+    - alias: bottlerocket@latest
   tags:
     Name: ${AWS_EKS_CLUSTER}/karpenter/jupyterhub
     eks-cost-cluster: ${AWS_EKS_CLUSTER}
