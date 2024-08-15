@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export KARPENTER_NAMESPACE="kube-system"
-export KARPENTER_VERSION="0.37.0"
+export KARPENTER_VERSION="1.0.0"
 export K8S_VERSION=$(kubectl version -o json | jq -r ".serverVersion.major")
 K8S_VERSION+="."
 K8S_VERSION+=$(kubectl version -o json | jq -r ".serverVersion.minor")
@@ -63,7 +63,7 @@ helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --vers
   --wait
 
 cat <<EOF >>default-node-pool.yaml
-apiVersion: karpenter.sh/v1beta1
+apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: default
@@ -82,7 +82,7 @@ spec:
   limits:
     cpu: 30
 ---
-apiVersion: karpenter.k8s.aws/v1beta1
+apiVersion: karpenter.sh/v1
 kind: EC2NodeClass
 metadata:
   name: default

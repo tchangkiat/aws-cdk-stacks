@@ -145,7 +145,7 @@ sed "s|<API_TOKEN>|$DASKHUB_API_TOKEN|g" -i daskhub.yaml
 sed "s|<PASSWORD>|$DASKHUB_PASSWORD|g" -i daskhub.yaml
 
 cat <<EOF >>daskhub-spot-node-pool.yaml
-apiVersion: karpenter.sh/v1beta1
+apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: daskhub-spot
@@ -171,12 +171,12 @@ spec:
         - key: daskhub-spot
           effect: NoSchedule
   disruption:
-    consolidationPolicy: WhenEmpty
+    consolidationPolicy: WhenEmptyOrUnderutilized
     consolidateAfter: 30s
   limits:
     cpu: "48"
 ---
-apiVersion: karpenter.k8s.aws/v1beta1
+apiVersion: karpenter.sh/v1
 kind: EC2NodeClass
 metadata:
   name: daskhub-spot
@@ -199,7 +199,7 @@ EOF
 kubectl apply -f daskhub-spot-node-pool.yaml
 
 cat <<EOF >>daskhub-on-demand-node-pool.yaml
-apiVersion: karpenter.sh/v1beta1
+apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: daskhub-on-demand
@@ -225,12 +225,12 @@ spec:
         - key: daskhub-on-demand
           effect: NoSchedule
   disruption:
-    consolidationPolicy: WhenEmpty
+    consolidationPolicy: WhenEmptyOrUnderutilized
     consolidateAfter: 30s
   limits:
     cpu: 32
 ---
-apiVersion: karpenter.k8s.aws/v1beta1
+apiVersion: karpenter.sh/v1
 kind: EC2NodeClass
 metadata:
   name: daskhub-on-demand

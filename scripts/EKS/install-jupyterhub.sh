@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cat <<EOF >>jupyterhub-node-pool.yaml
-apiVersion: karpenter.sh/v1beta1
+apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: jupyterhub
@@ -21,12 +21,12 @@ spec:
       nodeClassRef:
         name: jupyterhub
   disruption:
-    consolidationPolicy: WhenEmpty
+    consolidationPolicy: WhenEmptyOrUnderutilized
     consolidateAfter: 30s
   limits:
     cpu: 16
 ---
-apiVersion: karpenter.k8s.aws/v1beta1
+apiVersion: karpenter.sh/v1
 kind: EC2NodeClass
 metadata:
   name: jupyterhub

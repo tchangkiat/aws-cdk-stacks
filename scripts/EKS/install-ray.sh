@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cat <<EOF >>ray-head-node-pool.yaml
-apiVersion: karpenter.sh/v1beta1
+apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: ray-head
@@ -24,12 +24,12 @@ spec:
         - key: ray-head
           effect: NoSchedule
   disruption:
-    consolidationPolicy: WhenEmpty
+    consolidationPolicy: WhenEmptyOrUnderutilized
     consolidateAfter: 30s
   limits:
     cpu: "16"
 ---
-apiVersion: karpenter.k8s.aws/v1beta1
+apiVersion: karpenter.sh/v1
 kind: EC2NodeClass
 metadata:
   name: ray-head
@@ -50,7 +50,7 @@ spec:
 EOF
 
 cat <<EOF >>ray-worker-node-pool.yaml
-apiVersion: karpenter.sh/v1beta1
+apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: ray-worker
@@ -73,12 +73,12 @@ spec:
         - key: ray-worker
           effect: NoSchedule
   disruption:
-    consolidationPolicy: WhenEmpty
+    consolidationPolicy: WhenEmptyOrUnderutilized
     consolidateAfter: 30s
   limits:
     cpu: 32
 ---
-apiVersion: karpenter.k8s.aws/v1beta1
+apiVersion: karpenter.sh/v1
 kind: EC2NodeClass
 metadata:
   name: ray-worker
