@@ -36,13 +36,9 @@ eksctl utils associate-iam-oidc-provider \
   --region $AWS_DEFAULT_REGION \
   --approve
 
-eksctl create iamserviceaccount \
-  --cluster "${CLUSTER_NAME}" --name karpenter --namespace ${KARPENTER_NAMESPACE} \
-  --region "${AWS_DEFAULT_REGION}" \
-  --role-name "${CLUSTER_NAME}-karpenter" \
-  --attach-policy-arn "arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:policy/KarpenterControllerPolicy-${CLUSTER_NAME}" \
-  --role-only \
-  --approve
+aws eks create-pod-identity-association --cluster-name ${CLUSTER_NAME} \
+  --role-arn ${KARPENTER_IAM_ROLE_ARN} \
+  --namespace ${KARPENTER_NAMESPACE} --service-account karpenter
 
 aws iam create-service-linked-role --aws-service-name spot.amazonaws.com || true
 # If the role has already been successfully created, you will see:
@@ -52,7 +48,6 @@ aws iam create-service-linked-role --aws-service-name spot.amazonaws.com || true
 helm registry logout public.ecr.aws
 
 helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --version "${KARPENTER_VERSION}" --namespace "${KARPENTER_NAMESPACE}" --create-namespace \
-  --set "serviceAccount.annotations.eks\.amazonaws\.com/role-arn=${KARPENTER_IAM_ROLE_ARN}" \
   --set "settings.clusterName=${CLUSTER_NAME}" \
   --set "settings.interruptionQueue=${CLUSTER_NAME}" \
   --set controller.resources.requests.cpu=1 \

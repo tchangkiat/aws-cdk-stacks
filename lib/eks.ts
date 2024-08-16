@@ -101,6 +101,13 @@ export class EKS extends Stack {
 			}),
 		);
 
+		// Install EKS Pod Identity Agent addon
+		new eks.Addon(this, "Addon", {
+			cluster,
+			addonName: "eks-pod-identity-agent",
+			addonVersion: "v1.3.0-eksbuild.1",
+		});
+
 		// Equivalent to executing `eksctl utils associate-iam-oidc-provider`
 		/* new iam.OpenIdConnectProvider(this, "iam-oidc-provider", {
 			clientIds: ["sts.amazonaws.com"],
