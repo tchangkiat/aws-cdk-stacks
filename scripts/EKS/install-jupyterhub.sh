@@ -88,7 +88,7 @@ proxy:
 singleuser:
   image:
     name: jupyter/scipy-notebook
-    tag: python-3.8.13
+    tag: python-3.9
   cpu:
     limit: 2
     guarantee: 1
@@ -111,7 +111,7 @@ helm upgrade --cleanup-on-fail \
   --install jupyter jupyterhub/jupyterhub \
   --namespace jupyter \
   --create-namespace \
-  --version=3.0.3 \
+  --version=3.3.8 \
   --values jupyterhub-config.yaml
 
 echo "Wait 10 seconds for load balancer host name to be created"

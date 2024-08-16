@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export RAY_VERSION="2.34.0"
+
 cat <<EOF >>ray-head-node-pool.yaml
 apiVersion: karpenter.sh/v1
 kind: NodePool
@@ -111,8 +113,8 @@ kubectl apply -f ray-worker-node-pool.yaml
 
 helm repo add kuberay https://ray-project.github.io/kuberay-helm/
 
-# Install both CRDs and KubeRay operator v0.6.0.
-helm install kuberay-operator kuberay/kuberay-operator --version 0.6.0
+# Install both CRDs and KubeRay operator
+helm install kuberay-operator kuberay/kuberay-operator --version 1.1.1
 
 cat <<EOF >>ray-cluster-config.yaml
 apiVersion: ray.io/v1alpha1
@@ -121,7 +123,7 @@ metadata:
   name: raycluster-kuberay
   namespace: default
 spec:
-  rayVersion: '2.7.0'
+  rayVersion: "${RAY_VERSION}"
   enableInTreeAutoscaling: true
   headGroupSpec:
     rayStartParams:
@@ -131,7 +133,7 @@ spec:
     template:
       spec:
         containers:
-        - image: rayproject/ray:2.7.0
+        - image: rayproject/ray:${RAY_VERSION}
           imagePullPolicy: IfNotPresent
           name: ray-head
           resources:
@@ -163,7 +165,7 @@ spec:
     template:
       spec:
         containers:
-        - image: rayproject/ray:2.7.0
+        - image: rayproject/ray:${RAY_VERSION}
           imagePullPolicy: IfNotPresent
           name: ray-worker
           resources:
