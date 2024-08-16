@@ -75,10 +75,7 @@ proxy:
   service:
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
-      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
-      service.beta.kubernetes.io/aws-load-balancer-type: external
-      service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: 'true'
-      service.beta.kubernetes.io/aws-load-balancer-ip-address-type: ipv4
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internal
   chp:
     nodeSelector:
       karpenter.sh/nodepool: jupyterhub
@@ -114,11 +111,7 @@ helm upgrade --cleanup-on-fail \
   --version=3.3.8 \
   --values jupyterhub-config.yaml
 
-echo "Wait 10 seconds for load balancer host name to be created"
-sleep 10
-
 echo ""
-echo "JupyterHub URL: http://"`kubectl get svc -n jupyter | grep 'amazonaws.com' | awk {'print $4'}`
 echo "JupyterHub Username: user1 / admin1"
 echo "JupyterHub Password: ${JUPYTERHUB_PASSWORD}"
 echo ""

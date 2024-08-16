@@ -437,19 +437,18 @@ kubectl delete -f vpc-lattice-gateway.yaml
 ./eks-add-ons.sh -i "jupyterhub ray"
 ```
 
-3. Use the URL, username and password found in the terminal (example below) to access JupyterHub.
+3. Once the 'proxy' Pod is 'running', run `kubectl --namespace=jupyter port-forward service/proxy-public 8080:http` in the terminal on your client machine and access JupyterHub using `http://localhost:8080`. JupyterHub may take a few minutes to initialize after installing. During this time, you will notice a blank page and a loading animation in your browser when you access the URL.
 
-Note: JupyterHub may take a while to start up after installing. During this time, you will notice a blank page and a loading animation in your browser when you access the URL.
+4. Use the username and password found in the terminal (example below) to log in to JupyterHub.
 
 ```bash
-JupyterHub URL: <randomly generated string>.<region>.elb.amazonaws.com
 JupyterHub Username: user1 / admin1
 JupyterHub Password: <generated password>
 ```
 
-4. Once you accessed JupyterHub, you can upload and use the example notebook from /assets/ray/xgboost-ray-example.ipynb.
+5. Once you accessed JupyterHub, you can upload and use the example notebook from /assets/ray/xgboost-ray-example.ipynb.
 
-5. On your client machine, run `kubectl port-forward --address 0.0.0.0 svc/raycluster-kuberay-head-svc 8265:8265` in your terminal and use the URL `http://localhost:8265` to access Ray dashboard.
+6. On your client machine, run `kubectl port-forward --address 0.0.0.0 svc/raycluster-kuberay-head-svc 8265:8265` in your terminal and use the URL `http://localhost:8265` to access Ray dashboard.
 
 ### Cleanup
 
