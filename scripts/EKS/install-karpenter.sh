@@ -54,6 +54,7 @@ helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --vers
   --set controller.resources.requests.memory=1Gi \
   --set controller.resources.limits.cpu=1 \
   --set controller.resources.limits.memory=1Gi \
+  --set replicas=1 \
   --wait
 
 cat <<EOF >>default-node-pool.yaml
