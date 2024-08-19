@@ -73,15 +73,13 @@ hub:
     karpenter.sh/nodepool: jupyterhub
 proxy:
   service:
-    annotations:
-      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
-      service.beta.kubernetes.io/aws-load-balancer-scheme: internal
+    type: ClusterIP
   chp:
     nodeSelector:
       karpenter.sh/nodepool: jupyterhub
   traefik:
-      nodeSelector:
-        karpenter.sh/nodepool: jupyterhub
+    nodeSelector:
+      karpenter.sh/nodepool: jupyterhub
 singleuser:
   image:
     name: jupyter/scipy-notebook
@@ -109,7 +107,8 @@ helm upgrade --cleanup-on-fail \
   --namespace jupyter \
   --create-namespace \
   --version=3.3.8 \
-  --values jupyterhub-config.yaml
+  --values jupyterhub-config.yaml \
+  --timeout=10m
 
 echo ""
 echo "JupyterHub Username: user1 / admin1"
