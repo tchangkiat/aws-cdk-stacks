@@ -29,6 +29,7 @@ spec:
           effect: NoSchedule
   disruption:
     consolidationPolicy: WhenEmpty
+    consolidateAfter: 30s
   limits:
     cpu: 16
 ---
