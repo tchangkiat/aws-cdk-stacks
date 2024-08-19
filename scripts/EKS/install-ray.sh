@@ -116,78 +116,95 @@ helm repo add kuberay https://ray-project.github.io/kuberay-helm/
 # Install both CRDs and KubeRay operator
 helm install kuberay-operator kuberay/kuberay-operator --version 1.1.1
 
+# Visit this link for more sample Ray Cluster configurations: https://github.com/ray-project/kuberay/tree/master/ray-operator/config/samples
 cat <<EOF >>ray-cluster-config.yaml
-apiVersion: ray.io/v1alpha1
+apiVersion: ray.io/v1
 kind: RayCluster
 metadata:
-  name: raycluster-kuberay
-  namespace: default
+  name: raycluster
 spec:
   rayVersion: "${RAY_VERSION}"
   enableInTreeAutoscaling: true
+  autoscalerOptions:
+    upscalingMode: Default
+    idleTimeoutSeconds: 60
+    imagePullPolicy: IfNotPresent
+    # Optionally specify the Autoscaler container's securityContext.
+    securityContext: {}
+    env: []
+    envFrom: []
+    resources:
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+      requests:
+        cpu: "500m"
+        memory: "512Mi"
   headGroupSpec:
     rayStartParams:
+      # Setting "num-cpus: 0" to avoid any Ray actors or tasks being scheduled on the Ray head Pod.
       num-cpus: "0"
-      dashboard-host: 0.0.0.0
     serviceType: ClusterIP
     template:
       spec:
         containers:
-        - image: rayproject/ray:${RAY_VERSION}
-          imagePullPolicy: IfNotPresent
-          name: ray-head
+        # The Ray head container
+        - name: ray-head
+          image: rayproject/ray:${RAY_VERSION}
+          ports:
+          - containerPort: 6379
+            name: gcs
+          - containerPort: 8265
+            name: dashboard
+          - containerPort: 10001
+            name: client
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh","-c","ray stop"]
           resources:
             limits:
-              cpu: "2"
-              memory: 4G
+              cpu: "1"
+              memory: "2G"
             requests:
-              cpu: "2"
-              memory: 4G
-          securityContext: {}
-          volumeMounts:
-          - mountPath: /tmp/ray
-            name: log-volume
+              cpu: "1"
+              memory: "2G"
+          env:
+            - name: RAY_enable_autoscaler_v2 # Pass env var for the autoscaler v2.
+              value: "1"
+        restartPolicy: Never # No restart to avoid reuse of pod for different ray nodes.
         nodeSelector:
           karpenter.sh/nodepool: ray-head
         tolerations:
         - key: "ray-head"
           operator: "Exists"
           effect: "NoSchedule"
-        volumes:
-        - emptyDir: {}
-          name: log-volume
   workerGroupSpecs:
-  - groupName: workergroup
+  - replicas: 0
+    minReplicas: 0
     maxReplicas: 10
-    minReplicas: 1
+    groupName: small-group
     rayStartParams: {}
-    replicas: 1
+    # Pod template
     template:
       spec:
         containers:
-        - image: rayproject/ray:${RAY_VERSION}
-          imagePullPolicy: IfNotPresent
-          name: ray-worker
+        - name: ray-worker
+          image: rayproject/ray:${RAY_VERSION}
           resources:
             limits:
               cpu: "1"
-              memory: 2G
+              memory: "1G"
             requests:
               cpu: "1"
-              memory: 2G
-          securityContext: {}
-          volumeMounts:
-          - mountPath: /tmp/ray
-            name: log-volume
+              memory: "1G"
+        restartPolicy: Never # Never restart a pod to avoid pod reuse
         nodeSelector:
           karpenter.sh/nodepool: ray-worker
         tolerations:
         - key: "ray-worker"
           operator: "Exists"
           effect: "NoSchedule"
-        volumes:
-        - emptyDir: {}
-          name: log-volume
 EOF
 
 kubectl apply -f ray-cluster-config.yaml
@@ -195,5 +212,5 @@ kubectl apply -f ray-cluster-config.yaml
 echo ""
 echo "Installation completed. Pods may take a few minutes to start. Check the status using 'kubectl get pods'."
 echo ""
-echo "Access Ray Dashboard by running this command 'kubectl port-forward --address 0.0.0.0 svc/raycluster-kuberay-head-svc 8265:8265' and access 'http://localhost:8265' on your client machine"
+echo "Access Ray Dashboard by running this command 'kubectl port-forward --address 0.0.0.0 svc/raycluster-head-svc 8265:8265' and access 'http://localhost:8265' on your client machine"
 echo ""

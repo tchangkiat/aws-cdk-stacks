@@ -448,7 +448,7 @@ JupyterHub Password: <generated password>
 
 5. Once you accessed JupyterHub, you can upload and use the example notebook from /assets/ray/xgboost-ray-example.ipynb.
 
-6. On your client machine, run `kubectl port-forward --address 0.0.0.0 svc/raycluster-kuberay-head-svc 8265:8265` in your terminal and use the URL `http://localhost:8265` to access Ray dashboard.
+6. On your client machine, run `kubectl port-forward --address 0.0.0.0 svc/raycluster-head-svc 8265:8265` in your terminal and use the URL `http://localhost:8265` to access Ray dashboard.
 
 ### Cleanup
 
