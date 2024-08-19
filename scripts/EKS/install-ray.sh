@@ -28,10 +28,9 @@ spec:
         - key: ray-head
           effect: NoSchedule
   disruption:
-    consolidationPolicy: WhenEmptyOrUnderutilized
-    consolidateAfter: 30s
+    consolidationPolicy: WhenEmpty
   limits:
-    cpu: "16"
+    cpu: 16
 ---
 apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
@@ -81,8 +80,8 @@ spec:
         - key: ray-worker
           effect: NoSchedule
   disruption:
-    consolidationPolicy: WhenEmptyOrUnderutilized
-    consolidateAfter: 30s
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 3m
   limits:
     cpu: 32
 ---

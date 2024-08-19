@@ -23,8 +23,7 @@ spec:
         kind: EC2NodeClass
         name: jupyterhub
   disruption:
-    consolidationPolicy: WhenEmptyOrUnderutilized
-    consolidateAfter: 30s
+    consolidationPolicy: WhenEmpty
   limits:
     cpu: 16
 ---
@@ -85,10 +84,10 @@ singleuser:
     name: jupyter/scipy-notebook
     tag: python-3.9
   cpu:
-    limit: 2
+    limit: 1
     guarantee: 1
   memory:
-    limit: 4G
+    limit: 2G
     guarantee: 2G
   nodeSelector:
     karpenter.sh/nodepool: jupyterhub
