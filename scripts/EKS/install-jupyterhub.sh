@@ -85,11 +85,11 @@ singleuser:
     name: jupyter/scipy-notebook
     tag: python-3.9
   cpu:
-    limit: 1
-    guarantee: 1
+    limit: 2
+    guarantee: 2
   memory:
-    limit: 2G
-    guarantee: 2G
+    limit: 4G
+    guarantee: 4G
   nodeSelector:
     karpenter.sh/nodepool: jupyterhub
 scheduling:
