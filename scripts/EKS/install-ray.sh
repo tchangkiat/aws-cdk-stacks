@@ -193,11 +193,11 @@ spec:
           image: rayproject/ray:${RAY_VERSION}
           resources:
             limits:
-              cpu: "1"
-              memory: "1G"
+              cpu: "4"
+              memory: "4G"
             requests:
-              cpu: "1"
-              memory: "1G"
+              cpu: "4"
+              memory: "4G"
         restartPolicy: Never # Never restart a pod to avoid pod reuse
         nodeSelector:
           karpenter.sh/nodepool: ray-worker
