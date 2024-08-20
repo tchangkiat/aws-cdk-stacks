@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export DASKHUB_NOTEBOOK_IMAGE="pangeo/pangeo-notebook"
-export DASKHUB_NOTEBOOK_IMAGE_TAG="2023.10.28"
+export DASKHUB_NOTEBOOK_IMAGE_TAG="2024.08.18"
 export DASKHUB_SECRET_TOKEN=`openssl rand -hex 32`
 export DASKHUB_API_TOKEN=`openssl rand -hex 32`
 export DASKHUB_PASSWORD=`openssl rand -base64 8`
@@ -16,12 +16,12 @@ jupyterhub:
         allowed_users:
           - user1
       DummyAuthenticator:
-        password: <PASSWORD>
+        password: ${DASKHUB_PASSWORD}
       JupyterHub:
         authenticator_class: dummy
     services:
       dask-gateway:
-        apiToken: "<API_TOKEN>"
+        apiToken: "${DASKHUB_API_TOKEN}"
     nodeSelector:
       karpenter.sh/nodepool: daskhub-on-demand
     tolerations:
@@ -29,14 +29,9 @@ jupyterhub:
         operator: "Exists"
         effect: "NoSchedule"
   proxy:
-    secretToken: "<SECRET_TOKEN>"
+    secretToken: "${DASKHUB_SECRET_TOKEN}"
     service:
-      annotations:
-        service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
-        service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
-        service.beta.kubernetes.io/aws-load-balancer-type: external
-        service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
-        service.beta.kubernetes.io/aws-load-balancer-ip-address-type: ipv4
+      type: ClusterIP
     chp:
       nodeSelector:
         karpenter.sh/nodepool: daskhub-on-demand
@@ -47,19 +42,21 @@ jupyterhub:
   singleuser:
     nodeSelector:
       karpenter.sh/nodepool: daskhub-on-demand
+    extraTolerations:
+      - key: "daskhub-on-demand"
+        operator: "Exists"
+        effect: "NoSchedule"
     cloudMetadata:
       blockWithIptables: false
     image:
-      name: <NOTEBOOK_IMAGE>
-      tag: <NOTEBOOK_IMAGE_TAG>
+      name: ${DASKHUB_NOTEBOOK_IMAGE}
+      tag: ${DASKHUB_NOTEBOOK_IMAGE_TAG}
     cpu:
       limit: 2
-      guarantee: 1
+      guarantee: 2
     memory:
       limit: 4G
-      guarantee: 2G
-    extraEnv:
-      DASK_GATEWAY__CLUSTER__OPTIONS__IMAGE: "{JUPYTER_IMAGE_SPEC}"
+      guarantee: 4G
   prePuller:
     hook:
       nodeSelector:
@@ -116,12 +113,12 @@ dask-gateway:
         c.Backend.cluster_options = Options(
             Float("worker_cores", default=0.8, min=0.8, max=4.0, label="Worker Cores"),
             Float("worker_memory", default=3.3, min=1, max=8, label="Worker Memory (GiB)"),
-            String("image", default="pangeo/base-notebook:<NOTEBOOK_IMAGE_TAG>", label="Image"),
+            String("image", default="pangeo/base-notebook:${DASKHUB_NOTEBOOK_IMAGE_TAG}", label="Image"),
             handler=option_handler,
         )
     auth:
       jupyterhub:
-        apiToken: "<API_TOKEN>"
+        apiToken: "${DASKHUB_API_TOKEN}"
   controller:
     nodeSelector:
       karpenter.sh/nodepool: daskhub-on-demand
@@ -137,12 +134,6 @@ dask-gateway:
         operator: "Exists"
         effect: "NoSchedule"
 EOF
-
-sed "s|<NOTEBOOK_IMAGE>|$DASKHUB_NOTEBOOK_IMAGE|g" -i daskhub.yaml
-sed "s|<NOTEBOOK_IMAGE_TAG>|$DASKHUB_NOTEBOOK_IMAGE_TAG|g" -i daskhub.yaml
-sed "s|<SECRET_TOKEN>|$DASKHUB_SECRET_TOKEN|g" -i daskhub.yaml
-sed "s|<API_TOKEN>|$DASKHUB_API_TOKEN|g" -i daskhub.yaml
-sed "s|<PASSWORD>|$DASKHUB_PASSWORD|g" -i daskhub.yaml
 
 cat <<EOF >>daskhub-spot-node-pool.yaml
 apiVersion: karpenter.sh/v1
@@ -162,9 +153,6 @@ spec:
         - key: "karpenter.sh/capacity-type"
           operator: In
           values: ["spot"]
-        - key: "karpenter.k8s.aws/instance-size"
-          operator: NotIn
-          values: ["micro", "small", "medium"]
       nodeClassRef:
         group: karpenter.k8s.aws
         kind: EC2NodeClass
@@ -173,10 +161,10 @@ spec:
         - key: daskhub-spot
           effect: NoSchedule
   disruption:
-    consolidationPolicy: WhenEmptyOrUnderutilized
-    consolidateAfter: 30s
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 3m
   limits:
-    cpu: "48"
+    cpu: 32
 ---
 apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
@@ -191,6 +179,8 @@ spec:
   securityGroupSelectorTerms:
     - tags:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
+  amiSelectorTerms:
+    - alias: bottlerocket@latest
   tags:
     Name: ${AWS_EKS_CLUSTER}/karpenter/daskhub-spot
     eks-cost-cluster: ${AWS_EKS_CLUSTER}
@@ -218,9 +208,6 @@ spec:
         - key: "karpenter.sh/capacity-type"
           operator: In
           values: ["on-demand"]
-        - key: "karpenter.k8s.aws/instance-size"
-          operator: NotIn
-          values: ["micro", "small", "medium"]
       nodeClassRef:
         group: karpenter.k8s.aws
         kind: EC2NodeClass
@@ -229,10 +216,10 @@ spec:
         - key: daskhub-on-demand
           effect: NoSchedule
   disruption:
-    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidationPolicy: WhenEmpty
     consolidateAfter: 30s
   limits:
-    cpu: 32
+    cpu: 16
 ---
 apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
@@ -260,13 +247,10 @@ kubectl apply -f daskhub-on-demand-node-pool.yaml
 
 helm repo add dask https://helm.dask.org/
 helm repo update
-helm upgrade --install daskhub dask/daskhub --values=daskhub.yaml
-
-sleep 10
+helm upgrade --install daskhub dask/daskhub --values=daskhub.yaml --timeout 10m
 
 echo ""
 echo ""
-echo "JupyterHub URL: http://"`kubectl get svc | grep 'amazonaws.com' | awk {'print $4'}`
 echo "JupyterHub Username: user1 / admin1"
 echo "JupyterHub Password: ${DASKHUB_PASSWORD}"
 echo ""
