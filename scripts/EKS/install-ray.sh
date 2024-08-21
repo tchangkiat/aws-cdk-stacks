@@ -82,7 +82,7 @@ spec:
           effect: NoSchedule
   disruption:
     consolidationPolicy: WhenEmpty
-    consolidateAfter: 3m
+    consolidateAfter: 1m
   limits:
     cpu: 32
 ---
