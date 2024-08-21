@@ -24,6 +24,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [AWS App Mesh](#aws-app-mesh)
   - [Amazon VPC Lattice](#amazon-vpc-lattice)
   - [Distributed ML with Ray](#distributed-ml-with-ray)
+- [API Gateway and Lambda](#api-gateway-and-lambda)
 - [Egress VPC](#egress-vpc)
 - [Application Load Balancer (ALB) Rule Restriction](#application-load-balancer-alb-rule-restriction)
 
@@ -465,6 +466,28 @@ JupyterHub Password: <generated password>
 
 ```bash
 ./eks-add-ons.sh -r "karpenter load-balancer-controller ebs-csi-driver"
+```
+
+# API Gateway and Lambda
+
+```bash
+sh assets/api-gateway/lambda-zip.sh
+
+cdk deploy api-gateway
+```
+
+Deploy a REST API in API Gateway with Lambda Integration and Authorizer.
+
+## Testing the API resources
+
+```bash
+# Replace '<...>' with the respective values
+
+# Get a JWT token
+curl https://<API ID>.execute-api.ap-southeast-1.amazonaws.com/v1/auth
+
+# Verify
+curl -H "Authorization: <JWT token retrieved from the previous command>" https://<API ID>.execute-api.ap-southeast-1.amazonaws.com/v1
 ```
 
 # Egress VPC
