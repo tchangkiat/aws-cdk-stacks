@@ -180,8 +180,8 @@ spec:
           operator: "Exists"
           effect: "NoSchedule"
   workerGroupSpecs:
-  - replicas: 0
-    minReplicas: 0
+  - replicas: 1
+    minReplicas: 1
     maxReplicas: 10
     groupName: small-group
     rayStartParams: {}
@@ -191,13 +191,14 @@ spec:
         containers:
         - name: ray-worker
           image: rayproject/ray:${RAY_VERSION}
+          # Leaving 1 CPU and 1 GB Memory for DaemonSet
           resources:
             limits:
-              cpu: "4"
-              memory: "4G"
+              cpu: "7"
+              memory: "7G"
             requests:
-              cpu: "4"
-              memory: "4G"
+              cpu: "7"
+              memory: "7G"
         restartPolicy: Never # Never restart a pod to avoid pod reuse
         nodeSelector:
           karpenter.sh/nodepool: ray-worker
