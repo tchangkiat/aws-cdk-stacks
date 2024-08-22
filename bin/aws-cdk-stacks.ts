@@ -97,7 +97,7 @@ new ALBRuleRestriction(app, "alb-rule-restriction", common.SSHKeyPairName, {
 		"Deploys a solution that uses ALB to restrict traffic from an IP range",
 });
 
-new ApiGateway(app, "api-gateway", common.Vpc, common.SSHKeyPairName, {
+new ApiGateway(app, "api-gateway", {
 	stackName: prefix + "api-gateway",
 	description:
 		"Deploys an API Gateway with two backends: Lambda function and ALB + EC2 instances",
