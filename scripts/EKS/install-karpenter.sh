@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export KARPENTER_NAMESPACE="kube-system"
-export KARPENTER_VERSION="1.0.0"
+export KARPENTER_VERSION="1.0.1"
 export K8S_VERSION=$(kubectl version -o json | jq -r ".serverVersion.major")
 K8S_VERSION+="."
 K8S_VERSION+=$(kubectl version -o json | jq -r ".serverVersion.minor")
@@ -47,7 +47,6 @@ aws iam create-service-linked-role --aws-service-name spot.amazonaws.com || true
 # Logout of helm registry to perform an unauthenticated pull against the public ECR
 helm registry logout public.ecr.aws
 
-# "--set postInstallHook..." is a workaround for Karpenter issue: https://github.com/aws/karpenter-provider-aws/issues/6775
 helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --version "${KARPENTER_VERSION}" --namespace "${KARPENTER_NAMESPACE}" --create-namespace \
   --set "settings.clusterName=${CLUSTER_NAME}" \
   --set "settings.interruptionQueue=${CLUSTER_NAME}" \
@@ -56,8 +55,6 @@ helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --vers
   --set controller.resources.limits.cpu=1 \
   --set controller.resources.limits.memory=1Gi \
   --set replicas=1 \
-  --set postInstallHook.image.repository="bitnami/kubectl" \
-  --set postInstallHook.image.digest="sha256:4f74249f971f8ca158a03eaa0c8e7741a2a750fe53525dc69497cf23584df04a" \
   --wait
 
 cat <<EOF >>default-node-pool.yaml
