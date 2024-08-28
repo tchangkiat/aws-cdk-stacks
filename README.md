@@ -438,7 +438,7 @@ kubectl delete -f vpc-lattice-gateway.yaml
 ./eks-add-ons.sh -i "jupyterhub ray"
 ```
 
-3. Once the all Pods are 'running', run the following command in the terminal on your client machine. Access JupyterHub using `http://localhost:8080` and Ray Dashboard using `http://localhost:8265`. JupyterHub may take a few minutes to initialize after installing. During this time, you will notice a blank page and a loading animation in your browser when you access the URL.
+3. Once all the Pods are 'running', run the following command in the terminal on your client machine. Access JupyterHub using `http://localhost:8080` and Ray Dashboard using `http://localhost:8265`. JupyterHub may take a few minutes to initialize after installing. During this time, you will notice a blank page and a loading animation in your browser when you access the URL.
 
 ```bash
 kubectl port-forward --namespace=jupyter service/proxy-public 8080:http & \
