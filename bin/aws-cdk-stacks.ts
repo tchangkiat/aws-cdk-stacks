@@ -51,7 +51,7 @@ new EcsCicd(
 	{
 		stackName: prefix + "ecs-cicd",
 		description:
-			"Deploys a pipeline to build and deploy an application to a Fargate service in ECS",
+			"Deploys a pipeline to build and deploy an application to a Fargate service in an ECS cluster",
 	},
 );
 
@@ -100,7 +100,7 @@ new ALBRuleRestriction(app, "alb-rule-restriction", common.SSHKeyPairName, {
 new ApiGateway(app, "api-gateway", {
 	stackName: prefix + "api-gateway",
 	description:
-		"Deploys an API Gateway with two backends: Lambda function and ALB + EC2 instances",
+		"Deploys an API Gateway with a Lambda authorizer",
 });
 
 new PostgresDatabase(app, "postgres-db", common.Vpc, {
