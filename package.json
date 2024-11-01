@@ -12,11 +12,11 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.12.0",
-    "@types/node": "22.7.5",
-    "@typescript-eslint/eslint-plugin": "^8.8.1",
-    "aws-cdk": "2.162.1",
-    "eslint": "^9.12.0",
+    "@eslint/js": "^9.13.0",
+    "@types/node": "22.8.6",
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
+    "aws-cdk": "2.165.0",
+    "eslint": "^9.13.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.11.0",
@@ -25,9 +25,9 @@
   },
   "dependencies": {
     "@aws-cdk/lambda-layer-kubectl-v30": "^2.0.1",
-    "aws-cdk-lib": "2.162.1",
-    "constructs": "^10.4.1",
+    "aws-cdk-lib": "2.165.0",
+    "constructs": "^10.4.2",
     "dotenv": "^16.4.5"
   },
-  "overrides": { "eslint": "^9.12.0" }
+  "overrides": { "eslint": "^9.13.0" }
 }
