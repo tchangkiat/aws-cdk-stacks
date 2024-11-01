@@ -1,7 +1,9 @@
 import { Construct } from "constructs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
+import { AwsManagedPrefixList } from "../custom-resources/AwsManagedPrefixList";
 
 export interface BastionHostProps {
+	region?: string;
 	instanceName?: string;
 	userData?: string[];
 }
@@ -16,15 +18,19 @@ export class BastionHost extends Construct {
 	) {
 		super(scope, id);
 
+		const ec2InstanceConnectPrefixList = new AwsManagedPrefixList(this, 'EC2InstanceConnectPrefixList', {
+			name: "com.amazonaws." + props?.region + ".ec2-instance-connect",
+		  }).prefixList;
+
 		const securityGroup = new ec2.SecurityGroup(this, id + "-sg", {
 			vpc,
 			allowAllOutbound: true,
-			description: "Allows port 22 from all IP addresses.",
+			securityGroupName: "Bastion Host"
 		});
 		securityGroup.addIngressRule(
-			ec2.Peer.anyIpv4(),
+			ec2.Peer.prefixList(ec2InstanceConnectPrefixList.prefixListId),
 			ec2.Port.tcp(22),
-			"Allow SSH access",
+			"Enable EC2 Instance Connect",
 		);
 
 		const instance = new ec2.Instance(this, id, {

@@ -141,6 +141,7 @@ export class EKS extends Stack {
 			sshKeyPairName,
 			{
 				instanceName: eksClusterName + "/bastion-host",
+				region: this.region,
 				userData: [
 					"sudo yum update -y",
 					// Git
@@ -210,14 +211,6 @@ export class EKS extends Stack {
 				],
 			}),
 		);
-
-		new CfnOutput(this, "Bastion Host SSH Command", {
-			value:
-				"ssh -i " +
-				sshKeyPairName +
-				".pem ec2-user@" +
-				bastionHost.instancePublicIp,
-		});
 
 		new CfnOutput(this, "Bastion Host Instance Connect URL", {
 			value:
