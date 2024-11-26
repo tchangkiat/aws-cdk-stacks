@@ -43,6 +43,19 @@ spec:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
   amiSelectorTerms:
     - alias: bottlerocket@latest
+  blockDeviceMappings:
+    # Root device
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 20Gi
+        volumeType: gp3
+        encrypted: true
+    # Data device: Container resources such as images and logs
+    - deviceName: /dev/xvdb
+      ebs:
+        volumeSize: 100Gi
+        volumeType: gp3
+        encrypted: true
   tags:
     Name: ${AWS_EKS_CLUSTER}/karpenter/jupyterhub
     eks-cost-cluster: ${AWS_EKS_CLUSTER}
@@ -106,7 +119,7 @@ helm upgrade --cleanup-on-fail \
   --install jupyter jupyterhub/jupyterhub \
   --namespace jupyter \
   --create-namespace \
-  --version=3.3.8 \
+  --version=4.0.0 \
   --values jupyterhub-config.yaml \
   --timeout=10m
 

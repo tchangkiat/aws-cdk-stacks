@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export RAY_VERSION="2.34.0"
+export RAY_VERSION="2.39.0"
 
 # Creates a node pool for Ray head
 cat <<EOF >>ray-head-node-pool.yaml
@@ -49,6 +49,19 @@ spec:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
   amiSelectorTerms:
     - alias: bottlerocket@latest
+  blockDeviceMappings:
+    # Root device
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 20Gi
+        volumeType: gp3
+        encrypted: true
+    # Data device: Container resources such as images and logs
+    - deviceName: /dev/xvdb
+      ebs:
+        volumeSize: 100Gi
+        volumeType: gp3
+        encrypted: true
   tags:
     Name: ${AWS_EKS_CLUSTER}/karpenter/ray-head
     eks-cost-cluster: ${AWS_EKS_CLUSTER}
@@ -103,6 +116,19 @@ spec:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
   amiSelectorTerms:
     - alias: bottlerocket@latest
+  blockDeviceMappings:
+    # Root device
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 20Gi
+        volumeType: gp3
+        encrypted: true
+    # Data device: Container resources such as images and logs
+    - deviceName: /dev/xvdb
+      ebs:
+        volumeSize: 100Gi
+        volumeType: gp3
+        encrypted: true
   tags:
     Name: ${AWS_EKS_CLUSTER}/karpenter/ray-worker
     eks-cost-cluster: ${AWS_EKS_CLUSTER}
@@ -116,7 +142,7 @@ kubectl apply -f ray-worker-node-pool.yaml
 helm repo add kuberay https://ray-project.github.io/kuberay-helm/
 
 # Install both CRDs and KubeRay operator
-helm install kuberay-operator kuberay/kuberay-operator --version 1.1.1
+helm install kuberay-operator kuberay/kuberay-operator --version 1.2.2
 
 # Visit this link for more sample Ray Cluster configurations: https://github.com/ray-project/kuberay/tree/master/ray-operator/config/samples
 cat <<EOF >>ray-cluster-config.yaml
@@ -213,7 +239,7 @@ EOF
 kubectl apply -f ray-cluster-config.yaml
 
 # Install NVIDIA device plugin for Kubernetes
-kubectl apply -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.16.2/deployments/static/nvidia-device-plugin.yml
+kubectl apply -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.17.0/deployments/static/nvidia-device-plugin.yml
 
 # Creates a GPU-enabled node pool
 cat <<EOF >>ray-worker-gpu-node-pool.yaml
@@ -263,13 +289,13 @@ spec:
     # Root device
     - deviceName: /dev/xvda
       ebs:
-        volumeSize: 10Gi
+        volumeSize: 20Gi
         volumeType: gp3
         encrypted: true
     # Data device: Container resources such as images and logs
     - deviceName: /dev/xvdb
       ebs:
-        volumeSize: 50Gi
+        volumeSize: 100Gi
         volumeType: gp3
         encrypted: true
   tags:
