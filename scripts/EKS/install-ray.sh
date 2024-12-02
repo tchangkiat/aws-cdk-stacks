@@ -117,6 +117,8 @@ helm repo add kuberay https://ray-project.github.io/kuberay-helm/
 helm install kuberay-operator kuberay/kuberay-operator --version 1.2.2
 
 # Visit this link for more sample Ray Cluster configurations: https://github.com/ray-project/kuberay/tree/master/ray-operator/config/samples
+
+# Creates a Ray Cluster that uses x86 nodes
 cat <<EOF >>ray-cluster-cpu-config.yaml
 apiVersion: ray.io/v1
 kind: RayCluster
@@ -215,7 +217,7 @@ EOF
 
 kubectl apply -f ray-cluster-cpu-config.yaml
 
-# Creates a Ray Cluster with GPU-enabled nodes
+# Creates a Ray Cluster that uses GPU nodes
 cat <<EOF >>ray-cluster-gpu-config.yaml
 apiVersion: ray.io/v1
 kind: RayCluster
@@ -309,6 +311,105 @@ spec:
 EOF
 
 kubectl apply -f ray-cluster-gpu-config.yaml
+
+# Creates a Ray Cluster with that uses Graviton (ARM64) nodes
+cat <<EOF >>ray-cluster-gvt-config.yaml
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  name: raycluster-gvt
+spec:
+  rayVersion: "${RAY_VERSION}"
+  enableInTreeAutoscaling: true
+  autoscalerOptions:
+    upscalingMode: Default
+    idleTimeoutSeconds: 60
+    imagePullPolicy: IfNotPresent
+    # Optionally specify the Autoscaler container's securityContext.
+    securityContext: {}
+    env: []
+    envFrom: []
+    resources:
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+      requests:
+        cpu: "500m"
+        memory: "512Mi"
+  headGroupSpec:
+    rayStartParams:
+      # Setting "num-cpus: 0" to avoid any Ray actors or tasks being scheduled on the Ray head Pod.
+      num-cpus: "0"
+    serviceType: ClusterIP
+    template:
+      spec:
+        containers:
+        # The Ray head container
+        - name: ray-head-aarch64
+          image: rayproject/ray:${RAY_VERSION}-aarch64
+          ports:
+          - containerPort: 6379
+            name: gcs
+          - containerPort: 8265
+            name: dashboard
+          - containerPort: 10001
+            name: client
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh","-c","ray stop"]
+          resources:
+            limits:
+              cpu: "1"
+              memory: "2G"
+            requests:
+              cpu: "1"
+              memory: "2G"
+          env:
+            - name: RAY_enable_autoscaler_v2 # Pass env var for the autoscaler v2.
+              value: "1"
+        restartPolicy: Never # No restart to avoid reuse of pod for different ray nodes.
+        nodeSelector:
+          karpenter.sh/nodepool: ray-cpu
+          kubernetes.io/arch: arm64
+          karpenter.sh/capacity-type: on-demand
+        tolerations:
+        - key: "ray-cpu"
+          operator: "Exists"
+          effect: "NoSchedule"
+  workerGroupSpecs:
+  - replicas: 0
+    minReplicas: 0
+    maxReplicas: 10
+    groupName: cpu-group
+    rayStartParams: {}
+    # Pod template
+    template:
+      spec:
+        containers:
+        - name: ray-worker-gvt
+          image: rayproject/ray:${RAY_VERSION}-aarch64
+          # Leaving 1 CPU and 4 GB Memory for DaemonSet
+          resources:
+            limits:
+              cpu: "7"
+              memory: "28Gi"
+            requests:
+              cpu: "7"
+              memory: "28Gi"
+        restartPolicy: Never # Never restart a pod to avoid pod reuse
+        nodeSelector:
+          karpenter.sh/nodepool: ray-cpu
+          kubernetes.io/arch: arm64
+          karpenter.sh/capacity-type: spot
+          node.kubernetes.io/instance-type: m6gd.4xlarge
+        tolerations:
+        - key: "ray-cpu"
+          operator: "Exists"
+          effect: "NoSchedule"
+EOF
+
+kubectl apply -f ray-cluster-gvt-config.yaml
 
 echo ""
 echo "Installation completed. Pods may take a few minutes to start. Check the status using 'kubectl get pods'."

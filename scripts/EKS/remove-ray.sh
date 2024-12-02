@@ -10,6 +10,9 @@ helm uninstall kuberay-operator
 
 helm repo remove kuberay
 
+kubectl delete -f ray-cluster-gvt-config.yaml
+rm ray-cluster-gvt-config.yaml
+
 kubectl delete -f ray-worker-gpu-node-pool.yaml
 rm ray-worker-gpu-node-pool.yaml
 
