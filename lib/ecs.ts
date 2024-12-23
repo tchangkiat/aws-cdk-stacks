@@ -202,6 +202,10 @@ export class ECS extends Stack {
 			taskRole: ecsTaskRole,
 			cpu: 512,
 			memoryLimitMiB: 1024,
+			runtimePlatform: {
+				cpuArchitecture: ecs.CpuArchitecture.ARM64,
+				operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
+			},
 		});
 
 		fgTaskDef.addContainer("sample-express-api", {
