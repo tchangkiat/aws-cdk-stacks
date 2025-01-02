@@ -43,7 +43,7 @@ export class MultiArchPipeline extends Stack {
 
 		const codebuildServiceRole = new iam.Role(this, "codebuild-service-role", {
 			assumedBy: new iam.ServicePrincipal("codebuild.amazonaws.com"),
-			roleName: id + "-codebuild-service-role",
+			roleName: id + "-codebuild-service-role-" + this.region,
 		});
 		codebuildServiceRole.addToPolicy(
 			new iam.PolicyStatement({
