@@ -304,6 +304,7 @@ spec:
         restartPolicy: Never # Never restart a pod to avoid pod reuse
         nodeSelector:
           karpenter.sh/nodepool: ray-worker-gpu
+          node.kubernetes.io/instance-type: g6.4xlarge
         tolerations:
         - key: "nvidia.com/gpu"
           effect: "NoSchedule"
