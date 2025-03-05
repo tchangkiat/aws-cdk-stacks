@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export KARPENTER_NAMESPACE="kube-system"
-export KARPENTER_VERSION="1.0.8"
+export KARPENTER_VERSION="1.3.0"
 export K8S_VERSION=$(kubectl version -o json | jq -r ".serverVersion.major")
 K8S_VERSION+="."
 K8S_VERSION+=$(kubectl version -o json | jq -r ".serverVersion.minor")
