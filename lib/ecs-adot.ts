@@ -128,6 +128,7 @@ export class EcsAdot extends Stack {
 				taskDefinition: fgTaskDef,
 				enableECSManagedTags: true,
 				propagateTags: ecs.PropagatedTagSource.SERVICE,
+				minHealthyPercent: 50,
 			},
 		).service;
 	}

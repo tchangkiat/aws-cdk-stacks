@@ -4,7 +4,7 @@ import type * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as eks from "aws-cdk-lib/aws-eks";
 import type * as ecr from "aws-cdk-lib/aws-ecr";
-import { KubectlV30Layer } from "@aws-cdk/lambda-layer-kubectl-v30";
+import { KubectlV32Layer } from "@aws-cdk/lambda-layer-kubectl-v32";
 
 import { ManagedNodeGroup, ClusterAutoscaler } from "../constructs/eks";
 import { BastionHost } from "../constructs/bastion-host";
@@ -26,7 +26,7 @@ export class EKS extends Stack {
 		// Configuration
 		// ----------------------------
 
-		const eksClusterKubernetesVersion = eks.KubernetesVersion.V1_30;
+		const eksClusterKubernetesVersion = eks.KubernetesVersion.V1_32;
 
 		const eksClusterName = id + "-demo";
 
@@ -83,7 +83,7 @@ export class EKS extends Stack {
 			clusterName: eksClusterName,
 			defaultCapacity: 0,
 			endpointAccess: eks.EndpointAccess.PUBLIC_AND_PRIVATE.onlyFrom("0.0.0.0/0"),
-			kubectlLayer: new KubectlV30Layer(this, "kubectl-layer"),
+			kubectlLayer: new KubectlV32Layer(this, "kubectl-layer"),
 			mastersRole: eksMasterRole,
 			version: eksClusterKubernetesVersion,
 			vpc,
@@ -151,7 +151,7 @@ export class EKS extends Stack {
 					"unzip awscliv2.zip",
 					"sudo ./aws/install",
 					// kubectl
-					"curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.0/2024-05-12/bin/linux/arm64/kubectl",
+					"curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.32.0/2024-12-20/bin/linux/arm64/kubectl",
 					"chmod +x ./kubectl",
 					"mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin",
 					"echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc",

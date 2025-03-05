@@ -33,7 +33,7 @@ export class ECS extends Stack {
 			vpc,
 			clusterName: prefix,
 			enableFargateCapacityProviders: true,
-			containerInsights: true,
+			containerInsightsV2: ecs.ContainerInsights.ENABLED,
 		});
 		this.Cluster.addDefaultCapacityProviderStrategy([
 			{ capacityProvider: "FARGATE", base: 0, weight: 1 },
@@ -266,6 +266,7 @@ export class ECS extends Stack {
 					{ capacityProvider: "FARGATE_SPOT", base: 0, weight: 4 },
 				],
 				propagateTags: ecs.PropagatedTagSource.SERVICE,
+				minHealthyPercent: 50,
 			},
 		).service;
 		const fargateServiceScalability = this.FargateService.autoScaleTaskCount({
