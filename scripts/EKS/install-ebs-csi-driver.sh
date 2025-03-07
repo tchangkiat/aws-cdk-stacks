@@ -21,13 +21,8 @@ helm repo update
 
 helm upgrade --install aws-ebs-csi-driver \
   --namespace kube-system \
-  --set serviceAccount.controller.create=false \
-  --set serviceAccount.snapshot.create=false \
-  --set enableVolumeScheduling=true \
-  --set enableVolumeResizing=true \
-  --set enableVolumeSnapshot=true \
-  --set serviceAccount.snapshot.name=ebs-csi-controller \
-  --set serviceAccount.controller.name=ebs-csi-controller \
+  --set controller.serviceAccount.create=false \
+  --set controller.serviceAccount.name=ebs-csi-controller \
   aws-ebs-csi-driver/aws-ebs-csi-driver
 
 kubectl delete storageclass gp2

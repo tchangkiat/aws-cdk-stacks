@@ -14,10 +14,13 @@ spec:
           values: ["t"]
         - key: "kubernetes.io/arch"
           operator: In
-          values: ["amd64"]
+          values: ["arm64"]
         - key: "karpenter.sh/capacity-type"
           operator: In
           values: ["on-demand"]
+        - key: "karpenter.k8s.aws/instance-generation"
+          operator: Gt
+          values: ["4"]
       nodeClassRef:
         group: karpenter.k8s.aws
         kind: EC2NodeClass
@@ -119,7 +122,7 @@ helm upgrade --cleanup-on-fail \
   --install jupyter jupyterhub/jupyterhub \
   --namespace jupyter \
   --create-namespace \
-  --version=4.0.0 \
+  --version=4.1.0 \
   --values jupyterhub-config.yaml \
   --timeout=10m
 
