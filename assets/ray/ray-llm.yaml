@@ -1,0 +1,134 @@
+apiVersion: ray.io/v1
+kind: RayService
+metadata:
+  name: llama-3-8b
+spec:
+  serveConfigV2: |
+    applications:
+    - name: llm
+      route_prefix: /
+      import_path:  ray-operator.config.samples.vllm.serve:model
+      deployments:
+      - name: VLLMDeployment
+        num_replicas: 1
+        ray_actor_options:
+          num_cpus: 8
+          # NOTE: num_gpus is set automatically based on TENSOR_PARALLELISM
+      runtime_env:
+        # working_dir: "https://github.com/ray-project/kuberay/archive/master.zip"
+        working_dir: "https://github.com/tchangkiat/aws-cdk-stacks/tree/main/assets/ray/vllm-working-dir.zip"
+        pip: ["vllm==0.6.6.post1"]
+        env_vars:
+          MODEL_ID: "meta-llama/Meta-Llama-3-8B-Instruct"
+          TENSOR_PARALLELISM: "1"
+          PIPELINE_PARALLELISM: "1"
+          CHAT_TEMPLATE_CONTENT_FORMAT: "chatml"
+  rayClusterConfig:
+    headGroupSpec:
+      rayStartParams:
+        dashboard-host: '0.0.0.0'
+        # Setting "num-cpus: 0" to avoid any Ray actors or tasks being scheduled on the Ray head Pod.
+        num-cpus: "0"
+        num-gpus: "0"
+      template:
+        spec:
+          containers:
+          - name: ray-head
+            image: rayproject/ray-ml:2.39.0.5a6c33-py39
+            resources:
+              limits:
+                cpu: "2"
+                memory: "8Gi"
+              requests:
+                cpu: "2"
+                memory: "8Gi"
+            ports:
+            - containerPort: 6379
+              name: gcs-server
+            - containerPort: 8265
+              name: dashboard
+            - containerPort: 10001
+              name: client
+            - containerPort: 8000
+              name: serve
+            env:
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: hf_api_token
+          nodeSelector:
+            karpenter.sh/nodepool: ray-cpu
+            karpenter.sh/capacity-type: on-demand
+            kubernetes.io/arch: amd64
+          tolerations:
+          - key: "ray-cpu"
+            operator: "Exists"
+            effect: "NoSchedule"
+    workerGroupSpecs:
+    - replicas: 1
+      minReplicas: 0
+      maxReplicas: 1
+      groupName: gpu-group
+      rayStartParams: {}
+      template:
+        spec:
+          containers:
+          - name: llm
+            image: rayproject/ray-ml:2.39.0.5a6c33-py39
+            env:
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: hf_api_token
+            resources:
+              limits:
+                cpu: "8"
+                memory: "20Gi"
+                nvidia.com/gpu: "1"
+              requests:
+                cpu: "8"
+                memory: "20Gi"
+                nvidia.com/gpu: "1"
+          nodeSelector:
+            karpenter.sh/nodepool: ray-worker-gpu
+            kubernetes.io/arch: amd64
+            node.kubernetes.io/instance-type: g6.4xlarge
+          tolerations:
+            - key: "nvidia.com/gpu"
+              operator: "Exists"
+              effect: "NoSchedule"
+    # workerGroupSpecs:
+    # - replicas: 1
+    #   minReplicas: 0
+    #   maxReplicas: 2
+    #   groupName: cpu-group
+    #   rayStartParams: {}
+    #   template:
+    #     spec:
+    #       containers:
+    #       - name: llm
+    #         image: rayproject/ray-ml:2.39.0.5a6c33-py311
+    #         env:
+    #         - name: HUGGING_FACE_HUB_TOKEN
+    #           valueFrom:
+    #             secretKeyRef:
+    #               name: hf-secret
+    #               key: hf_api_token
+    #         resources:
+    #           limits:
+    #             cpu: "8"
+    #             memory: "20Gi"
+    #           requests:
+    #             cpu: "8"
+    #             memory: "20Gi"
+    #       nodeSelector:
+    #         karpenter.sh/nodepool: ray-cpu
+    #         karpenter.sh/capacity-type: on-demand
+    #         kubernetes.io/arch: amd64
+    #         karpenter.k8s.aws/instance-cpu: "32" # Forcing a larger instance to accommodate more Ray actors
+    #       tolerations:
+    #       - key: "ray-cpu"
+    #         operator: "Exists"
+    #         effect: "NoSchedule"
