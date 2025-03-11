@@ -1,7 +1,7 @@
 apiVersion: ray.io/v1
 kind: RayService
 metadata:
-  name: llama-3-8b
+  name: meta-llama
 spec:
   serveConfigV2: |
     applications:
@@ -16,7 +16,7 @@ spec:
           # NOTE: num_gpus is set automatically based on TENSOR_PARALLELISM
       runtime_env:
         # working_dir: "https://github.com/ray-project/kuberay/archive/master.zip"
-        working_dir: "https://github.com/tchangkiat/aws-cdk-stacks/tree/main/assets/ray/vllm-working-dir.zip"
+        working_dir: "https://github.com/tchangkiat/aws-cdk-stacks/raw/refs/heads/main/assets/ray/vllm-working-dir.zip"
         pip: ["vllm==0.6.6.post1"]
         env_vars:
           MODEL_ID: "meta-llama/Meta-Llama-3-8B-Instruct"
