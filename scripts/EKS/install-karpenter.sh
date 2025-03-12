@@ -72,6 +72,9 @@ spec:
         - key: karpenter.sh/capacity-type
           operator: In
           values: ["spot", "on-demand"]
+        - key: "karpenter.k8s.aws/instance-category"
+          operator: NotIn
+          values: ["t"]
       nodeClassRef:
         group: karpenter.k8s.aws
         kind: EC2NodeClass
