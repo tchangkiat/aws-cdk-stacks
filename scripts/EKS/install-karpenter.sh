@@ -75,6 +75,9 @@ spec:
         - key: "karpenter.k8s.aws/instance-category"
           operator: NotIn
           values: ["t"]
+        - key: "karpenter.k8s.aws/instance-generation"
+          operator: Gt
+          values: ["4"]
       nodeClassRef:
         group: karpenter.k8s.aws
         kind: EC2NodeClass
