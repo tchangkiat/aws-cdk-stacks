@@ -1,8 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    deployment.kubernetes.io/revision: "1"
   labels:
     role: locust-master
     app: locust-master
@@ -28,7 +26,11 @@ spec:
       - image: locustio/locust:latest
         imagePullPolicy: Always
         name: master
-        args: ["--master"]
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            pip install locust-plugins 'locust-plugins[websocket]' && \
+            locust --master
         volumeMounts:
           - mountPath: /home/locust
             name: locust-scripts

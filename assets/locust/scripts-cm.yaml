@@ -5,9 +5,12 @@ metadata:
 data:
   locustfile.py: |
     import time
-    from locust import HttpUser, task
+    from locust import HttpUser, task, constant
+    from locust_plugins.users.socketio import SocketIOUser
 
     class QuickstartUser(HttpUser):
         @task
-        def landing_page(self):
-            self.client.get("/")
+        def socketio(self):
+            self.client.get("/socketio")
+
+        wait_time = constant(1)
