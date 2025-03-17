@@ -454,7 +454,7 @@ JupyterHub Password: <generated password>
 
 5. Once you accessed JupyterHub, you can upload and use the example notebook from `/assets/ray/pytorch-ray-example.ipynb`.
 
-### Cleanup
+### Clean Up
 
 1. Remove JupyterHub and Ray.
 
@@ -534,7 +534,7 @@ Deploy an egress VPC with Transit Gateway. VPN-related resources are deployed fo
 
 4. Ping a domain (e.g. amazon.com) in one of these instances. You should observe similar results as shown above.
 
-## Cleanup
+## Clean Up
 
 1. Delete `egress-vpc-vpn` and `egress-vpc` CloudFormation stacks.
 
@@ -562,7 +562,7 @@ curl <ALB DNS Name>:80
 curl <ALB DNS Name>:8080
 ```
 
-## Cleanup
+## Clean Up
 
 ```bash
 cdk destroy alb-rule-restriction
