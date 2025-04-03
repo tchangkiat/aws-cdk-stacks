@@ -144,7 +144,7 @@ spec:
   type: ClusterIP
 EOF
 
-k apply -f llm-gvt-node-class.yaml
-k apply -f llm-gvt-node-pool.yaml
-k apply -f llm-gvt-pvc-secret.yaml
-k apply -f llm-gvt-deployment-service.yaml
+kubectl apply -f llm-gvt-node-class.yaml
+kubectl apply -f llm-gvt-node-pool.yaml
+kubectl apply -f llm-gvt-pvc-secret.yaml
+kubectl apply -f llm-gvt-deployment-service.yaml
