@@ -101,7 +101,6 @@ spec:
     spec:
       containers:
       - name: vllm
-        # image: public.ecr.aws/q9t5s3a7/vllm-cpu-release-repo:v0.8.1
         image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/vllm:arm64
         command: ["/bin/sh", "-c"]
         args: [
