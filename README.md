@@ -24,6 +24,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [AWS App Mesh](#aws-app-mesh)
   - [Amazon VPC Lattice](#amazon-vpc-lattice)
   - [Distributed ML with Ray](#distributed-ml-with-ray)
+  - [Model Inference with AWS Graviton](#model-inference-with-aws-graviton)
 - [API Gateway and Lambda](#api-gateway-and-lambda)
 - [Egress VPC](#egress-vpc)
 - [Application Load Balancer (ALB) Rule Restriction](#application-load-balancer-alb-rule-restriction)
@@ -468,7 +469,7 @@ JupyterHub Password: <generated password>
 ./eks-add-ons.sh -r "karpenter load-balancer-controller ebs-csi-driver"
 ```
 
-## Model Inferencing with AWS Graviton
+## Model Inference with AWS Graviton
 
 ### Setup
 
@@ -497,13 +498,13 @@ chmod +x install-vllm.sh
 
 4. Wait for the `vllm-server-*` Pod in the `default` namespace to be ready.
 
-5. Port forward to the `vllm-server` service.
+5. Open a terminal window and port forward to the `vllm-server` service.
 
 ```bash
 kubectl port-forward service/vllm-server 8000:8000
 ```
 
-6. Open a terminal and run the following command to perform an inference.
+6. Open another terminal window and run the following command to perform an inference.
 
 ```bash
 curl -X POST "http://localhost:8000/v1/chat/completions" \
@@ -519,23 +520,18 @@ curl -X POST "http://localhost:8000/v1/chat/completions" \
 	}'
 ```
 
-**Sample Result**
+**Sample Result (adapted)**
 
 ```json
 {
-  ...
   "model": "meta-llama/Llama-3.2-1B-Instruct",
   "choices": [
     {
-      ...
       "message": {
-        ...
-        "content": "Amazon Elastic Kubernetes Service (EKS) is a managed Kubernetes service provided by Amazon Web Services (AWS) that allows users to create, manage, and scale Kubernetes clusters on AWS. EKS provides a fully managed experience, including cluster creation, patching, and scaling, as well as support for multiple Kubernetes versions and distributions. With EKS, users can focus on deploying and managing their applications, rather than managing the underlying Kubernetes infrastructure.",
-      },
-      ...
+        "content": "Amazon Elastic Kubernetes Service (EKS) is a managed Kubernetes service provided by Amazon Web Services (AWS) that allows users to create, manage, and scale Kubernetes clusters on AWS. EKS provides a fully managed experience, including cluster creation, patching, and scaling, as well as support for multiple Kubernetes versions and distributions. With EKS, users can focus on deploying and managing their applications, rather than managing the underlying Kubernetes infrastructure."
+      }
     }
-  ],
-  ...
+  ]
 }
 ```
 
