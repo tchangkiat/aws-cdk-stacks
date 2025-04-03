@@ -1,11 +1,11 @@
-kubectl delete -f llm-gvt-deployment-service.yaml
-rm llm-gvt-deployment-service.yaml
+kubectl delete -f vllm-deployment-service.yaml
+rm vllm-deployment-service.yaml
 
-kubectl delete -f llm-gvt-pvc-secret.yaml
-rm llm-gvt-pvc-secret.yaml
+kubectl delete -f vllm-pvc-secret.yaml
+rm vllm-pvc-secret.yaml
 
-kubectl delete -f llm-gvt-node-pool.yaml
-rm llm-gvt-node-pool.yaml
+kubectl delete -f vllm-node-pool.yaml
+rm vllm-node-pool.yaml
 
-kubectl delete -f llm-gvt-node-class.yaml
-rm llm-gvt-node-class.yaml
+kubectl delete -f vllm-node-class.yaml
+rm vllm-node-class.yaml

@@ -1,10 +1,10 @@
-cat <<EOF >>llm-gvt-node-class.yaml
+cat <<EOF >>vllm-node-class.yaml
 apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
 metadata:
-  name: llm-gvt
+  name: vllm
 spec:
-  amiFamily: "AL2023"
+  amiFamily: "Bottlerocket"
   role: "KarpenterNodeRole-${AWS_EKS_CLUSTER}"
   subnetSelectorTerms:
     - tags:
@@ -13,7 +13,7 @@ spec:
     - tags:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
   amiSelectorTerms:
-    - alias: al2023@latest
+    - alias: bottlerocket@latest
   blockDeviceMappings:
     # Root device
     - deviceName: /dev/xvda
@@ -28,17 +28,17 @@ spec:
         volumeType: gp3
         encrypted: true
   tags:
-    Name: ${AWS_EKS_CLUSTER}/karpenter/llm-gvt
+    Name: ${AWS_EKS_CLUSTER}/karpenter/vllm
     eks-cost-cluster: ${AWS_EKS_CLUSTER}
-    eks-cost-workload: llm-gvt
+    eks-cost-workload: vllm
     eks-cost-team: tck
 EOF
 
-cat <<EOF >>llm-gvt-node-pool.yaml
+cat <<EOF >>vllm-node-pool.yaml
 apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
-  name: llm-gvt
+  name: vllm
 spec:
   template:
     spec:
@@ -55,14 +55,14 @@ spec:
       nodeClassRef:
         group: karpenter.k8s.aws
         kind: EC2NodeClass
-        name: llm-gvt
+        name: vllm
   limits:
     cpu: 64
 EOF
 
-# llm-gvt-pvc-secret.yaml and llm-gvt-deployment-service.yaml are adapted from https://docs.vllm.ai/en/latest/deployment/k8s.html
+# vllm-pvc-secret.yaml and vllm-deployment-service.yaml are adapted from https://docs.vllm.ai/en/latest/deployment/k8s.html
 
-cat <<EOF >>llm-gvt-pvc-secret.yaml
+cat <<EOF >>vllm-pvc-secret.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -84,7 +84,7 @@ data:
   token: $(echo -n "${HF_TOKEN}" | base64)
 EOF
 
-cat <<EOF >>llm-gvt-deployment-service.yaml
+cat <<EOF >>vllm-deployment-service.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -120,14 +120,14 @@ spec:
             mountPath: /root/.cache/huggingface
         resources:
           requests:
-            cpu: 4
-            memory: 16Gi
+            cpu: 6
+            memory: 24Gi
       volumes:
       - name: llama-storage
         persistentVolumeClaim:
           claimName: vllm-models
       nodeSelector:
-        karpenter.sh/nodepool: llm-gvt
+        karpenter.sh/nodepool: vllm
         kubernetes.io/arch: arm64
 ---
 apiVersion: v1
@@ -144,7 +144,7 @@ spec:
   type: ClusterIP
 EOF
 
-kubectl apply -f llm-gvt-node-class.yaml
-kubectl apply -f llm-gvt-node-pool.yaml
-kubectl apply -f llm-gvt-pvc-secret.yaml
-kubectl apply -f llm-gvt-deployment-service.yaml
+kubectl apply -f vllm-node-class.yaml
+kubectl apply -f vllm-node-pool.yaml
+kubectl apply -f vllm-pvc-secret.yaml
+kubectl apply -f vllm-deployment-service.yaml
