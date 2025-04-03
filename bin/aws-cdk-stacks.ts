@@ -12,6 +12,7 @@ import { EcsAdot } from "../lib/ecs-adot";
 import { ECS } from "../lib/ecs";
 import { EKS } from "../lib/eks";
 import { MultiArchPipeline } from "../lib/multi-arch-pipeline";
+import { Vllm } from "../lib/vllm";
 import { EgressVpc } from "../lib/egress-vpc";
 import { PostgresDatabase } from "../lib/postgres-db";
 
@@ -36,6 +37,12 @@ const multiArchPipeline = new MultiArchPipeline(
 			"Deploys a multi-architecture pipeline to create amd64 and arm64 container images and store them in an ECR repository",
 	},
 );
+
+new Vllm(app, "vllm", {
+	stackName: prefix + "vllm",
+	description:
+		"Builds container images for vLLM and store them in an ECR repository",
+});
 
 const ecs = new ECS(app, "ecs", common.Vpc, multiArchPipeline.Repository, {
 	stackName: prefix + "ecs",
@@ -99,8 +106,7 @@ new ALBRuleRestriction(app, "alb-rule-restriction", common.SSHKeyPairName, {
 
 new ApiGateway(app, "api-gateway", {
 	stackName: prefix + "api-gateway",
-	description:
-		"Deploys an API Gateway with a Lambda authorizer",
+	description: "Deploys an API Gateway with a Lambda authorizer",
 });
 
 new PostgresDatabase(app, "postgres-db", common.Vpc, {

@@ -468,6 +468,100 @@ JupyterHub Password: <generated password>
 ./eks-add-ons.sh -r "karpenter load-balancer-controller ebs-csi-driver"
 ```
 
+## Model Inferencing with AWS Graviton
+
+### Setup
+
+1. Create the CodeBuild project to build vLLM container image for AWS Graviton (arm64 CPU architecture) and the ECR repository to store the container image.
+
+```bash
+cdk deploy vllm
+```
+
+2. Start the CodeBuild project. The build process takes about 6 minutes to complete.
+
+```bash
+aws codebuild start-build --project-name vllm-arm64
+```
+
+3. Once the container image is built, run a script to deploy vLLM and a preferred LLM from Hugging Face (i.e. `meta-llama/Llama-3.2-1B-Instruct`).
+
+```bash
+export HF_TOKEN="<Hugging Face Token>"
+export LLM = "meta-llama/Llama-3.2-1B-Instruct"
+
+curl -o install-vllm.sh "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-vllm.sh"
+chmod +x install-vllm.sh
+./install-vllm.sh
+```
+
+4. Wait for the `vllm-server-*` Pod in the `default` namespace to be ready.
+
+5. Port forward to the `vllm-server` service.
+
+```bash
+kubectl port-forward service/vllm-server 8000:8000
+```
+
+6. Open a terminal and run the following command to perform an inference.
+
+```bash
+curl -X POST "http://localhost:8000/v1/chat/completions" \
+	-H "Content-Type: application/json" \
+	--data '{
+		"model": "meta-llama/Llama-3.2-1B-Instruct",
+		"messages": [
+			{
+				"role": "user",
+				"content": "Explain what is Amazon EKS in 3 sentences"
+			}
+		]
+	}'
+```
+
+**Sample Result**
+
+```json
+{
+  ...
+  "model": "meta-llama/Llama-3.2-1B-Instruct",
+  "choices": [
+    {
+      ...
+      "message": {
+        ...
+        "content": "Amazon Elastic Kubernetes Service (EKS) is a managed Kubernetes service provided by Amazon Web Services (AWS) that allows users to create, manage, and scale Kubernetes clusters on AWS. EKS provides a fully managed experience, including cluster creation, patching, and scaling, as well as support for multiple Kubernetes versions and distributions. With EKS, users can focus on deploying and managing their applications, rather than managing the underlying Kubernetes infrastructure.",
+      },
+      ...
+    }
+  ],
+  ...
+}
+```
+
+### Clean Up
+
+1. Remove vLLM.
+
+```bash
+curl -o remove-vllm.sh "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-vllm.sh"
+chmod +x remove-vllm.sh
+./remove-vllm.sh
+```
+
+2. Remove the scripts.
+
+```bash
+rm install-vllm.sh
+rm remove-vllm.sh
+```
+
+3. Remove the CodeBuild project and ECR repository.
+
+```bash
+cdk destroy vllm
+```
+
 # API Gateway and Lambda
 
 ```bash
