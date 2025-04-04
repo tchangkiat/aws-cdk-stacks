@@ -60,7 +60,7 @@ The pipeline will create Docker images for amd64 and arm64 architectures and sto
 
 # Elastic Container Service (ECS)
 
-> Dependency: Multi-Architecture Pipeline
+> Prerequisite: [Multi-Architecture Pipeline](#multi-architecture-pipeline)
 
 ## ECS Cluster
 
@@ -80,7 +80,7 @@ Creates a new CodePipeline, ECR repository, and S3 bucket to build and deploy a 
 
 # Elastic Kubernetes Service (EKS)
 
-> Dependency: Multi-Architecture Pipeline
+> Prerequisite: [Multi-Architecture Pipeline](#multi-architecture-pipeline)
 
 ## EKS Cluster
 
@@ -194,9 +194,9 @@ Example #3: Remove multiple add-ons
 
 ## Sample Application
 
-> ❗ Prerequisite #1: Deploy the Multi-Architecture Pipeline. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
+> Prerequisite 1: Deploy the Multi-Architecture Pipeline. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
 
-> ❗ Prerequisite #2: Install AWS Load Balancer Controller.
+> Prerequisite 2: Install AWS Load Balancer Controller.
 
 ### Setup
 
@@ -260,8 +260,6 @@ kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/lat
 ```
 
 ## Argo CD
-
-Credit: [EKS Workshop](https://www.eksworkshop.com/intermediate/290_argocd/)
 
 ### Setup
 
@@ -381,11 +379,11 @@ chmod +x remove-app-mesh.sh
 
 ## Amazon VPC Lattice
 
-> ❗ Prerequisite #1: Deploy the Multi-Architecture Pipeline. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
+> Prerequisite 1: Deploy the Multi-Architecture Pipeline. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
 
-> ❗ Prerequisite #2: Install [AWS Load Balancer Controller](#aws-load-balancer-controller).
+> Prerequisite 2: Install [AWS Load Balancer Controller](#add-ons).
 
-> ❗ Prerequisite #3: Install [Sample Application](#sample-application).
+> Prerequisite 3: Install [Sample Application](#sample-application).
 
 ### Setup
 
@@ -471,6 +469,9 @@ JupyterHub Password: <generated password>
 
 ## Model Inference with AWS Graviton
 
+> Prerequisite 1: [Karpenter](#add-ons)
+> Prerequisite 2: [AWS EBS CSI Driver](#add-ons)
+
 ### Setup
 
 1. Create the CodeBuild project to build vLLM container image for AWS Graviton (arm64 CPU architecture) and the ECR repository to store the container image.
@@ -485,7 +486,7 @@ cdk deploy vllm
 aws codebuild start-build --project-name vllm-arm64
 ```
 
-3. Once the container image is built, run a script to deploy vLLM and a preferred LLM from Hugging Face (i.e. `meta-llama/Llama-3.2-1B-Instruct`).
+3. [Generate a User Access Token](https://huggingface.co/docs/hub/en/security-tokens) from Hugging Face. Once the container image is built, run a script to deploy vLLM and a preferred LLM from Hugging Face (i.e. [meta-llama/Llama-3.2-1B-Instruct](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct)).
 
 ```bash
 export HF_TOKEN="<Hugging Face Token>"
@@ -520,7 +521,7 @@ curl -X POST "http://localhost:8000/v1/chat/completions" \
 	}'
 ```
 
-**Sample Result (adapted)**
+**Sample Result (partial)**
 
 ```json
 {
