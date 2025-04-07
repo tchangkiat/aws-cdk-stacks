@@ -1,6 +1,3 @@
-kubectl delete -f vllm-deployment-service.yaml
-rm vllm-deployment-service.yaml
-
 kubectl delete -f vllm-pvc-secret.yaml
 rm vllm-pvc-secret.yaml
 

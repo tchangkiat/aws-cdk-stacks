@@ -52,6 +52,9 @@ spec:
         - key: "kubernetes.io/arch"
           operator: In
           values: ["amd64", "arm64"]
+        - key: "karpenter.sh/capacity-type"
+          operator: In
+          values: ["on-demand"]
       nodeClassRef:
         group: karpenter.k8s.aws
         kind: EC2NodeClass
@@ -60,7 +63,7 @@ spec:
     cpu: 64
 EOF
 
-# vllm-pvc-secret.yaml and vllm-deployment-service.yaml are adapted from https://docs.vllm.ai/en/latest/deployment/k8s.html
+# vllm-pvc-secret.yaml is adapted from https://docs.vllm.ai/en/latest/deployment/k8s.html
 
 cat <<EOF >>vllm-pvc-secret.yaml
 apiVersion: v1
@@ -84,66 +87,6 @@ data:
   token: $(echo -n "${HF_TOKEN}" | base64)
 EOF
 
-cat <<EOF >>vllm-deployment-service.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: vllm-server
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: vllm
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: vllm
-    spec:
-      containers:
-      - name: vllm
-        image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/vllm:arm64
-        command: ["/bin/sh", "-c"]
-        args: [
-          "vllm serve ${LLM} --dtype=float16"
-        ]
-        env:
-        - name: HUGGING_FACE_HUB_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: hf-token-secret
-              key: token
-        ports:
-          - containerPort: 8000
-        volumeMounts:
-          - name: llama-storage
-            mountPath: /root/.cache/huggingface
-        resources:
-          requests:
-            cpu: 6
-            memory: 24Gi
-      volumes:
-      - name: llama-storage
-        persistentVolumeClaim:
-          claimName: vllm-models
-      nodeSelector:
-        karpenter.sh/nodepool: vllm
-        kubernetes.io/arch: arm64
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: vllm-server
-spec:
-  selector:
-    app.kubernetes.io/name: vllm
-  ports:
-  - protocol: TCP
-    port: 8000
-    targetPort: 8000
-  type: ClusterIP
-EOF
-
 kubectl apply -f vllm-node-class.yaml
 kubectl apply -f vllm-node-pool.yaml
 kubectl apply -f vllm-pvc-secret.yaml
-kubectl apply -f vllm-deployment-service.yaml
