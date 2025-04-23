@@ -6,11 +6,10 @@ data:
   locustfile.py: |
     import time
     from locust import HttpUser, task, constant
-    from locust_plugins.users.socketio import SocketIOUser
 
     class QuickstartUser(HttpUser):
         @task
-        def socketio(self):
+        def main(self):
             self.client.get("/socketio")
 
         wait_time = constant(1)
