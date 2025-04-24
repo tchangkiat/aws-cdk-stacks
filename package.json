@@ -7,28 +7,17 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "cdk": "cdk",
-    "lint": "npx eslint */*.ts *.ts --fix"
+    "cdk": "cdk"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.23.0",
-    "@types/node": "22.14.0",
-    "@typescript-eslint/eslint-plugin": "^8.29.0",
-    "eslint": "^9.23.0",
-    "eslint-config-prettier": "^10.1.1",
-    "eslint-plugin-prettier": "^5.2.6",
+    "@types/node": "22.14.1",
     "globals": "^16.0.0",
-    "prettier": "3.5.3",
-    "typescript": "~5.8.2"
+    "typescript": "~5.8.3"
   },
   "dependencies": {
     "@aws-cdk/lambda-layer-kubectl-v32": "^2.1.0",
-    "aws-cdk-lib": "2.187.0",
+    "aws-cdk-lib": "2.191.0",
     "constructs": "^10.4.2",
-    "dotenv": "^16.4.7"
-  },
-  "overrides": {
-    "eslint": "^9.23.0"
+    "dotenv": "^16.5.0"
   }
 }
