@@ -35,15 +35,15 @@ spec:
             mountPath: /root/.cache/huggingface
         resources:
           requests:
-            cpu: 6
-            memory: 48Gi
+            cpu: 12
+            memory: 24Gi
       volumes:
       - name: llama-storage
         persistentVolumeClaim:
           claimName: vllm-models
       nodeSelector:
         karpenter.sh/nodepool: vllm
-        karpenter.k8s.aws/instance-family: r7g
+        karpenter.k8s.aws/instance-family: c6g
 ---
 apiVersion: v1
 kind: Service
