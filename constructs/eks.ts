@@ -2,7 +2,7 @@ import { Construct } from "constructs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as eks from "aws-cdk-lib/aws-eks";
-import { Tags } from "aws-cdk-lib";
+import { Stack, Tags } from "aws-cdk-lib";
 
 export interface ManagedNodeGroupProps {
 	cluster: eks.Cluster;
@@ -23,7 +23,7 @@ export class ManagedNodeGroup extends Construct {
 
 		const eksNodeRole = new iam.Role(this, id + "-node-role", {
 			assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
-			roleName: cluster.clusterName + "-" + id + "-node",
+			roleName: cluster.clusterName + "-" + id + "-node-role-" + Stack.of(this).region,
 			managedPolicies: [
 				iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKS_CNI_Policy"),
 				iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSWorkerNodePolicy"),
@@ -384,7 +384,7 @@ export class ClusterAutoscaler extends Construct {
 											"--skip-nodes-with-local-storage=false",
 											"--expander=least-waste",
 											"--node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/" +
-												cluster.clusterName,
+											cluster.clusterName,
 										],
 										volumeMounts: [
 											{
