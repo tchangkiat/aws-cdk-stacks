@@ -51,7 +51,7 @@ spec:
           values: ["5"]
         - key: "kubernetes.io/arch"
           operator: In
-          values: ["amd64", "arm64"]
+          values: ["arm64"]
         - key: "karpenter.sh/capacity-type"
           operator: In
           values: ["on-demand"]

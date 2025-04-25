@@ -36,14 +36,14 @@ spec:
         resources:
           requests:
             cpu: 6
-            memory: 24Gi
+            memory: 48Gi
       volumes:
       - name: llama-storage
         persistentVolumeClaim:
           claimName: vllm-models
       nodeSelector:
         karpenter.sh/nodepool: vllm
-        kubernetes.io/arch: arm64
+        karpenter.k8s.aws/instance-family: r7g
 ---
 apiVersion: v1
 kind: Service
