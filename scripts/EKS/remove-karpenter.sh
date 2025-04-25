@@ -7,9 +7,9 @@ rm default-node-pool.yaml
 
 helm uninstall karpenter --namespace ${KARPENTER_NAMESPACE}
 
-aws eks list-pod-identity-associations --cluster-name eks-demo \
+aws eks list-pod-identity-associations --cluster-name ${AWS_EKS_CLUSTER} \
     | jq -r '.associations[] | select(.serviceAccount == "karpenter") | .associationId' \
-    | xargs -I{} aws eks delete-pod-identity-association --association-id {} --cluster-name eks-demo
+    | xargs -I{} aws eks delete-pod-identity-association --association-id {} --cluster-name ${AWS_EKS_CLUSTER}
 
 aws cloudformation delete-stack --stack-name "Karpenter-${AWS_EKS_CLUSTER}"
 
