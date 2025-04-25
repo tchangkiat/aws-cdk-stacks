@@ -515,7 +515,8 @@ kubectl port-forward service/vllm-meta-llama-server 8000:8000
 7. Open another terminal window and run the following command to perform an inference.
 
 ```bash
-curl -X POST "http://localhost:8000/v1/chat/completions" \
+curl "http://localhost:8000/v1/chat/completions" \
+	-w '\n* Response time: %{time_total}s\n' \
 	-H "Content-Type: application/json" \
 	--data '{
 		"model": "meta-llama/Llama-3.2-1B-Instruct",
