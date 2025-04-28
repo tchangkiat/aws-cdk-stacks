@@ -4,7 +4,7 @@ kind: EC2NodeClass
 metadata:
   name: vllm
 spec:
-  amiFamily: "Bottlerocket"
+  amiFamily: "AL2023"
   role: "KarpenterNodeRole-${AWS_EKS_CLUSTER}"
   subnetSelectorTerms:
     - tags:
@@ -13,18 +13,11 @@ spec:
     - tags:
         "aws:eks:cluster-name": ${AWS_EKS_CLUSTER}
   amiSelectorTerms:
-    - alias: bottlerocket@latest
+    - alias: al2023@latest
   blockDeviceMappings:
-    # Root device
     - deviceName: /dev/xvda
       ebs:
-        volumeSize: 50Gi
-        volumeType: gp3
-        encrypted: true
-    # Data device: Container resources such as images and logs
-    - deviceName: /dev/xvdb
-      ebs:
-        volumeSize: 50Gi
+        volumeSize: 100Gi
         volumeType: gp3
         encrypted: true
   tags:
@@ -46,9 +39,6 @@ spec:
         - key: "karpenter.k8s.aws/instance-category"
           operator: In
           values: ["c", "m", "r"]
-        - key: "karpenter.k8s.aws/instance-generation"
-          operator: Gt
-          values: ["5"]
         - key: "kubernetes.io/arch"
           operator: In
           values: ["arm64"]

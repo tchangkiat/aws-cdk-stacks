@@ -72,10 +72,10 @@ export class Vllm extends Stack {
 
 		new codebuild.Project(this, "codebuild-arm64", {
 			buildSpec: codebuild.BuildSpec.fromObject({
-				version: "0.2",
+				version: 0.2,
 				phases: {
 					install: {
-						commands: "yum update -y",
+						commands: ["yum update -y"],
 					},
 					pre_build: {
 						commands: [
@@ -89,7 +89,9 @@ export class Vllm extends Stack {
 							"echo Building the Docker images",
 							"git clone $SOURCE_REPO_URL",
 							"cd vllm",
-							"docker build -f docker/Dockerfile.arm -t $IMAGE_REPO:$IMAGE_TAG_PREFIX .",
+							// Use Amazon ECR Public Gallery instead of Docker Hub for the base image
+							"sed -i 's|FROM ubuntu|FROM public.ecr.aws/ubuntu/ubuntu|g' docker/Dockerfile.arm",
+							"docker build -f docker/Dockerfile.arm -t $IMAGE_REPO:$IMAGE_TAG_PREFIX --shm-size=4g .",
 						],
 					},
 					post_build: {
