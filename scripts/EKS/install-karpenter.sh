@@ -12,7 +12,7 @@ export CLUSTER_NAME="${AWS_EKS_CLUSTER}"
 export AWS_DEFAULT_REGION="${AWS_REGION}"
 export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
 export TEMPOUT=$(mktemp)
-export KARPENTER_IAM_ROLE_ARN="arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:role/${CLUSTER_NAME}-karpenter-${AWS::Region}"
+export KARPENTER_IAM_ROLE_ARN="arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:role/${CLUSTER_NAME}-karpenter-${AWS_DEFAULT_REGION}"
 
 curl -fsSL https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/karpenter.yaml  > $TEMPOUT \
 && aws cloudformation deploy \
@@ -36,8 +36,8 @@ eksctl utils associate-iam-oidc-provider \
   --approve
 
 aws eks create-pod-identity-association --cluster-name ${CLUSTER_NAME} \
-  --role-arn ${KARPENTER_IAM_ROLE_ARN} \
-  --namespace ${KARPENTER_NAMESPACE} --service-account karpenter
+  --role-arn $KARPENTER_IAM_ROLE_ARN \
+  --namespace $KARPENTER_NAMESPACE --service-account karpenter
 
 aws iam create-service-linked-role --aws-service-name spot.amazonaws.com || true
 # If the role has already been successfully created, you will see:
@@ -93,7 +93,7 @@ metadata:
   name: default
 spec:
   amiFamily: "Bottlerocket"
-  role: "KarpenterNodeRole-${CLUSTER_NAME}-${AWS_REGION}"
+  role: "KarpenterNodeRole-${CLUSTER_NAME}-${AWS_DEFAULT_REGION}"
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: ${CLUSTER_NAME}
