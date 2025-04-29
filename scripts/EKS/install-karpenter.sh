@@ -68,24 +68,44 @@ spec:
         - key: kubernetes.io/arch
           operator: In
           values: ["amd64"]
-        - key: karpenter.sh/capacity-type
-          operator: In
-          values: ["spot", "on-demand"]
         - key: "karpenter.k8s.aws/instance-category"
           operator: NotIn
           values: ["t"]
         - key: "karpenter.k8s.aws/instance-generation"
           operator: Gt
-          values: ["4"]
+          values: ["5"]
       nodeClassRef:
         group: karpenter.k8s.aws
         kind: EC2NodeClass
         name: default
-  disruption:
-    consolidationPolicy: WhenEmptyOrUnderutilized
-    consolidateAfter: 1m
   limits:
-    cpu: 16
+    cpu: 32
+  weight: 2
+---
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: default-arm64
+spec:
+  template:
+    spec:
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["arm64"]
+        - key: "karpenter.k8s.aws/instance-category"
+          operator: NotIn
+          values: ["t"]
+        - key: "karpenter.k8s.aws/instance-generation"
+          operator: Gt
+          values: ["5"]
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+  limits:
+    cpu: 32
+  weight: 1
 ---
 apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
