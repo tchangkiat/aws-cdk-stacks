@@ -200,14 +200,18 @@ Example #3: Remove multiple add-ons
 
 ### Setup
 
-1. Deploy the application.
+1. Deploy the application with one of the following options
 
 ```bash
-curl https://raw.githubusercontent.com/tchangkiat/sample-express-api/master/eks/deployment.yaml -o sample-deployment.yaml
+# Option A: Simple Deployment
+curl https://raw.githubusercontent.com/tchangkiat/sample-express-api/master/eks/deployment.yml -o sample-deployment.yml
 
-sed -i "s|\[URL\]|${CONTAINER_IMAGE_URL}|g" sample-deployment.yaml
+# Option A: Canary Deployment
+curl https://raw.githubusercontent.com/tchangkiat/sample-express-api/master/eks/canary-deployment.yml -o sample-deployment.yml
 
-kubectl apply -f sample-deployment.yaml
+sed -i "s|\[URL\]|${CONTAINER_IMAGE_URL}|g" sample-deployment.yml
+
+kubectl apply -f sample-deployment.yml
 ```
 
 ### Clean Up
@@ -215,7 +219,7 @@ kubectl apply -f sample-deployment.yaml
 1. Remove the application.
 
 ```bash
-kubectl delete -f sample-deployment.yaml
+kubectl delete -f sample-deployment.yml
 ```
 
 ## Metrics Server and Horizontal Pod Autoscaler (HPA)
