@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export LBC_VERSION="2.10.0"
+export LBC_VERSION="2.12.0"
 
 eksctl utils associate-iam-oidc-provider \
     --region $AWS_REGION \
@@ -10,7 +10,7 @@ eksctl utils associate-iam-oidc-provider \
 curl -o aws-load-balancer-controller-policy.json "https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v${LBC_VERSION}/docs/install/iam_policy.json"
 
 aws iam create-policy \
- --policy-name $AWS_EKS_CLUSTER-aws-load-balancer-controller \
+ --policy-name $AWS_EKS_CLUSTER-aws-load-balancer-controller-$AWS_REGION \
  --policy-document file://aws-load-balancer-controller-policy.json
 
 eksctl create iamserviceaccount \
@@ -18,7 +18,7 @@ eksctl create iamserviceaccount \
 --namespace=kube-system \
 --name=aws-load-balancer-controller \
 --role-name=$AWS_EKS_CLUSTER-aws-load-balancer-controller \
---attach-policy-arn=arn:aws:iam::$AWS_ACCOUNT_ID:policy/$AWS_EKS_CLUSTER-aws-load-balancer-controller \
+--attach-policy-arn=arn:aws:iam::$AWS_ACCOUNT_ID:policy/$AWS_EKS_CLUSTER-aws-load-balancer-controller-$AWS_REGION \
 --override-existing-serviceaccounts \
 --region $AWS_REGION \
 --approve
