@@ -9,7 +9,7 @@ metadata:
   name: ray
 spec:
   amiFamily: "Bottlerocket"
-  role: "KarpenterNodeRole-${AWS_EKS_CLUSTER}"
+  role: "KarpenterNodeRole-${AWS_EKS_CLUSTER}-${AWS_REGION}"
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: ${AWS_EKS_CLUSTER}

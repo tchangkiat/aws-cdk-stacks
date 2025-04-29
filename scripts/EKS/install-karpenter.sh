@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export KARPENTER_NAMESPACE="kube-system"
-export KARPENTER_VERSION="1.3.0"
+export KARPENTER_VERSION="1.4.0"
 export K8S_VERSION=$(kubectl version -o json | jq -r ".serverVersion.major")
 K8S_VERSION+="."
 K8S_VERSION+=$(kubectl version -o json | jq -r ".serverVersion.minor")
@@ -12,7 +12,7 @@ export CLUSTER_NAME="${AWS_EKS_CLUSTER}"
 export AWS_DEFAULT_REGION="${AWS_REGION}"
 export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
 export TEMPOUT=$(mktemp)
-export KARPENTER_IAM_ROLE_ARN="arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:role/${CLUSTER_NAME}-karpenter"
+export KARPENTER_IAM_ROLE_ARN="arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:role/${CLUSTER_NAME}-karpenter-${AWS::Region}"
 
 curl -fsSL https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/karpenter.yaml  > $TEMPOUT \
 && aws cloudformation deploy \
@@ -26,12 +26,11 @@ eksctl create iamidentitymapping \
   --username system:node:{{EC2PrivateDNSName}} \
   --cluster "${CLUSTER_NAME}" \
   --region "${AWS_DEFAULT_REGION}" \
-  --arn "arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:role/KarpenterNodeRole-${CLUSTER_NAME}" \
+  --arn "arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:role/KarpenterNodeRole-${CLUSTER_NAME}-${AWS_DEFAULT_REGION}" \
   --group system:bootstrappers \
   --group system:nodes
 
 eksctl utils associate-iam-oidc-provider \
-  --region $AWS_REGION \
   --cluster $CLUSTER_NAME \
   --region $AWS_DEFAULT_REGION \
   --approve
@@ -94,7 +93,7 @@ metadata:
   name: default
 spec:
   amiFamily: "Bottlerocket"
-  role: "KarpenterNodeRole-${CLUSTER_NAME}"
+  role: "KarpenterNodeRole-${CLUSTER_NAME}-${AWS_REGION}"
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: ${CLUSTER_NAME}

@@ -8,21 +8,20 @@ Resources:
   KarpenterNodeRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: !Sub "KarpenterNodeRole-${ClusterName}"
+      RoleName: !Sub "KarpenterNodeRole-${ClusterName}-${AWS::Region}"
       Path: /
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
-              Service:
-                !Sub "ec2.${AWS::URLSuffix}"
+              Service: !Sub "ec2.${AWS::URLSuffix}"
             Action:
               - "sts:AssumeRole"
       ManagedPolicyArns:
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEKS_CNI_Policy"
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/AWSXRayDaemonWriteAccess"
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/CloudWatchAgentServerPolicy"
@@ -30,7 +29,7 @@ Resources:
   KarpenterControllerPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      ManagedPolicyName: !Sub "KarpenterControllerPolicy-${ClusterName}"
+      ManagedPolicyName: !Sub "KarpenterControllerPolicy-${ClusterName}-${AWS::Region}"
       # The PolicyDocument must be in JSON string format because we use a StringEquals condition that uses an interpolated
       # value in one of its key parameters which isn't natively supported by CloudFormation
       PolicyDocument: !Sub |
@@ -326,7 +325,7 @@ Resources:
                 aws:SecureTransport: false
             Principal: "*"
   ScheduledChangeRule:
-    Type: 'AWS::Events::Rule'
+    Type: "AWS::Events::Rule"
     Properties:
       EventPattern:
         source:
@@ -337,7 +336,7 @@ Resources:
         - Id: KarpenterInterruptionQueueTarget
           Arn: !GetAtt KarpenterInterruptionQueue.Arn
   SpotInterruptionRule:
-    Type: 'AWS::Events::Rule'
+    Type: "AWS::Events::Rule"
     Properties:
       EventPattern:
         source:
@@ -348,7 +347,7 @@ Resources:
         - Id: KarpenterInterruptionQueueTarget
           Arn: !GetAtt KarpenterInterruptionQueue.Arn
   RebalanceRule:
-    Type: 'AWS::Events::Rule'
+    Type: "AWS::Events::Rule"
     Properties:
       EventPattern:
         source:
@@ -359,7 +358,7 @@ Resources:
         - Id: KarpenterInterruptionQueueTarget
           Arn: !GetAtt KarpenterInterruptionQueue.Arn
   InstanceStateChangeRule:
-    Type: 'AWS::Events::Rule'
+    Type: "AWS::Events::Rule"
     Properties:
       EventPattern:
         source:
@@ -372,15 +371,14 @@ Resources:
   KarpenterControllerRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: !Sub "${ClusterName}-karpenter"
+      RoleName: !Sub "${ClusterName}-karpenter-${AWS::Region}"
       Path: /
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
-              Service:
-                "pods.eks.amazonaws.com"
+              Service: "pods.eks.amazonaws.com"
             Action:
               - "sts:AssumeRole"
               - "sts:TagSession"

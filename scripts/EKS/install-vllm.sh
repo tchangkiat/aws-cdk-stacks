@@ -5,7 +5,7 @@ metadata:
   name: vllm
 spec:
   amiFamily: "AL2023"
-  role: "KarpenterNodeRole-${AWS_EKS_CLUSTER}"
+  role: "KarpenterNodeRole-${AWS_EKS_CLUSTER}-${AWS_REGION}"
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: ${AWS_EKS_CLUSTER}
