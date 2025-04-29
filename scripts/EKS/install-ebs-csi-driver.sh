@@ -3,15 +3,15 @@
 curl -sSL -o ebs-csi-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-ebs-csi-driver/master/docs/example-iam-policy.json
 
 aws iam create-policy \
- --policy-name $AWS_EKS_CLUSTER-ebs-csi \
+ --policy-name $AWS_EKS_CLUSTER-ebs-csi-$AWS_REGION \
  --policy-document file://ebs-csi-policy.json
 
 eksctl create iamserviceaccount \
 --cluster=$AWS_EKS_CLUSTER \
 --namespace=kube-system \
 --name=ebs-csi-controller \
---role-name=$AWS_EKS_CLUSTER-ebs-csi-controller \
---attach-policy-arn=arn:aws:iam::$AWS_ACCOUNT_ID:policy/$AWS_EKS_CLUSTER-ebs-csi \
+--role-name=$AWS_EKS_CLUSTER-ebs-csi-controller-$AWS_REGION \
+--attach-policy-arn=arn:aws:iam::$AWS_ACCOUNT_ID:policy/$AWS_EKS_CLUSTER-ebs-csi-$AWS_REGION \
 --override-existing-serviceaccounts \
 --region $AWS_REGION \
 --approve
