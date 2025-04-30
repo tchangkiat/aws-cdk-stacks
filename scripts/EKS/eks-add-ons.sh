@@ -47,10 +47,13 @@ for install in "${installs[@]}"; do
             "11"|"ray")
                 scripts+=("install-ray.sh")
                 ;;
-            "12"|"argocd")
-                scripts+=("install-argocd.sh")
+            "12"|"argo-cd")
+                scripts+=("install-argo-cd.sh")
                 ;;
-            "13"|"opa-gatekeeper")
+            "13"|"argo-rollouts")
+                scripts+=("install-argo-rollouts.sh")
+                ;;
+            "14"|"opa-gatekeeper")
                 scripts+=("install-opa-gatekeeper.sh")
                 ;;
             *) echo "Invalid option $REPLY"
@@ -95,10 +98,13 @@ for removal in "${removals[@]}"; do
             "11"|"ray")
                 scripts+=("remove-ray.sh")
                 ;;
-            "12"|"argocd")
-                scripts+=("remove-argocd.sh")
+            "12"|"argo-cd")
+                scripts+=("remove-argo-cd.sh")
                 ;;
-            "13"|"opa-gatekeeper")
+            "13"|"argo-rollouts")
+                scripts+=("remove-argo-rollouts.sh")
+                ;;
+            "14"|"opa-gatekeeper")
                 scripts+=("remove-opa-gatekeeper.sh")
                 ;;
             *) echo "Invalid option $REPLY"
@@ -157,9 +163,11 @@ List of add-ons (alias are in brackets):
     - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
 11. Ray ("ray")
     - Prerequisites: Karpenter
-12. Argo CD ("argocd")
+12. Argo CD ("argo-cd")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
-13. Open Policy Agent Gatekeeper ("opa-gatekeeper")
+13. Argo Rollouts ("argo-rollouts")
+    - Prerequisites: Karpenter, AWS Load Balancer Controller
+14. Open Policy Agent Gatekeeper ("opa-gatekeeper")
     - Includes a constraint template and constraint
 
 EndOfMessage

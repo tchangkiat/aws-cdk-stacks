@@ -184,11 +184,15 @@ Example #3: Remove multiple add-ons
 
     - Prerequisites: Karpenter
 
-12. Argo CD ("argocd")
+12. Argo CD ("argo-cd")
 
     - Prerequisites: Karpenter, AWS Load Balancer Controller
 
-13. Open Policy Agent Gatekeeper ("opa-gatekeeper")
+13. Argo Rollouts ("argo-rollouts")
+
+    - Prerequisites: Karpenter, AWS Load Balancer Controller
+
+14. Open Policy Agent Gatekeeper ("opa-gatekeeper")
 
     - Includes a constraint template and constraint
 
@@ -276,7 +280,7 @@ kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/lat
 2. Setup Argo CD and install Argo CD CLI.
 
 ```bash
-./eks-add-ons.sh -i argocd
+./eks-add-ons.sh -i argo-cd
 ```
 
 3. Create an application in Argo CD and link it to the repository. Nginx is used as an example below.
@@ -312,7 +316,7 @@ kubectl delete ns nginx
 2. Remove Argo CD.
 
 ```bash
-./eks-add-ons.sh -r argocd
+./eks-add-ons.sh -r argo-cd
 ```
 
 3. Remove pre-requisites.
