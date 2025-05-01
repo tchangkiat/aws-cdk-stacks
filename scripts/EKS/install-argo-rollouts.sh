@@ -5,32 +5,32 @@ cat <<EOF >>argo-rollouts-example.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: sample
+  name: example
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: sample-express-api
-  namespace: sample
+  name: example-app
+  namespace: example
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: sample
-  name: sample-express-api
+  namespace: example
+  name: example-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sample-express-api
+      app: example-app
   template:
     metadata:
       labels:
-        app: sample-express-api
+        app: example-app
     spec:
-      serviceAccountName: sample-express-api
+      serviceAccountName: example-app
       containers:
-        - name: sample-express-api
+        - name: example-app
           image: [URL]
           imagePullPolicy: Always
           resources:
@@ -49,11 +49,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: sample
-  name: sample-express-api-stable
+  namespace: example
+  name: example-app-stable
 spec:
   selector:
-    app: sample-express-api
+    app: example-app
   ports:
     - protocol: TCP
       port: 8000
@@ -63,11 +63,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: sample
-  name: sample-express-api-canary
+  namespace: example
+  name: example-app-canary
 spec:
   selector:
-    app: sample-express-api
+    app: example-app
   ports:
     - protocol: TCP
       port: 8000
@@ -77,10 +77,10 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  namespace: sample
-  name: sample-express-api-ingress
+  namespace: example
+  name: example-app
   annotations:
-    alb.ingress.kubernetes.io/load-balancer-name: sample-express-api-argo-rollouts
+    alb.ingress.kubernetes.io/load-balancer-name: example-app
     alb.ingress.kubernetes.io/scheme: internet-facing
 spec:
   ingressClassName: alb
@@ -91,23 +91,23 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: sample-express-api-stable
+                name: example-app-stable
                 port:
                   name: use-annotation
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  name: sample-express-api
-  namespace: sample
+  name: example-app
+  namespace: example
 spec:
   strategy:
     canary:
-      canaryService: sample-express-api-canary
-      stableService: sample-express-api-stable
+      canaryService: example-app-canary
+      stableService: example-app-stable
       trafficRouting:
         alb:
-          ingress: sample-express-api-ingress
+          ingress: example-app
           servicePort: 8000
       steps:
         - setWeight: 10
@@ -116,11 +116,11 @@ spec:
   revisionHistoryLimit: 2
   selector:
     matchLabels:
-      app: sample-express-api
+      app: example-app
   workloadRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: sample-express-api
+    name: example-app
     scaleDown: onsuccess
 EOF
 sed -i "s|\[URL\]|${CONTAINER_IMAGE_URL}|g" argo-rollouts-example.yaml
