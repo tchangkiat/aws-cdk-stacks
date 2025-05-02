@@ -325,6 +325,56 @@ kubectl delete ns nginx
 ./eks-add-ons.sh -r "karpenter load-balancer-controller"
 ```
 
+## Argo Rollouts
+
+### Setup
+
+1. Install pre-requisites if they are not installed yet.
+
+```bash
+./eks-add-ons.sh -i "karpenter load-balancer-controller"
+```
+
+2. Install Argo Rollouts and an example for canary deployment.
+
+```bash
+./eks-add-ons.sh -i "argo-rollouts"
+```
+
+3. [Perform on your local machine] Install Argo Rollouts Kubectl Plugin. Ensure that you have connection to your Amazon EKS cluster and run `kubectl argo rollouts dashboard` in a terminal. Access the dashboard using a browser: `localhost:3100`.
+
+### Canary Deployment Demo
+
+1. Edit the `example-app` deployment with `kubectl edit deployment example-app -n example` and amend the `nodeSelector` section:
+
+```bash
+...
+nodeSelector:
+  karpenter.k8s.aws/instance-family: c7g
+  karpenter.sh/nodepool: default-arm64
+...
+```
+
+2. The `example-app` in Argo Rollouts will be in a pause state, with 90% of the traffic routed to the Intel-based instance and 10% of the traffic routed to the Graviton-based instance (verify by accessing the Application Load Balancer).
+
+![Argo Rollouts - Canary Deployment](./diagrams/argo-rollouts-canary.png)
+
+3. Click `Promote` in Argo Rollouts dashboard to complete the canary deployment and route all the traffic to the Graviton-based instance.
+
+### Clean Up
+
+1. Remove Argo Rollouts.
+
+```bash
+./eks-add-ons.sh -r "argo-rollouts"
+```
+
+2. Remove pre-requisites.
+
+```bash
+./eks-add-ons.sh -r "karpenter load-balancer-controller"
+```
+
 ## AWS App Mesh
 
 ### Setup
