@@ -4,7 +4,6 @@ import * as dotenv from "dotenv";
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
 
-import { ALBRuleRestriction } from "../lib/alb-rule-restriction";
 import { ApiGateway } from "../lib/api-gateway";
 import { Common } from "../lib/common";
 import { EcsCicd } from "../lib/ecs-cicd";
@@ -96,12 +95,6 @@ new EKS(
 new EgressVpc(app, "egress-vpc", {
 	stackName: prefix + "egress-vpc",
 	description: "Deploys an egress VPC with Transit Gateway",
-});
-
-new ALBRuleRestriction(app, "alb-rule-restriction", common.SSHKeyPairName, {
-	stackName: prefix + "alb-rule-restriction",
-	description:
-		"Deploys a solution that uses ALB to restrict traffic from an IP range",
 });
 
 new ApiGateway(app, "api-gateway", {

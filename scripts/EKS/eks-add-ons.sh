@@ -32,28 +32,25 @@ for install in "${installs[@]}"; do
             "6"|"ingress-nginx-controller")
                 scripts+=("install-ingress-nginx-controller.sh")
                 ;;
-            "7"|"app-mesh-controller")
-                scripts+=("install-app-mesh-controller.sh")
-                ;;
-            "8"|"gateway-api-controller")
+            "7"|"gateway-api-controller")
                 scripts+=("install-gateway-api-controller.sh")
                 ;;
-            "9"|"emr-on-eks")
+            "8"|"emr-on-eks")
                 scripts+=("setup-emr-on-eks.sh")
                 ;;
-            "10"|"jupyterhub")
+            "9"|"jupyterhub")
                 scripts+=("install-jupyterhub.sh")
                 ;;
-            "11"|"ray")
+            "10"|"ray")
                 scripts+=("install-ray.sh")
                 ;;
-            "12"|"argo-cd")
+            "11"|"argo-cd")
                 scripts+=("install-argo-cd.sh")
                 ;;
-            "13"|"argo-rollouts")
+            "12"|"argo-rollouts")
                 scripts+=("install-argo-rollouts.sh")
                 ;;
-            "14"|"opa-gatekeeper")
+            "13"|"opa-gatekeeper")
                 scripts+=("install-opa-gatekeeper.sh")
                 ;;
             *) echo "Invalid option $REPLY"
@@ -83,28 +80,25 @@ for removal in "${removals[@]}"; do
             "6"|"ingress-nginx-controller")
                 scripts+=("remove-ingress-nginx-controller.sh")
                 ;;
-            "7"|"app-mesh-controller")
-                scripts+=("remove-app-mesh-controller.sh")
-                ;;
-            "8"|"gateway-api-controller")
+            "7"|"gateway-api-controller")
                 scripts+=("remove-gateway-api-controller.sh")
                 ;;
-            "9"|"emr-on-eks")
+            "8"|"emr-on-eks")
                 scripts+=("remove-emr-on-eks.sh")
                 ;;
-            "10"|"jupyterhub")
+            "9"|"jupyterhub")
                 scripts+=("remove-jupyterhub.sh")
                 ;;
-            "11"|"ray")
+            "10"|"ray")
                 scripts+=("remove-ray.sh")
                 ;;
-            "12"|"argo-cd")
+            "11"|"argo-cd")
                 scripts+=("remove-argo-cd.sh")
                 ;;
-            "13"|"argo-rollouts")
+            "12"|"argo-rollouts")
                 scripts+=("remove-argo-rollouts.sh")
                 ;;
-            "14"|"opa-gatekeeper")
+            "13"|"opa-gatekeeper")
                 scripts+=("remove-opa-gatekeeper.sh")
                 ;;
             *) echo "Invalid option $REPLY"
@@ -156,18 +150,17 @@ List of add-ons (alias are in brackets):
     - Prerequisite: AWS EBS CSI Driver
 6.  Ingress NGINX Controller ("ingress-nginx-controller")
     - Also installs cert-manager
-7.  AWS App Mesh Controller ("app-mesh-controller")
-8.  AWS Gateway API Controller ("gateway-api-controller")
-9.  Amazon EMR on EKS ("emr-on-eks")
-10. JupyterHub ("jupyterhub")
+7.  AWS Gateway API Controller ("gateway-api-controller")
+8.  Amazon EMR on EKS ("emr-on-eks")
+9. JupyterHub ("jupyterhub")
     - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
-11. Ray ("ray")
+10. Ray ("ray")
     - Prerequisites: Karpenter
-12. Argo CD ("argo-cd")
+11. Argo CD ("argo-cd")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
-13. Argo Rollouts ("argo-rollouts")
+12. Argo Rollouts ("argo-rollouts")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
-14. Open Policy Agent Gatekeeper ("opa-gatekeeper")
+13. Open Policy Agent Gatekeeper ("opa-gatekeeper")
     - Includes a constraint template and constraint
 
 EndOfMessage
