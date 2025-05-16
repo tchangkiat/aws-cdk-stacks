@@ -1,6 +1,19 @@
 # vllm-meta-llama.yaml is adapted from https://docs.vllm.ai/en/latest/deployment/k8s.html
 
 cat <<EOF >>vllm-meta-llama.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vllm-meta-llama
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: gp3
+  resources:
+    requests:
+      storage: 50Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -35,12 +48,12 @@ spec:
             mountPath: /root/.cache/huggingface
         resources:
           requests:
-            cpu: 12
-            memory: 24Gi
+            cpu: 24
+            memory: 48Gi
       volumes:
       - name: llama-storage
         persistentVolumeClaim:
-          claimName: vllm-models
+          claimName: vllm-meta-llama
       nodeSelector:
         karpenter.sh/nodepool: vllm
         karpenter.k8s.aws/instance-family: c6g

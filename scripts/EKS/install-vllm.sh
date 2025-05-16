@@ -17,7 +17,7 @@ spec:
   blockDeviceMappings:
     - deviceName: /dev/xvda
       ebs:
-        volumeSize: 100Gi
+        volumeSize: 50Gi
         volumeType: gp3
         encrypted: true
   tags:
@@ -55,19 +55,7 @@ EOF
 
 # vllm-pvc-secret.yaml is adapted from https://docs.vllm.ai/en/latest/deployment/k8s.html
 
-cat <<EOF >>vllm-pvc-secret.yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: vllm-models
-spec:
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Filesystem
-  resources:
-    requests:
-      storage: 50Gi
----
+cat <<EOF >>vllm-secret.yaml
 apiVersion: v1
 kind: Secret
 metadata:
@@ -79,4 +67,4 @@ EOF
 
 kubectl apply -f vllm-node-class.yaml
 kubectl apply -f vllm-node-pool.yaml
-kubectl apply -f vllm-pvc-secret.yaml
+kubectl apply -f vllm-secret.yaml

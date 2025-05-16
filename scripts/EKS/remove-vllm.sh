@@ -1,5 +1,5 @@
-kubectl delete -f vllm-pvc-secret.yaml
-rm vllm-pvc-secret.yaml
+kubectl delete -f vllm-secret.yaml
+rm vllm-secret.yaml
 
 kubectl delete -f vllm-node-pool.yaml
 rm vllm-node-pool.yaml
