@@ -110,8 +110,7 @@ export class MultiArchPipeline extends Stack {
 						// 'docker run --rm -i hadolint/hadolint < Dockerfile',
 						// 'echo Detecting secrets in the repository with TruffleHog',
 						// 'docker run -i -v "$PWD:/pwd" trufflesecurity/trufflehog:latest github --repo $SOURCE_REPO_URL',
-						"echo Build started on `date`",
-						"echo Building the Docker images",
+						"echo Building container image ...",
 						"docker build -t $IMAGE_REPO:$IMAGE_TAG_PREFIX-$COMMIT_ID -t $IMAGE_REPO:$IMAGE_TAG_PREFIX-latest .",
 						"docker tag $IMAGE_REPO:$IMAGE_TAG_PREFIX-$COMMIT_ID $IMAGE_REPO_URL:$IMAGE_TAG_PREFIX-$COMMIT_ID",
 						"docker tag $IMAGE_REPO:$IMAGE_TAG_PREFIX-latest $IMAGE_REPO_URL:$IMAGE_TAG_PREFIX-latest",
@@ -119,8 +118,7 @@ export class MultiArchPipeline extends Stack {
 				},
 				post_build: {
 					commands: [
-						"echo Build completed on `date`",
-						"echo Pushing the Docker images to ECR",
+						"echo Pushing container image to Amazon ECR ...",
 						"docker push $IMAGE_REPO_URL --all-tags",
 					],
 				},
@@ -131,7 +129,7 @@ export class MultiArchPipeline extends Stack {
 			buildSpec,
 			projectName: id + "-amd64",
 			environment: {
-				buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_5,
+				buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2023_5,
 				computeType: codebuild.ComputeType.SMALL,
 				privileged: true,
 				environmentVariables: {
@@ -169,7 +167,7 @@ export class MultiArchPipeline extends Stack {
 			buildSpec,
 			projectName: id + "-arm64",
 			environment: {
-				buildImage: codebuild.LinuxArmBuildImage.AMAZON_LINUX_2_STANDARD_3_0,
+				buildImage: codebuild.LinuxArmBuildImage.AMAZON_LINUX_2023_STANDARD_3_0,
 				computeType: codebuild.ComputeType.SMALL,
 				privileged: true,
 				environmentVariables: {
@@ -222,8 +220,7 @@ export class MultiArchPipeline extends Stack {
 						},
 						build: {
 							commands: [
-								"echo Build started on `date`",
-								"echo Building the Docker manifest",
+								"echo Creating Docker manifest ...",
 								"export DOCKER_CLI_EXPERIMENTAL=enabled",
 								"docker manifest create $IMAGE_REPO_URL:latest $IMAGE_REPO_URL:arm64-latest $IMAGE_REPO_URL:amd64-latest",
 								"docker manifest annotate --arch arm64 $IMAGE_REPO_URL:latest $IMAGE_REPO_URL:arm64-latest",
@@ -235,16 +232,15 @@ export class MultiArchPipeline extends Stack {
 						},
 						post_build: {
 							commands: [
-								"echo Build completed on `date`",
-								"echo Pushing the Docker manifest to ECR",
+								"echo Pushing the Docker manifest to Amazon ECR ...",
 								"docker manifest push $IMAGE_REPO_URL:latest",
 								"docker manifest push $IMAGE_REPO_URL:$COMMIT_ID",
 								"docker manifest inspect $IMAGE_REPO_URL:latest",
 								"docker manifest inspect $IMAGE_REPO_URL:$COMMIT_ID",
 								"echo Writing image definitions file",
 								'printf \'[{"name":"' +
-									github.repository +
-									'","imageUri":"%s"}]\' $IMAGE_REPO_URL:$COMMIT_ID > imagedefinitions.json',
+								github.repository +
+								'","imageUri":"%s"}]\' $IMAGE_REPO_URL:$COMMIT_ID > imagedefinitions.json',
 							],
 						},
 					},
@@ -254,7 +250,7 @@ export class MultiArchPipeline extends Stack {
 				}),
 				projectName: id + "-manifest",
 				environment: {
-					buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_5,
+					buildImage: codebuild.LinuxArmBuildImage.AMAZON_LINUX_2023_STANDARD_3_0,
 					computeType: codebuild.ComputeType.SMALL,
 					privileged: true,
 					environmentVariables: {
@@ -285,7 +281,7 @@ export class MultiArchPipeline extends Stack {
 		new codepipeline.Pipeline(this, "CodePipeline", {
 			artifactBucket,
 			pipelineName: id,
-			pipelineType: codepipeline.PipelineType.V1,
+			pipelineType: codepipeline.PipelineType.V2,
 			stages: [
 				{
 					stageName: "Source",
@@ -300,15 +296,15 @@ export class MultiArchPipeline extends Stack {
 					],
 				},
 				{
-					stageName: "Create-Images",
+					stageName: "Build-Container-Images",
 					actions: [
 						new codepipeline_actions.CodeBuildAction({
-							actionName: "create-amd64",
+							actionName: "build-amd64",
 							project: amd64Project,
 							input: sourceArtifact,
 						}),
 						new codepipeline_actions.CodeBuildAction({
-							actionName: "create-arm64",
+							actionName: "build-arm64",
 							project: arm64Project,
 							input: sourceArtifact,
 						}),
