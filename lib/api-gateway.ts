@@ -11,8 +11,8 @@ export class ApiGateway extends Stack {
 		// Lambda
 		// ----------------------------
 
-		const sampleApi = new lambda.Function(this, "sampleApi", {
-			functionName: id + "-sample-api",
+		const exampleApi = new lambda.Function(this, "exampleApi", {
+			functionName: id + "-example-api",
 			runtime: lambda.Runtime.NODEJS_20_X,
 			code: lambda.Code.fromInline(`
         exports.handler = async function(event, context) {
@@ -87,10 +87,10 @@ export class ApiGateway extends Stack {
 			},
 		);
 
-		const sampleApiIntegration = new apigateway.LambdaIntegration(
-			sampleApi,
+		const exampleApiIntegration = new apigateway.LambdaIntegration(
+			exampleApi,
 		);
-		api.root.addMethod("GET", sampleApiIntegration, {
+		api.root.addMethod("GET", exampleApiIntegration, {
 			authorizer: tokenAuthorizer,
 		});
 

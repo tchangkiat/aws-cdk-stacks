@@ -18,7 +18,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 - [Elastic Kubernetes Service (EKS)](#elastic-kubernetes-service-eks)
   - [EKS Cluster](#eks-cluster)
   - [Add-Ons](#add-ons)
-  - [Sample Application](#sample-application)
+  - [Deploy Application](#deploy-application)
   - [Metrics Server and Horizontal Pod Autoscaler (HPA)](#metrics-server-and-horizontal-pod-autoscaler-hpa)
   - [Argo CD](#argo-cd)
   - [Argo Rollouts](#argo-rollouts)
@@ -45,7 +45,7 @@ aws configure set output json
 
 4. Create an EC2 Key Pair named "EC2DefaultKeyPair" (leave other settings as default).
 
-5. Rename 'sample.env' to '.env' and fill up all the values.
+5. Rename 'example.env' to '.env' and fill up all the values.
 
 6. Create a connection in [Developer Tools](https://console.aws.amazon.com/codesuite/settings/connections) (ensure that you are creating in your ideal region). Copy the ARN of the connection to your `.env` file. This is required for solutions like Multi-Architecture Pipeline.
 
@@ -176,7 +176,7 @@ Example #3: Remove multiple add-ons
 8. Amazon EMR on EKS ("emr-on-eks")
 9. JupyterHub ("jupyterhub")
 
-    - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
+   - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
 
 10. Ray ("ray")
 
@@ -194,7 +194,7 @@ Example #3: Remove multiple add-ons
 
     - Includes a constraint template and constraint
 
-## Sample Application
+## Deploy Application
 
 > Prerequisite 1: Deploy the Multi-Architecture Pipeline. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
 
@@ -206,14 +206,14 @@ Example #3: Remove multiple add-ons
 
 ```bash
 # Option A: Simple Deployment
-curl https://raw.githubusercontent.com/tchangkiat/sample-express-api/master/eks/deployment.yml -o sample-deployment.yml
+curl https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/ts-node-express/deployment.yml -o example-deployment.yml
 
-# Option A: Canary Deployment
-curl https://raw.githubusercontent.com/tchangkiat/sample-express-api/master/eks/canary-deployment.yml -o sample-deployment.yml
+# Option B: Canary Deployment
+curl https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/ts-node-express/canary-deployment.yml -o example-deployment.yml
 
-sed -i "s|\[URL\]|${CONTAINER_IMAGE_URL}|g" sample-deployment.yml
+sed -i "s|\[URL\]|${CONTAINER_IMAGE_URL}|g" example-deployment.yml
 
-kubectl apply -f sample-deployment.yml
+kubectl apply -f example-deployment.yml
 ```
 
 ### Clean Up
@@ -221,7 +221,7 @@ kubectl apply -f sample-deployment.yml
 1. Remove the application.
 
 ```bash
-kubectl delete -f sample-deployment.yml
+kubectl delete -f example-deployment.yml
 ```
 
 ## Metrics Server and Horizontal Pod Autoscaler (HPA)
@@ -240,10 +240,10 @@ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/late
 kubectl get apiservice v1beta1.metrics.k8s.io -o json | jq '.status'
 ```
 
-3. Assuming that the sample application was deployed, execute the following command to configure HPA for the deployment:
+3. Assuming that the application was deployed, execute the following command to configure HPA for the deployment:
 
 ```bash
-kubectl autoscale deployment sample-express-api -n sample \
+kubectl autoscale deployment ts-node-express -n example \
     --cpu-percent=50 \
     --min=1 \
     --max=10
@@ -252,7 +252,7 @@ kubectl autoscale deployment sample-express-api -n sample \
 4. Check the details of HPA.
 
 ```bash
-kubectl get hpa -n sample
+kubectl get hpa -n example
 ```
 
 ### Clean Up
@@ -260,7 +260,7 @@ kubectl get hpa -n sample
 1. Remove the HPA and Metrics Server.
 
 ```bash
-kubectl delete hpa sample-express-api -n sample
+kubectl delete hpa ts-node-express -n example
 
 kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 ```
@@ -379,37 +379,37 @@ nodeSelector:
 
 > Prerequisite 2: Install [AWS Load Balancer Controller](#add-ons).
 
-> Prerequisite 3: Install [Sample Application](#sample-application).
+> Prerequisite 3: Install [Deploy Application](#deploy-application).
 
 ### Setup
 
 1. Install AWS Gateway API Controller with `./eks-add-ons.sh -i gateway-api-controller`
 
-2. Set up Gateway for Sample Application.
+2. Set up Gateway for the application.
 
 ```bash
-curl -o vpc-lattice-gateway.yaml https://raw.githubusercontent.com/tchangkiat/sample-express-api/master/eks/vpc-lattice/vpc-lattice-gateway.yaml
+curl -o vpc-lattice-gateway.yaml https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/vpc-lattice/vpc-lattice-gateway.yaml
 
 kubectl apply -f vpc-lattice-gateway.yaml
 ```
 
-3. Set up HttpRoute for Sample Application.
+3. Set up HttpRoute for the application.
 
 ```bash
-curl -o vpc-lattice-httproute.yaml https://raw.githubusercontent.com/tchangkiat/sample-express-api/master/eks/vpc-lattice/vpc-lattice-httproute.yaml
+curl -o vpc-lattice-httproute.yaml https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/vpc-lattice/vpc-lattice-httproute.yaml
 
 kubectl apply -f vpc-lattice-httproute.yaml
 ```
 
 ### Clean Up
 
-1. Remove HttpRoute for Sample Application.
+1. Remove HttpRoute for the application.
 
 ```bash
 kubectl delete -f vpc-lattice-httproute.yaml
 ```
 
-2. Remove Gateway for Sample Application.
+2. Remove Gateway for the application.
 
 ```bash
 kubectl delete -f vpc-lattice-gateway.yaml
