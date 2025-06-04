@@ -31,6 +31,10 @@ spec:
     spec:
       automountServiceAccountToken: false
       securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
       serviceAccountName: web-app
@@ -122,6 +126,10 @@ spec:
     spec:
       automountServiceAccountToken: false
       securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
       serviceAccountName: web-app
