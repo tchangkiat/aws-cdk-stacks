@@ -206,10 +206,10 @@ Example #3: Remove multiple add-ons
 
 ```bash
 # Option A: Simple Deployment
-curl https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/ts-node-express/deployment.yml -o example-deployment.yml
+curl https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/web-app/deployment.yml -o example-deployment.yml
 
 # Option B: Canary Deployment
-curl https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/ts-node-express/canary-deployment.yml -o example-deployment.yml
+curl https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/web-app/canary-deployment.yml -o example-deployment.yml
 
 sed -i "s|\[URL\]|${CONTAINER_IMAGE_URL}|g" example-deployment.yml
 
@@ -243,7 +243,7 @@ kubectl get apiservice v1beta1.metrics.k8s.io -o json | jq '.status'
 3. Assuming that the application was deployed, execute the following command to configure HPA for the deployment:
 
 ```bash
-kubectl autoscale deployment ts-node-express -n example \
+kubectl autoscale deployment web-app -n example \
     --cpu-percent=50 \
     --min=1 \
     --max=10
@@ -260,7 +260,7 @@ kubectl get hpa -n example
 1. Remove the HPA and Metrics Server.
 
 ```bash
-kubectl delete hpa ts-node-express -n example
+kubectl delete hpa web-app -n example
 
 kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 ```

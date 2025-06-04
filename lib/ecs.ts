@@ -136,7 +136,7 @@ export class ECS extends Stack {
 		// )
 		// ec2TaskDefinition.addContainer('ec2-app', {
 		//   image: ecs.ContainerImage.fromEcrRepository(repository),
-		//   containerName: 'ts-node-express',
+		//   containerName: 'web-app',
 		//   portMappings: [{ containerPort: 8000 }],
 		//   cpu: 256,
 		//   memoryLimitMiB: 512,
@@ -146,7 +146,7 @@ export class ECS extends Stack {
 		//       region: this.region,
 		//       log_group_name: '/aws/ecs/containerinsights/' + prefix + '/application',
 		//       auto_create_group: 'true',
-		//       log_stream_name: 'ts-node-express-$(ecs_task_id)',
+		//       log_stream_name: 'web-app-$(ecs_task_id)',
 		//       retry_limit: '2'
 		//     }
 		//   })
@@ -183,7 +183,7 @@ export class ECS extends Stack {
 		//   port: 80,
 		//   targets: [
 		//     ec2Service.loadBalancerTarget({
-		//       containerName: 'ts-node-express',
+		//       containerName: 'web-app',
 		//       containerPort: 8000
 		//     })
 		//   ]
@@ -208,9 +208,9 @@ export class ECS extends Stack {
 			},
 		});
 
-		fgTaskDef.addContainer("ts-node-express", {
+		fgTaskDef.addContainer("web-app", {
 			image: ecs.ContainerImage.fromEcrRepository(repository),
-			containerName: "ts-node-express",
+			containerName: "web-app",
 			portMappings: [{ containerPort: 8000 }],
 			cpu: 256,
 			memoryReservationMiB: 512,
@@ -220,7 +220,7 @@ export class ECS extends Stack {
 					region: this.region,
 					log_group_name: "/aws/ecs/containerinsights/" + prefix + "/application",
 					auto_create_group: "true",
-					log_stream_name: "ts-node-express-$(ecs_task_id)",
+					log_stream_name: "web-app-$(ecs_task_id)",
 					retry_limit: "2",
 				},
 			}),
