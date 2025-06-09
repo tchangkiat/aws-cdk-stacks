@@ -205,11 +205,7 @@ Example #3: Remove multiple add-ons
 1. Deploy the application with one of the following options
 
 ```bash
-# Option A: Simple Deployment
 curl https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/web-app/deployment.yml -o example-deployment.yml
-
-# Option B: Canary Deployment
-curl https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/web-app/canary-deployment.yml -o example-deployment.yml
 
 sed -i "s|\[URL\]|${CONTAINER_IMAGE_URL}|g" example-deployment.yml
 
@@ -222,6 +218,8 @@ kubectl apply -f example-deployment.yml
 
 ```bash
 kubectl delete -f example-deployment.yml
+
+rm example-deployment.yml
 ```
 
 ## Metrics Server and Horizontal Pod Autoscaler (HPA)
