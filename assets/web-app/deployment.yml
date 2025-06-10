@@ -90,7 +90,7 @@ spec:
               drop: ["ALL"]
       nodeSelector:
         karpenter.sh/nodepool: default
-        karpenter.k8s.aws/instance-family: c6i
+        node.kubernetes.io/instance-type: c6i.large
 ---
 apiVersion: v1
 kind: Service
@@ -185,7 +185,7 @@ spec:
               drop: ["ALL"]
       nodeSelector:
         karpenter.sh/nodepool: default-arm64
-        karpenter.k8s.aws/instance-family: c7g
+        node.kubernetes.io/instance-type: c7g.large
 ---
 apiVersion: v1
 kind: Service
