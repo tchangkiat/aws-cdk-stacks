@@ -11,300 +11,325 @@ import type * as ecr from "aws-cdk-lib/aws-ecr";
 import * as logs from "aws-cdk-lib/aws-logs";
 
 export class ECS extends Stack {
-	public Cluster: ecs.Cluster;
-	public FargateService: ecs.FargateService;
+    public Cluster: ecs.Cluster;
+    public FargateService: ecs.FargateService;
 
-	constructor(
-		scope: Construct,
-		id: string,
-		vpc: ec2.Vpc,
-		repository: ecr.Repository,
-		props?: StackProps,
-	) {
-		super(scope, id, props);
+    constructor(
+        scope: Construct,
+        id: string,
+        vpc: ec2.Vpc,
+        repository: ecr.Repository,
+        props?: StackProps,
+    ) {
+        super(scope, id, props);
 
-		const prefix = id + "-demo";
+        const prefix = id + "-demo";
 
-		// ----------------------------
-		// ECS Cluster
-		// ----------------------------
+        // ----------------------------
+        // ECS Cluster
+        // ----------------------------
 
-		this.Cluster = new ecs.Cluster(this, "ecs-cluster", {
-			vpc,
-			clusterName: prefix,
-			enableFargateCapacityProviders: true,
-			containerInsightsV2: ecs.ContainerInsights.ENABLED,
-		});
-		this.Cluster.addDefaultCapacityProviderStrategy([
-			{ capacityProvider: "FARGATE", base: 0, weight: 1 },
-			{ capacityProvider: "FARGATE_SPOT", base: 0, weight: 4 },
-		]);
+        this.Cluster = new ecs.Cluster(this, "ecs-cluster", {
+            vpc,
+            clusterName: prefix,
+            enableFargateCapacityProviders: true,
+            containerInsightsV2: ecs.ContainerInsights.ENABLED,
+        });
+        this.Cluster.addDefaultCapacityProviderStrategy([
+            { capacityProvider: "FARGATE", base: 0, weight: 1 },
+            { capacityProvider: "FARGATE_SPOT", base: 0, weight: 4 },
+        ]);
 
-		// ----------------------------
-		// CloudWatch Log Group
-		// ----------------------------
+        // ----------------------------
+        // CloudWatch Log Group
+        // ----------------------------
 
-		const logGroup = new logs.LogGroup(this, "log-group", {
-			logGroupName: prefix,
-			retention: logs.RetentionDays.ONE_DAY,
-			removalPolicy: RemovalPolicy.DESTROY,
-		});
+        const logGroup = new logs.LogGroup(this, "log-group", {
+            logGroupName: prefix,
+            retention: logs.RetentionDays.ONE_DAY,
+            removalPolicy: RemovalPolicy.DESTROY,
+        });
 
-		// ----------------------------
-		// IAM Roles
-		// ----------------------------
+        // ----------------------------
+        // IAM Roles
+        // ----------------------------
 
-		const ecsTaskExecutionRole = new iam.Role(this, "ecs-task-execution-role", {
-			assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-			roleName: prefix + "-ecs-task-execution",
-		});
-		ecsTaskExecutionRole.addToPolicy(
-			new iam.PolicyStatement({
-				resources: [repository.repositoryArn],
-				actions: [
-					"ecr:BatchCheckLayerAvailability",
-					"ecr:BatchGetImage",
-					"ecr:GetDownloadUrlForLayer",
-				],
-			}),
-		);
-		ecsTaskExecutionRole.addToPolicy(
-			new iam.PolicyStatement({
-				resources: ["*"],
-				actions: ["ecr:GetAuthorizationToken"],
-			}),
-		);
+        const ecsTaskExecutionRole = new iam.Role(
+            this,
+            "ecs-task-execution-role",
+            {
+                assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
+                roleName: prefix + "-ecs-task-execution",
+            },
+        );
+        ecsTaskExecutionRole.addToPolicy(
+            new iam.PolicyStatement({
+                resources: [repository.repositoryArn],
+                actions: [
+                    "ecr:BatchCheckLayerAvailability",
+                    "ecr:BatchGetImage",
+                    "ecr:GetDownloadUrlForLayer",
+                ],
+            }),
+        );
+        ecsTaskExecutionRole.addToPolicy(
+            new iam.PolicyStatement({
+                resources: ["*"],
+                actions: ["ecr:GetAuthorizationToken"],
+            }),
+        );
 
-		const ecsTaskRole = new iam.Role(this, "ecs-task-role", {
-			assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-			roleName: prefix + "-ecs-task",
-			managedPolicies: [
-				iam.ManagedPolicy.fromAwsManagedPolicyName("AWSXRayDaemonWriteAccess"),
-			],
-		});
-		ecsTaskRole.addToPolicy(
-			new iam.PolicyStatement({
-				resources: [
-					logGroup.logGroupArn,
-					"arn:aws:logs:" +
-						this.region +
-						":" +
-						this.account +
-						":log-group:/aws/ecs/containerinsights/" +
-						prefix +
-						"/*",
-				],
-				actions: [
-					"logs:CreateLogGroup",
-					"logs:CreateLogStream",
-					"logs:DescribeLogStreams",
-					"logs:PutLogEvents",
-				],
-			}),
-		);
+        const ecsTaskRole = new iam.Role(this, "ecs-task-role", {
+            assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
+            roleName: prefix + "-ecs-task",
+            managedPolicies: [
+                iam.ManagedPolicy.fromAwsManagedPolicyName(
+                    "AWSXRayDaemonWriteAccess",
+                ),
+            ],
+        });
+        ecsTaskRole.addToPolicy(
+            new iam.PolicyStatement({
+                resources: [
+                    logGroup.logGroupArn,
+                    "arn:aws:logs:" +
+                        this.region +
+                        ":" +
+                        this.account +
+                        ":log-group:/aws/ecs/containerinsights/" +
+                        prefix +
+                        "/*",
+                ],
+                actions: [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:DescribeLogStreams",
+                    "logs:PutLogEvents",
+                ],
+            }),
+        );
 
-		// ----------------------------
-		// ECS Cluster > EC2 Capacity Provider
-		// ----------------------------
+        // ----------------------------
+        // ECS Cluster > EC2 Capacity Provider
+        // ----------------------------
 
-		// const asg = new autoscaling.AutoScalingGroup(this, 'asg', {
-		//   vpc,
-		//   autoScalingGroupName: prefix + '-asg',
-		//   instanceType: new ec2.InstanceType('t3.medium'),
-		//   machineImage: ecs.EcsOptimizedImage.amazonLinux2023(),
-		//   minCapacity: 1,
-		//   maxCapacity: 5
-		// })
-		// asg.scaleOnCpuUtilization('asg-cpu-scaling', {
-		//   targetUtilizationPercent: 70
-		// })
-		// const ec2CapacityProvider = new ecs.AsgCapacityProvider(
-		//   this,
-		//   'ec2-asg-capacity-provider',
-		//   {
-		//     autoScalingGroup: asg,
-		//     capacityProviderName: 'ec2'
-		//   }
-		// )
-		// this.Cluster.addAsgCapacityProvider(ec2CapacityProvider)
+        // const asg = new autoscaling.AutoScalingGroup(this, 'asg', {
+        //   vpc,
+        //   autoScalingGroupName: prefix + '-asg',
+        //   instanceType: new ec2.InstanceType('t3.medium'),
+        //   machineImage: ecs.EcsOptimizedImage.amazonLinux2023(),
+        //   minCapacity: 1,
+        //   maxCapacity: 5
+        // })
+        // asg.scaleOnCpuUtilization('asg-cpu-scaling', {
+        //   targetUtilizationPercent: 70
+        // })
+        // const ec2CapacityProvider = new ecs.AsgCapacityProvider(
+        //   this,
+        //   'ec2-asg-capacity-provider',
+        //   {
+        //     autoScalingGroup: asg,
+        //     capacityProviderName: 'ec2'
+        //   }
+        // )
+        // this.Cluster.addAsgCapacityProvider(ec2CapacityProvider)
 
-		// // Task Definition
-		// const ec2TaskDefinition = new ecs.Ec2TaskDefinition(
-		//   this,
-		//   'Ec2TaskDefinition',
-		//   { networkMode: ecs.NetworkMode.AWS_VPC }
-		// )
-		// ec2TaskDefinition.addContainer('ec2-app', {
-		//   image: ecs.ContainerImage.fromEcrRepository(repository),
-		//   containerName: 'web-app',
-		//   portMappings: [{ containerPort: 8000 }],
-		//   cpu: 256,
-		//   memoryLimitMiB: 512,
-		//   logging: ecs.LogDrivers.firelens({
-		//     options: {
-		//       Name: 'cloudwatch',
-		//       region: this.region,
-		//       log_group_name: '/aws/ecs/containerinsights/' + prefix + '/application',
-		//       auto_create_group: 'true',
-		//       log_stream_name: 'web-app-$(ecs_task_id)',
-		//       retry_limit: '2'
-		//     }
-		//   })
-		// })
+        // // Task Definition
+        // const ec2TaskDefinition = new ecs.Ec2TaskDefinition(
+        //   this,
+        //   'Ec2TaskDefinition',
+        //   { networkMode: ecs.NetworkMode.AWS_VPC }
+        // )
+        // ec2TaskDefinition.addContainer('ec2-app', {
+        //   image: ecs.ContainerImage.fromEcrRepository(repository),
+        //   containerName: 'web-app',
+        //   portMappings: [{ containerPort: 8000 }],
+        //   cpu: 256,
+        //   memoryLimitMiB: 512,
+        //   logging: ecs.LogDrivers.firelens({
+        //     options: {
+        //       Name: 'cloudwatch',
+        //       region: this.region,
+        //       log_group_name: '/aws/ecs/containerinsights/' + prefix + '/application',
+        //       auto_create_group: 'true',
+        //       log_stream_name: 'web-app-$(ecs_task_id)',
+        //       retry_limit: '2'
+        //     }
+        //   })
+        // })
 
-		// const ec2Service = new ecs.Ec2Service(this, 'Ec2Service', {
-		//   cluster: this.Cluster,
-		//   taskDefinition: ec2TaskDefinition,
-		//   serviceName: prefix + '-ec2-service',
-		//   desiredCount: 1,
-		//   enableECSManagedTags: true,
-		//   propagateTags: ecs.PropagatedTagSource.SERVICE,
-		//   placementStrategies: [
-		//     ecs.PlacementStrategy.spreadAcrossInstances(),
-		//     ecs.PlacementStrategy.packedByCpu()
-		//   ],
-		//   capacityProviderStrategies: [
-		//     {
-		//       capacityProvider: ec2CapacityProvider.capacityProviderName,
-		//       base: 1,
-		//       weight: 1
-		//     }
-		//   ]
-		// })
+        // const ec2Service = new ecs.Ec2Service(this, 'Ec2Service', {
+        //   cluster: this.Cluster,
+        //   taskDefinition: ec2TaskDefinition,
+        //   serviceName: prefix + '-ec2-service',
+        //   desiredCount: 1,
+        //   enableECSManagedTags: true,
+        //   propagateTags: ecs.PropagatedTagSource.SERVICE,
+        //   placementStrategies: [
+        //     ecs.PlacementStrategy.spreadAcrossInstances(),
+        //     ecs.PlacementStrategy.packedByCpu()
+        //   ],
+        //   capacityProviderStrategies: [
+        //     {
+        //       capacityProvider: ec2CapacityProvider.capacityProviderName,
+        //       base: 1,
+        //       weight: 1
+        //     }
+        //   ]
+        // })
 
-		// const lb = new elbv2.ApplicationLoadBalancer(this, 'Ec2ServiceAlb', {
-		//   vpc,
-		//   internetFacing: true
-		// })
-		// const listener = lb.addListener('Ec2ServiceAlbListener', {
-		//   port: 80
-		// })
-		// listener.addTargets('Ec2ServiceAlbTarget', {
-		//   port: 80,
-		//   targets: [
-		//     ec2Service.loadBalancerTarget({
-		//       containerName: 'web-app',
-		//       containerPort: 8000
-		//     })
-		//   ]
-		// })
+        // const lb = new elbv2.ApplicationLoadBalancer(this, 'Ec2ServiceAlb', {
+        //   vpc,
+        //   internetFacing: true
+        // })
+        // const listener = lb.addListener('Ec2ServiceAlbListener', {
+        //   port: 80
+        // })
+        // listener.addTargets('Ec2ServiceAlbTarget', {
+        //   port: 80,
+        //   targets: [
+        //     ec2Service.loadBalancerTarget({
+        //       containerName: 'web-app',
+        //       containerPort: 8000
+        //     })
+        //   ]
+        // })
 
-		// new CfnOutput(this, 'EC2 Service Load Balancer DNS', {
-		//   value: 'http://' + lb.loadBalancerDnsName
-		// })
+        // new CfnOutput(this, 'EC2 Service Load Balancer DNS', {
+        //   value: 'http://' + lb.loadBalancerDnsName
+        // })
 
-		// ----------------------------
-		// ECS Cluster > Fargate
-		// ----------------------------
+        // ----------------------------
+        // ECS Cluster > Fargate
+        // ----------------------------
 
-		const fgTaskDef = new ecs.FargateTaskDefinition(this, "fg-task-definition", {
-			executionRole: ecsTaskExecutionRole,
-			taskRole: ecsTaskRole,
-			cpu: 512,
-			memoryLimitMiB: 1024,
-			runtimePlatform: {
-				cpuArchitecture: ecs.CpuArchitecture.ARM64,
-				operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
-			},
-		});
+        const fgTaskDef = new ecs.FargateTaskDefinition(
+            this,
+            "fg-task-definition",
+            {
+                executionRole: ecsTaskExecutionRole,
+                taskRole: ecsTaskRole,
+                cpu: 512,
+                memoryLimitMiB: 1024,
+                runtimePlatform: {
+                    cpuArchitecture: ecs.CpuArchitecture.ARM64,
+                    operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
+                },
+            },
+        );
 
-		fgTaskDef.addContainer("web-app", {
-			image: ecs.ContainerImage.fromEcrRepository(repository),
-			containerName: "web-app",
-			portMappings: [{ containerPort: 8000 }],
-			cpu: 256,
-			memoryReservationMiB: 512,
-			logging: ecs.LogDrivers.firelens({
-				options: {
-					Name: "cloudwatch",
-					region: this.region,
-					log_group_name: "/aws/ecs/containerinsights/" + prefix + "/application",
-					auto_create_group: "true",
-					log_stream_name: "web-app-$(ecs_task_id)",
-					retry_limit: "2",
-				},
-			}),
-		});
+        fgTaskDef.addContainer("web-app", {
+            image: ecs.ContainerImage.fromEcrRepository(repository),
+            containerName: "web-app",
+            portMappings: [{ containerPort: 8000 }],
+            cpu: 256,
+            memoryReservationMiB: 512,
+            logging: ecs.LogDrivers.firelens({
+                options: {
+                    Name: "cloudwatch",
+                    region: this.region,
+                    log_group_name:
+                        "/aws/ecs/containerinsights/" + prefix + "/application",
+                    auto_create_group: "true",
+                    log_stream_name: "web-app-$(ecs_task_id)",
+                    retry_limit: "2",
+                },
+            }),
+        });
 
-		fgTaskDef.addContainer("xray-daemon", {
-			image: ecs.ContainerImage.fromRegistry(
-				"public.ecr.aws/xray/aws-xray-daemon:3.x",
-			),
-			containerName: "xray-daemon",
-			portMappings: [{ containerPort: 2000, protocol: ecs.Protocol.UDP }],
-			cpu: 32,
-			memoryReservationMiB: 256,
-		});
+        fgTaskDef.addContainer("xray-daemon", {
+            image: ecs.ContainerImage.fromRegistry(
+                "public.ecr.aws/xray/aws-xray-daemon:3.x",
+            ),
+            containerName: "xray-daemon",
+            portMappings: [{ containerPort: 2000, protocol: ecs.Protocol.UDP }],
+            cpu: 32,
+            memoryReservationMiB: 256,
+        });
 
-		// fgTaskDef.addFirelensLogRouter('firelens', {
-		//   essential: true,
-		//   image: ecs.ContainerImage.fromRegistry(
-		//     'public.ecr.aws/aws-observability/aws-for-fluent-bit:latest'
-		//   ),
-		//   containerName: 'firelens',
-		//   firelensConfig: { type: ecs.FirelensLogRouterType.FLUENTBIT },
-		//   logging: new ecs.AwsLogDriver({
-		//     streamPrefix: 'firelens',
-		//     logGroup
-		//   }),
-		//   memoryReservationMiB: 50
-		// })
+        // fgTaskDef.addFirelensLogRouter('firelens', {
+        //   essential: true,
+        //   image: ecs.ContainerImage.fromRegistry(
+        //     'public.ecr.aws/aws-observability/aws-for-fluent-bit:latest'
+        //   ),
+        //   containerName: 'firelens',
+        //   firelensConfig: { type: ecs.FirelensLogRouterType.FLUENTBIT },
+        //   logging: new ecs.AwsLogDriver({
+        //     streamPrefix: 'firelens',
+        //     logGroup
+        //   }),
+        //   memoryReservationMiB: 50
+        // })
 
-		this.FargateService = new ecsPatterns.ApplicationLoadBalancedFargateService(
-			this,
-			"fg-service",
-			{
-				cluster: this.Cluster,
-				desiredCount: 1,
-				publicLoadBalancer: true,
-				serviceName: prefix + "-fg-service",
-				loadBalancerName: prefix + "-fg-service-lb",
-				taskDefinition: fgTaskDef,
-				enableECSManagedTags: true,
-				capacityProviderStrategies: [
-					{ capacityProvider: "FARGATE", base: 0, weight: 1 },
-					{ capacityProvider: "FARGATE_SPOT", base: 0, weight: 4 },
-				],
-				propagateTags: ecs.PropagatedTagSource.SERVICE,
-				minHealthyPercent: 50,
-			},
-		).service;
-		const fargateServiceScalability = this.FargateService.autoScaleTaskCount({
-			maxCapacity: 3,
-		});
-		fargateServiceScalability.scaleOnCpuUtilization("FargateServiceScalability", {
-			targetUtilizationPercent: 70,
-		});
+        this.FargateService =
+            new ecsPatterns.ApplicationLoadBalancedFargateService(
+                this,
+                "fg-service",
+                {
+                    cluster: this.Cluster,
+                    desiredCount: 1,
+                    publicLoadBalancer: true,
+                    serviceName: prefix + "-fg-service",
+                    loadBalancerName: prefix + "-fg-service-lb",
+                    taskDefinition: fgTaskDef,
+                    enableECSManagedTags: true,
+                    capacityProviderStrategies: [
+                        { capacityProvider: "FARGATE", base: 0, weight: 1 },
+                        {
+                            capacityProvider: "FARGATE_SPOT",
+                            base: 0,
+                            weight: 4,
+                        },
+                    ],
+                    propagateTags: ecs.PropagatedTagSource.SERVICE,
+                    minHealthyPercent: 50,
+                },
+            ).service;
+        const fargateServiceScalability =
+            this.FargateService.autoScaleTaskCount({
+                maxCapacity: 3,
+            });
+        fargateServiceScalability.scaleOnCpuUtilization(
+            "FargateServiceScalability",
+            {
+                targetUtilizationPercent: 70,
+            },
+        );
 
-		// ----------------------------
-		// ECS Cluster > CloudWatch
-		// ----------------------------
+        // ----------------------------
+        // ECS Cluster > CloudWatch
+        // ----------------------------
 
-		const dashboard = new cloudwatch.Dashboard(this, "cloudwatch-dashboard", {
-			dashboardName: prefix,
-		});
+        const dashboard = new cloudwatch.Dashboard(
+            this,
+            "cloudwatch-dashboard",
+            {
+                dashboardName: prefix,
+            },
+        );
 
-		// const ec2CpuUtilizationMetric = ec2Service.metricCpuUtilization({
-		//   period: Duration.minutes(1),
-		//   label: 'EC2 CPU Utilization'
-		// })
+        // const ec2CpuUtilizationMetric = ec2Service.metricCpuUtilization({
+        //   period: Duration.minutes(1),
+        //   label: 'EC2 CPU Utilization'
+        // })
 
-		const fargateCpuUtilizationMetric = this.FargateService.metricCpuUtilization({
-			period: Duration.minutes(1),
-			label: "Fargate CPU Utilization",
-		});
+        const fargateCpuUtilizationMetric =
+            this.FargateService.metricCpuUtilization({
+                period: Duration.minutes(1),
+                label: "Fargate CPU Utilization",
+            });
 
-		dashboard.addWidgets(
-			// new cloudwatch.GraphWidget({
-			//   left: [ec2CpuUtilizationMetric],
-			//   width: 12,
-			//   title: 'EC2 CPU Utilization'
-			// }),
-			new cloudwatch.GraphWidget({
-				left: [fargateCpuUtilizationMetric],
-				width: 12,
-				title: "Fargate CPU Utilization",
-			}),
-		);
-	}
+        dashboard.addWidgets(
+            // new cloudwatch.GraphWidget({
+            //   left: [ec2CpuUtilizationMetric],
+            //   width: 12,
+            //   title: 'EC2 CPU Utilization'
+            // }),
+            new cloudwatch.GraphWidget({
+                left: [fargateCpuUtilizationMetric],
+                width: 12,
+                title: "Fargate CPU Utilization",
+            }),
+        );
+    }
 }
