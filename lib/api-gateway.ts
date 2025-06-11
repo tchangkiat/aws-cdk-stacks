@@ -4,17 +4,17 @@ import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 
 export class ApiGateway extends Stack {
-    constructor(scope: Construct, id: string, props?: StackProps) {
-        super(scope, id, props);
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
 
-        // ----------------------------
-        // Lambda
-        // ----------------------------
+    // ----------------------------
+    // Lambda
+    // ----------------------------
 
-        const exampleApi = new lambda.Function(this, "exampleApi", {
-            functionName: id + "-example-api",
-            runtime: lambda.Runtime.NODEJS_20_X,
-            code: lambda.Code.fromInline(`
+    const exampleApi = new lambda.Function(this, "exampleApi", {
+      functionName: id + "-example-api",
+      runtime: lambda.Runtime.NODEJS_20_X,
+      code: lambda.Code.fromInline(`
         exports.handler = async function(event, context) {
             try {
                 var method = event.httpMethod;
@@ -44,59 +44,57 @@ export class ApiGateway extends Stack {
             }
         }
       `),
-            handler: "index.handler",
-        });
+      handler: "index.handler",
+    });
 
-        const authenticator = new lambda.Function(this, "authenticator", {
-            functionName: id + "-authenticator",
-            architecture: lambda.Architecture.ARM_64,
-            runtime: lambda.Runtime.PYTHON_3_12,
-            code: lambda.Code.fromAsset("lambda_api_gateway.zip"),
-            handler: "authenticator.handler",
-        });
+    const authenticator = new lambda.Function(this, "authenticator", {
+      functionName: id + "-authenticator",
+      architecture: lambda.Architecture.ARM_64,
+      runtime: lambda.Runtime.PYTHON_3_12,
+      code: lambda.Code.fromAsset("lambda_api_gateway.zip"),
+      handler: "authenticator.handler",
+    });
 
-        const authorizer = new lambda.Function(this, "authorizer", {
-            functionName: id + "-authorizer",
-            architecture: lambda.Architecture.ARM_64,
-            runtime: lambda.Runtime.PYTHON_3_12,
-            code: lambda.Code.fromAsset("lambda_api_gateway.zip"),
-            handler: "authorizer.handler",
-        });
+    const authorizer = new lambda.Function(this, "authorizer", {
+      functionName: id + "-authorizer",
+      architecture: lambda.Architecture.ARM_64,
+      runtime: lambda.Runtime.PYTHON_3_12,
+      code: lambda.Code.fromAsset("lambda_api_gateway.zip"),
+      handler: "authorizer.handler",
+    });
 
-        // ----------------------------
-        // API Gateway
-        // ----------------------------
+    // ----------------------------
+    // API Gateway
+    // ----------------------------
 
-        const api = new apigateway.RestApi(this, "restApi", {
-            restApiName: "demo",
-            description: "API Gateway Demo",
-            deployOptions: {
-                stageName: "v1",
-                throttlingRateLimit: 1,
-                throttlingBurstLimit: 1,
-            },
-        });
-        const authResource = api.root.addResource("auth");
+    const api = new apigateway.RestApi(this, "restApi", {
+      restApiName: "demo",
+      description: "API Gateway Demo",
+      deployOptions: {
+        stageName: "v1",
+        throttlingRateLimit: 1,
+        throttlingBurstLimit: 1,
+      },
+    });
+    const authResource = api.root.addResource("auth");
 
-        const tokenAuthorizer = new apigateway.TokenAuthorizer(
-            this,
-            "tokenAuthorizer",
-            {
-                authorizerName: "JWT",
-                handler: authorizer,
-            },
-        );
+    const tokenAuthorizer = new apigateway.TokenAuthorizer(
+      this,
+      "tokenAuthorizer",
+      {
+        authorizerName: "JWT",
+        handler: authorizer,
+      },
+    );
 
-        const exampleApiIntegration = new apigateway.LambdaIntegration(
-            exampleApi,
-        );
-        api.root.addMethod("GET", exampleApiIntegration, {
-            authorizer: tokenAuthorizer,
-        });
+    const exampleApiIntegration = new apigateway.LambdaIntegration(exampleApi);
+    api.root.addMethod("GET", exampleApiIntegration, {
+      authorizer: tokenAuthorizer,
+    });
 
-        const authenticatorIntegration = new apigateway.LambdaIntegration(
-            authenticator,
-        );
-        authResource.addMethod("GET", authenticatorIntegration);
-    }
+    const authenticatorIntegration = new apigateway.LambdaIntegration(
+      authenticator,
+    );
+    authResource.addMethod("GET", authenticatorIntegration);
+  }
 }

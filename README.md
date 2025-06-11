@@ -13,18 +13,18 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 - [Initial Setup](#initial-setup)
 - [Multi-Architecture Pipeline](#multi-architecture-pipeline)
 - [Elastic Container Service (ECS)](#elastic-container-service-ecs)
-    - [ECS Cluster Setup](#ecs-cluster-setup)
-    - [CICD Pipeline for ECS Cluster](#cicd-pipeline-for-ecs-cluster)
+  - [ECS Cluster Setup](#ecs-cluster-setup)
+  - [CICD Pipeline for ECS Cluster](#cicd-pipeline-for-ecs-cluster)
 - [Elastic Kubernetes Service (EKS)](#elastic-kubernetes-service-eks)
-    - [EKS Cluster](#eks-cluster)
-    - [Add-Ons](#add-ons)
-    - [Deploy Application](#deploy-application)
-    - [Metrics Server and Horizontal Pod Autoscaler (HPA)](#metrics-server-and-horizontal-pod-autoscaler-hpa)
-    - [Argo CD](#argo-cd)
-    - [Argo Rollouts](#argo-rollouts)
-    - [Amazon VPC Lattice](#amazon-vpc-lattice)
-    - [Distributed ML with Ray](#distributed-ml-with-ray)
-    - [Model Inference with AWS Graviton](#model-inference-with-aws-graviton)
+  - [EKS Cluster](#eks-cluster)
+  - [Add-Ons](#add-ons)
+  - [Deploy Application](#deploy-application)
+  - [Metrics Server and Horizontal Pod Autoscaler (HPA)](#metrics-server-and-horizontal-pod-autoscaler-hpa)
+  - [Argo CD](#argo-cd)
+  - [Argo Rollouts](#argo-rollouts)
+  - [Amazon VPC Lattice](#amazon-vpc-lattice)
+  - [Distributed ML with Ray](#distributed-ml-with-ray)
+  - [Model Inference with AWS Graviton](#model-inference-with-aws-graviton)
 - [API Gateway and Lambda](#api-gateway-and-lambda)
 - [Egress VPC](#egress-vpc)
 
@@ -166,17 +166,17 @@ Example #3: Remove multiple add-ons
 4. Amazon CloudWatch Container Insights ("container-insights")
 5. Prometheus and Grafana ("prometheus-grafana")
 
-    - Prerequisite: AWS EBS CSI Driver
+   - Prerequisite: AWS EBS CSI Driver
 
 6. Ingress NGINX Controller ("ingress-nginx-controller")
 
-    - Also installs cert-manager
+   - Also installs cert-manager
 
 7. AWS Gateway API Controller ("gateway-api-controller")
 8. Amazon EMR on EKS ("emr-on-eks")
 9. JupyterHub ("jupyterhub")
 
-    - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
+   - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
 
 10. Ray ("ray")
 
@@ -527,14 +527,14 @@ curl "http://localhost:8000/v1/chat/completions" \
 
 ```json
 {
-    "model": "meta-llama/Llama-3.2-1B-Instruct",
-    "choices": [
-        {
-            "message": {
-                "content": "Amazon Elastic Kubernetes Service (EKS) is a managed Kubernetes service provided by Amazon Web Services (AWS) that allows users to create, manage, and scale Kubernetes clusters on AWS. EKS provides a fully managed experience, including cluster creation, patching, and scaling, as well as support for multiple Kubernetes versions and distributions. With EKS, users can focus on deploying and managing their applications, rather than managing the underlying Kubernetes infrastructure."
-            }
-        }
-    ]
+  "model": "meta-llama/Llama-3.2-1B-Instruct",
+  "choices": [
+    {
+      "message": {
+        "content": "Amazon Elastic Kubernetes Service (EKS) is a managed Kubernetes service provided by Amazon Web Services (AWS) that allows users to create, manage, and scale Kubernetes clusters on AWS. EKS provides a fully managed experience, including cluster creation, patching, and scaling, as well as support for multiple Kubernetes versions and distributions. With EKS, users can focus on deploying and managing their applications, rather than managing the underlying Kubernetes infrastructure."
+      }
+    }
+  ]
 }
 ```
 
@@ -603,14 +603,14 @@ Deploy an egress VPC with Transit Gateway. VPN-related resources are deployed fo
 
 1. Follow section 4 and 5 in the following article to deploy an EC2 instance with strongSwan to establish a Site-to-Site VPN -> [Simulating Site-to-Site VPN Customer Gateways Using strongSwan](https://aws.amazon.com/blogs/networking-and-content-delivery/simulating-site-to-site-vpn-customer-gateways-strongswan/).<br/><br/> Below are the values to fill up some of the parameters of the CloudFormation template used in the article above (for the other parameters, follow the instructions in the section 5 of the article):
 
-    - Stack Name: `egress-vpc-vpn`
+   - Stack Name: `egress-vpc-vpn`
 
-    - Name of secret in AWS Secrets Manager for VPN Tunnel 1 Pre-Shared Key: `egress-vpc-psk1`
-    - Name of secret in AWS Secrets Manager for VPN Tunnel 2 Pre-Shared Key: `egress-vpc-psk2`
-    - VPC ID: select `egress-vpc-customer-vpc`
-    - VPC CIDR Block: `30.0.0.0/16`
-    - Subnet ID for VPN Gateway: select `egress-vpc-customer-vpc/PublicSubnet1`
-    - Elastic IP Address Allocation ID: can be found in the output of the CDK stack. The value should start with `eipalloc-`
+   - Name of secret in AWS Secrets Manager for VPN Tunnel 1 Pre-Shared Key: `egress-vpc-psk1`
+   - Name of secret in AWS Secrets Manager for VPN Tunnel 2 Pre-Shared Key: `egress-vpc-psk2`
+   - VPC ID: select `egress-vpc-customer-vpc`
+   - VPC CIDR Block: `30.0.0.0/16`
+   - Subnet ID for VPN Gateway: select `egress-vpc-customer-vpc/PublicSubnet1`
+   - Elastic IP Address Allocation ID: can be found in the output of the CDK stack. The value should start with `eipalloc-`
 
 > ❗ Wait until the VPN Gateway (EC2 Instance) is created and verify that both IPSec tunnels are 'UP' (Site-to-Site VPN Connections > egress-vpc-vpn > Tunnel details), before proceeding to step 4 and 5. This will take a few minutes.
 
