@@ -88,6 +88,9 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
+          env:
+            - name: PATH_PREFIXES
+              value: /amd64,/canary
       nodeSelector:
         karpenter.sh/nodepool: default
         node.kubernetes.io/instance-type: c6i.large
@@ -183,6 +186,9 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
+          env:
+            - name: PATH_PREFIXES
+              value: /arm64,/canary
       nodeSelector:
         karpenter.sh/nodepool: default-arm64
         node.kubernetes.io/instance-type: c7g.large
@@ -206,9 +212,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   namespace: example
-  name: web-app-canary
+  name: web-app
   annotations:
-    alb.ingress.kubernetes.io/load-balancer-name: web-app-canary
+    alb.ingress.kubernetes.io/load-balancer-name: web-app
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/actions.canary-deployment: >-
       {
@@ -237,48 +243,27 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: canary-deployment
+                name: web-app-arm64
                 port:
-                  name: use-annotation
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  namespace: example
-  name: web-app-amd64
-  annotations:
-    alb.ingress.kubernetes.io/load-balancer-name: web-app-amd64
-    alb.ingress.kubernetes.io/scheme: internet-facing
-spec:
-  ingressClassName: alb
-  rules:
-    - http:
-        paths:
-          - path: /
+                  number: 8000
+          - path: /amd64
             pathType: Prefix
             backend:
               service:
                 name: web-app-amd64
                 port:
                   number: 8000
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  namespace: example
-  name: web-app-arm64
-  annotations:
-    alb.ingress.kubernetes.io/load-balancer-name: web-app-arm64
-    alb.ingress.kubernetes.io/scheme: internet-facing
-spec:
-  ingressClassName: alb
-  rules:
-    - http:
-        paths:
-          - path: /
+          - path: /arm64
             pathType: Prefix
             backend:
               service:
                 name: web-app-arm64
                 port:
                   number: 8000
+          - path: /canary
+            pathType: Prefix
+            backend:
+              service:
+                name: canary-deployment
+                port:
+                  name: use-annotation
