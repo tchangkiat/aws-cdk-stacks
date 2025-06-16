@@ -1,35 +1,129 @@
 #!/bin/bash
 
-PREFIX_LIST_ID=$(aws ec2 describe-managed-prefix-lists --query "PrefixLists[?PrefixListName=="\'com.amazonaws.$AWS_REGION.vpc-lattice\'"].PrefixListId" | jq -r '.[]')
-MANAGED_PREFIX=$(aws ec2 get-managed-prefix-list-entries --prefix-list-id $PREFIX_LIST_ID --output json  | jq -r '.Entries[0].Cidr')
+LATTICE_CONTROLLER_VERSION=1.1.2
+GATEWAY_API_VERSION=1.3.0
+
+CLUSTER_VPC_ID=$(aws eks describe-cluster --name $AWS_EKS_CLUSTER --output json| jq -r '.cluster.resourcesVpcConfig.vpcId')
+
+# Add rules to cluster security group
 CLUSTER_SG=$(aws eks describe-cluster --name $AWS_EKS_CLUSTER --output json| jq -r '.cluster.resourcesVpcConfig.clusterSecurityGroupId')
-aws ec2 authorize-security-group-ingress --group-id $CLUSTER_SG --cidr $MANAGED_PREFIX --protocol -1
+PREFIX_LIST_ID=$(aws ec2 describe-managed-prefix-lists --query "PrefixLists[?PrefixListName=="\'com.amazonaws.$AWS_REGION.vpc-lattice\'"].PrefixListId" | jq -r '.[]')
+aws ec2 authorize-security-group-ingress --group-id $CLUSTER_SG --ip-permissions "PrefixListIds=[{PrefixListId=${PREFIX_LIST_ID}}],IpProtocol=-1"
+PREFIX_LIST_ID_IPV6=$(aws ec2 describe-managed-prefix-lists --query "PrefixLists[?PrefixListName=="\'com.amazonaws.$AWS_REGION.ipv6.vpc-lattice\'"].PrefixListId" | jq -r '.[]')
+aws ec2 authorize-security-group-ingress --group-id $CLUSTER_SG --ip-permissions "PrefixListIds=[{PrefixListId=${PREFIX_LIST_ID_IPV6}}],IpProtocol=-1"
 
-curl -o gateway-api-controller-iam-policy.json https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/recommended-inline-policy.json
-
-aws iam create-policy \
-   --policy-name "${AWS_EKS_CLUSTER}-GatewayApiControllerPolicy" \
-   --policy-document file://gateway-api-controller-iam-policy.json
-
-curl -o gateway-api-controller-namespace.yaml https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/deploy-namesystem.yaml
-
+# Create namespace
+curl -o gateway-api-controller-namespace.yaml https://raw.githubusercontent.com/aws/aws-application-networking-k8s/refs/heads/main/files/controller-installation/deploy-namesystem.yaml
 kubectl apply -f gateway-api-controller-namespace.yaml
 
-eksctl utils associate-iam-oidc-provider --region=$AWS_REGION --cluster=$AWS_EKS_CLUSTER --approve
+# Create IAM policy
+curl -o gateway-api-controller-iam-policy.json https://raw.githubusercontent.com/aws/aws-application-networking-k8s/refs/heads/main/files/controller-installation/recommended-inline-policy.json
+aws iam create-policy \
+   --policy-name "${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}" \
+   --policy-document file://gateway-api-controller-iam-policy.json
 
-eksctl create iamserviceaccount \
-   --cluster=$AWS_EKS_CLUSTER \
-   --namespace=aws-application-networking-system \
-   --name="gateway-api-controller" \
-   --attach-policy-arn="arn:aws:iam::$AWS_ACCOUNT_ID:policy/${AWS_EKS_CLUSTER}-GatewayApiControllerPolicy" \
-   --override-existing-serviceaccounts \
-   --region $AWS_REGION \
-   --approve
+# Create Kubernetes service account
+cat >gateway-api-controller-service-account.yaml <<EOF
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+    name: gateway-api-controller
+    namespace: aws-application-networking-system
+EOF
+kubectl apply -f gateway-api-controller-service-account.yaml
 
+# Create IAM role
+cat > eks-pod-identity-trust-relationship.json <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowEksAuthToAssumeRoleForPodIdentity",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "pods.eks.amazonaws.com"
+            },
+            "Action": [
+                "sts:AssumeRole",
+                "sts:TagSession"
+            ]
+        }
+    ]
+}
+EOF
+aws iam create-role --role-name "${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}" --assume-role-policy-document file://eks-pod-identity-trust-relationship.json --description "For AWS Gateway API Controller for VPC Lattice"
+aws iam attach-role-policy --role-name "${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}" --policy-arn="arn:aws:iam::${AWS_ACCOUNT_ID}:policy/${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}"
+export VPCLatticeControllerIAMRoleArn="arn:aws:iam::${AWS_ACCOUNT_ID}:role/${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}"
+
+# Associate IAM role to Kubernetes service account in the EKS cluster
+aws eks create-pod-identity-association --cluster-name ${AWS_EKS_CLUSTER} --role-arn ${VPCLatticeControllerIAMRoleArn} --namespace aws-application-networking-system --service-account gateway-api-controller
+
+# Create VPC Lattice service network and associate it with EKS cluster VPC
+aws vpc-lattice create-service-network --name "${AWS_EKS_CLUSTER}-network"
+SERVICE_NETWORK_ID=$(aws vpc-lattice list-service-networks --query "items[?name=="\'${AWS_EKS_CLUSTER}-network\'"].id" | jq -r '.[]')
+aws vpc-lattice create-service-network-vpc-association --service-network-identifier $SERVICE_NETWORK_ID --vpc-identifier $CLUSTER_VPC_ID
+
+sleep 60
+
+# Deploy Kuberntes Gateway API CRDs
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v${GATEWAY_API_VERSION}/standard-install.yaml
+
+# Install Gateway API Controller using Helm
 aws ecr-public get-login-password --region us-east-1 | helm registry login --username AWS --password-stdin public.ecr.aws
+helm install gateway-api-controller \
+    oci://public.ecr.aws/aws-application-networking-k8s/aws-gateway-controller-chart \
+    --version=v${LATTICE_CONTROLLER_VERSION} \
+    --set=serviceAccount.create=false \
+    --namespace aws-application-networking-system \
+    --set=log.level=info \
+    --set=awsRegion=${AWS_REGION} \
+    --set=awsAccountId=${AWS_ACCOUNT_ID} \
+    --set=clusterVpcId=${CLUSTER_VPC_ID} \
+    --set=clusterName=${AWS_EKS_CLUSTER} \
+    --set=defaultServiceNetwork=${AWS_EKS_CLUSTER}-network
 
-kubectl apply -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/deploy-v1.0.2.yaml
+# Create Gateway Class
+curl -o vpc-lattice-gateway-class.yaml https://raw.githubusercontent.com/aws/aws-application-networking-k8s/refs/heads/main/files/controller-installation/gatewayclass.yaml
+kubectl apply -f vpc-lattice-gateway-class.yaml
 
-curl -o gatewayclass.yaml https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/gatewayclass.yaml
+# Create Gateway
+cat <<EOF >>vpc-lattice-gateway.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: ${AWS_EKS_CLUSTER}-network
+  namespace: example
+spec:
+  gatewayClassName: amazon-vpc-lattice
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+EOF
+kubectl apply -f vpc-lattice-gateway.yaml
 
-kubectl apply -f gatewayclass.yaml
+# Create HTTP Routes for web-app
+cat <<EOF >>vpc-lattice-http-route.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: web-app
+  namespace: example
+spec:
+  parentRefs:
+    - name: ${AWS_EKS_CLUSTER}-network
+      sectionName: http
+  rules:
+    - backendRefs:
+        - name: web-app-amd64
+          namespace: example
+          kind: Service
+          port: 8000
+          weight: 90
+        - name: web-app-arm64
+          namespace: example
+          kind: Service
+          port: 8000
+          weight: 10
+EOF
+kubectl apply -f vpc-lattice-http-route.yaml

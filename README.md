@@ -381,39 +381,15 @@ nodeSelector:
 
 ### Setup
 
-1. Install AWS Gateway API Controller with `./eks-add-ons.sh -i gateway-api-controller`
-
-2. Set up Gateway for the application.
-
 ```bash
-curl -o vpc-lattice-gateway.yaml https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/vpc-lattice/vpc-lattice-gateway.yaml
-
-kubectl apply -f vpc-lattice-gateway.yaml
-```
-
-3. Set up HttpRoute for the application.
-
-```bash
-curl -o vpc-lattice-httproute.yaml https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/vpc-lattice/vpc-lattice-httproute.yaml
-
-kubectl apply -f vpc-lattice-httproute.yaml
+./eks-add-ons.sh -i gateway-api-controller
 ```
 
 ### Clean Up
 
-1. Remove HttpRoute for the application.
-
 ```bash
-kubectl delete -f vpc-lattice-httproute.yaml
+./eks-add-ons.sh -r gateway-api-controller
 ```
-
-2. Remove Gateway for the application.
-
-```bash
-kubectl delete -f vpc-lattice-gateway.yaml
-```
-
-3. Remove AWS Gateway API Controller with `./eks-add-ons.sh -r gateway-api-controller`
 
 ## Distributed ML with Ray
 
