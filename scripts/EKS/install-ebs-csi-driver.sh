@@ -3,15 +3,15 @@
 curl -sSL -o ebs-csi-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-ebs-csi-driver/master/docs/example-iam-policy.json
 
 aws iam create-policy \
- --policy-name $AWS_EKS_CLUSTER-ebs-csi-$AWS_REGION \
+ --policy-name $AWS_EKS_CLUSTER-$AWS_REGION-aws-ebs-csi-driver \
  --policy-document file://ebs-csi-policy.json
 
 eksctl create iamserviceaccount \
 --cluster=$AWS_EKS_CLUSTER \
 --namespace=kube-system \
---name=ebs-csi-controller \
---role-name=$AWS_EKS_CLUSTER-ebs-csi-controller-$AWS_REGION \
---attach-policy-arn=arn:aws:iam::$AWS_ACCOUNT_ID:policy/$AWS_EKS_CLUSTER-ebs-csi-$AWS_REGION \
+--name=aws-ebs-csi-driver \
+--role-name=$AWS_EKS_CLUSTER-$AWS_REGION-aws-ebs-csi-driver \
+--attach-policy-arn=arn:aws:iam::$AWS_ACCOUNT_ID:policy/$AWS_EKS_CLUSTER-$AWS_REGION-aws-ebs-csi-driver \
 --override-existing-serviceaccounts \
 --region $AWS_REGION \
 --approve
@@ -22,7 +22,7 @@ helm repo update
 helm upgrade --install aws-ebs-csi-driver \
   --namespace kube-system \
   --set controller.serviceAccount.create=false \
-  --set controller.serviceAccount.name=ebs-csi-controller \
+  --set controller.serviceAccount.name=aws-ebs-csi-driver \
   aws-ebs-csi-driver/aws-ebs-csi-driver
 
 kubectl delete storageclass gp2

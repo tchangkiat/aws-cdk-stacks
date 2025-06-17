@@ -15,4 +15,4 @@ eksctl delete iamserviceaccount \
 sleep 10
 
 aws iam delete-policy \
- --policy-arn arn:aws:iam::$AWS_ACCOUNT_ID:policy/$AWS_EKS_CLUSTER-aws-load-balancer-controller
+ --policy-arn arn:aws:iam::$AWS_ACCOUNT_ID:policy/$AWS_EKS_CLUSTER-$AWS_REGION-aws-load-balancer-controller
