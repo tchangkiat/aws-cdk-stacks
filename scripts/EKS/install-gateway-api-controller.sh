@@ -19,7 +19,7 @@ kubectl apply -f gateway-api-controller-namespace.yaml
 # Create IAM policy
 curl -o gateway-api-controller-iam-policy.json https://raw.githubusercontent.com/aws/aws-application-networking-k8s/refs/heads/main/files/controller-installation/recommended-inline-policy.json
 aws iam create-policy \
-   --policy-name "${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}" \
+   --policy-name "${AWS_EKS_CLUSTER}-${AWS_REGION}-gateway-api-controller" \
    --policy-document file://gateway-api-controller-iam-policy.json
 
 # Create Kubernetes service account
@@ -51,9 +51,9 @@ cat > eks-pod-identity-trust-relationship.json <<EOF
     ]
 }
 EOF
-aws iam create-role --role-name "${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}" --assume-role-policy-document file://eks-pod-identity-trust-relationship.json --description "For AWS Gateway API Controller for VPC Lattice"
-aws iam attach-role-policy --role-name "${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}" --policy-arn="arn:aws:iam::${AWS_ACCOUNT_ID}:policy/${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}"
-export VPCLatticeControllerIAMRoleArn="arn:aws:iam::${AWS_ACCOUNT_ID}:role/${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}"
+aws iam create-role --role-name "${AWS_EKS_CLUSTER}-${AWS_REGION}-gateway-api-controller" --assume-role-policy-document file://eks-pod-identity-trust-relationship.json --description "For AWS Gateway API Controller for VPC Lattice"
+aws iam attach-role-policy --role-name "${AWS_EKS_CLUSTER}-${AWS_REGION}-gateway-api-controller" --policy-arn="arn:aws:iam::${AWS_ACCOUNT_ID}:policy/${AWS_EKS_CLUSTER}-${AWS_REGION}-gateway-api-controller"
+export VPCLatticeControllerIAMRoleArn="arn:aws:iam::${AWS_ACCOUNT_ID}:role/${AWS_EKS_CLUSTER}-${AWS_REGION}-gateway-api-controller"
 
 # Associate IAM role to Kubernetes service account in the EKS cluster
 aws eks create-pod-identity-association --cluster-name ${AWS_EKS_CLUSTER} --role-arn ${VPCLatticeControllerIAMRoleArn} --namespace aws-application-networking-system --service-account gateway-api-controller

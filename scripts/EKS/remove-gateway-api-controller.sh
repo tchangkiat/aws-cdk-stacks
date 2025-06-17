@@ -26,8 +26,8 @@ aws eks list-pod-identity-associations --cluster-name $AWS_EKS_CLUSTER \
     | jq -r '.associations[] | select(.serviceAccount == "gateway-api-controller") | .associationId' \
     | xargs -I{} aws eks delete-pod-identity-association --association-id {} --cluster-name ${AWS_EKS_CLUSTER}
 
-aws iam detach-role-policy --role-name "${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}" --policy-arn="arn:aws:iam::${AWS_ACCOUNT_ID}:policy/${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}"
-aws iam delete-role --role-name "${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}"
+aws iam detach-role-policy --role-name "${AWS_EKS_CLUSTER}-${AWS_REGION}-gateway-api-controller" --policy-arn="arn:aws:iam::${AWS_ACCOUNT_ID}:policy/${AWS_EKS_CLUSTER}-${AWS_REGION}-gateway-api-controller"
+aws iam delete-role --role-name "${AWS_EKS_CLUSTER}-${AWS_REGION}-gateway-api-controller"
 
 rm eks-pod-identity-trust-relationship.json
 
@@ -36,7 +36,7 @@ rm gateway-api-controller-service-account.yaml
 
 sleep 10
 
-aws iam delete-policy --policy-arn "arn:aws:iam::${AWS_ACCOUNT_ID}:policy/${AWS_EKS_CLUSTER}-gateway-api-controller-${AWS_REGION}"
+aws iam delete-policy --policy-arn "arn:aws:iam::${AWS_ACCOUNT_ID}:policy/${AWS_EKS_CLUSTER}-${AWS_REGION}-gateway-api-controller"
 rm gateway-api-controller-iam-policy.json
 
 kubectl delete -f gateway-api-controller-namespace.yaml
