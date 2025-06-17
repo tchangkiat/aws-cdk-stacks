@@ -26,7 +26,7 @@ eksctl create iamidentitymapping \
   --username system:node:{{EC2PrivateDNSName}} \
   --cluster "${CLUSTER_NAME}" \
   --region "${AWS_DEFAULT_REGION}" \
-  --arn "arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:role/KarpenterNodeRole-${CLUSTER_NAME}-${AWS_DEFAULT_REGION}" \
+  --arn "arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:role/${CLUSTER_NAME}-${AWS_DEFAULT_REGION}-karpenter-node" \
   --group system:bootstrappers \
   --group system:nodes
 
@@ -113,7 +113,7 @@ metadata:
   name: default
 spec:
   amiFamily: "Bottlerocket"
-  role: "KarpenterNodeRole-${CLUSTER_NAME}-${AWS_DEFAULT_REGION}"
+  role: "${CLUSTER_NAME}-${AWS_DEFAULT_REGION}-karpenter-node"
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: ${CLUSTER_NAME}

@@ -37,7 +37,7 @@ metadata:
   name: jupyterhub
 spec:
   amiFamily: "Bottlerocket"
-  role: "KarpenterNodeRole-${AWS_EKS_CLUSTER}-${AWS_REGION}"
+  role: "${AWS_EKS_CLUSTER}-${AWS_REGION}-karpenter-node"
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: ${AWS_EKS_CLUSTER}

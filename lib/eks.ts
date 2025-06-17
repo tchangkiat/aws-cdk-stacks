@@ -59,7 +59,7 @@ export class EKS extends Stack {
 
     const eksMasterRole = new iam.Role(this, "master-role", {
       assumedBy: new iam.AccountRootPrincipal(),
-      roleName: eksClusterName + "-master-role-" + this.region,
+      roleName: eksClusterName + "-" + this.region + "-master",
     });
     eksMasterRole.addToPolicy(
       new iam.PolicyStatement({

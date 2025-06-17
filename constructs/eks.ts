@@ -24,7 +24,7 @@ export class ManagedNodeGroup extends Construct {
     const eksNodeRole = new iam.Role(this, id + "-node-role", {
       assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
       roleName:
-        cluster.clusterName + "-" + id + "-node-role-" + Stack.of(this).region,
+        cluster.clusterName + "-" + Stack.of(this).region + "-" + id + "-node",
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKS_CNI_Policy"),
         iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSWorkerNodePolicy"),

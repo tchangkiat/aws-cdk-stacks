@@ -8,7 +8,7 @@ Resources:
   KarpenterNodeRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: !Sub "KarpenterNodeRole-${ClusterName}-${AWS::Region}"
+      RoleName: !Sub "${ClusterName}-${AWS::Region}-karpenter-node"
       Path: /
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -29,7 +29,7 @@ Resources:
   KarpenterControllerPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      ManagedPolicyName: !Sub "KarpenterControllerPolicy-${ClusterName}-${AWS::Region}"
+      ManagedPolicyName: !Sub "${ClusterName}-${AWS::Region}-karpenter-controller"
       # The PolicyDocument must be in JSON string format because we use a StringEquals condition that uses an interpolated
       # value in one of its key parameters which isn't natively supported by CloudFormation
       PolicyDocument: !Sub |
@@ -371,7 +371,7 @@ Resources:
   KarpenterControllerRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: !Sub "${ClusterName}-karpenter-${AWS::Region}"
+      RoleName: !Sub "${ClusterName}-${AWS::Region}-karpenter-controller"
       Path: /
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
