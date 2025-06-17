@@ -128,7 +128,7 @@ kubectl get svc
 1. Download the bash script to install / remove add-ons.
 
 ```bash
-curl -o eks-add-ons.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/eks-add-ons.sh
+curl -o eks-add-ons.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/eks-add-ons.sh
 chmod +x eks-add-ons.sh
 ```
 
@@ -461,7 +461,7 @@ aws codebuild start-build --project-name vllm-arm64
 ```bash
 export HF_TOKEN="<Hugging Face Token>"
 
-curl -o install-vllm.sh "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-vllm.sh"
+curl -o install-vllm.sh "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/install-vllm.sh"
 chmod +x install-vllm.sh
 ./install-vllm.sh
 ```
@@ -469,7 +469,7 @@ chmod +x install-vllm.sh
 4. Deploy a vLLM server with [meta-llama/Llama-3.2-1B-Instruct](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct).
 
 ```bash
-curl -o install-vllm-meta-llama.sh "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-vllm-meta-llama.sh"
+curl -o install-vllm-meta-llama.sh "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/install-vllm-meta-llama.sh"
 chmod +x install-vllm-meta-llama.sh
 ./install-vllm-meta-llama.sh
 ```
@@ -519,11 +519,11 @@ curl "http://localhost:8000/v1/chat/completions" \
 1. Remove vLLM.
 
 ```bash
-curl -o remove-vllm-meta-llama.sh "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-vllm-meta-llama.sh"
+curl -o remove-vllm-meta-llama.sh "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/remove-vllm-meta-llama.sh"
 chmod +x remove-vllm-meta-llama.sh
 ./remove-vllm-meta-llama.sh
 
-curl -o remove-vllm.sh "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-vllm.sh"
+curl -o remove-vllm.sh "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/remove-vllm.sh"
 chmod +x remove-vllm.sh
 ./remove-vllm.sh
 ```

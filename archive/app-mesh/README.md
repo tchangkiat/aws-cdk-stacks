@@ -9,7 +9,7 @@
 3. Generate the necessary manifest and set up App Mesh.
 
 ```bash
-curl -o setup-app-mesh.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/setup-app-mesh.sh
+curl -o setup-app-mesh.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/setup-app-mesh.sh
 
 chmod +x setup-app-mesh.sh
 
@@ -48,7 +48,7 @@ helm upgrade -i appmesh-controller eks/appmesh-controller --namespace appmesh-sy
 1. Remove App Mesh setup of the sample application.
 
 ```bash
-curl -o remove-app-mesh.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-app-mesh.sh
+curl -o remove-app-mesh.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/remove-app-mesh.sh
 
 chmod +x remove-app-mesh.sh
 

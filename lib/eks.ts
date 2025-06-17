@@ -188,7 +188,7 @@ export class EKS extends Stack {
             ecrRepository.repositoryUri +
             ":latest' >> /home/ec2-user/.bashrc",
           // Download script to set up bastion host
-          "curl -o /home/ec2-user/setup-bastion-host.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/setup-bastion-host.sh",
+          "curl -o /home/ec2-user/setup-bastion-host.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/setup-bastion-host.sh",
           "chmod +x /home/ec2-user/setup-bastion-host.sh",
           // Alias
           "echo 'alias k=kubectl' >> /home/ec2-user/.bashrc",

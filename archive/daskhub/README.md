@@ -13,7 +13,7 @@ Source: [Analyze terabyte-scale geospatial datasets with Dask and Jupyter on AWS
 2. Install DaskHub.
 
 ```bash
-curl -o install-daskhub.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/install-daskhub.sh
+curl -o install-daskhub.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/install-daskhub.sh
 
 chmod +x install-daskhub.sh
 
@@ -36,7 +36,7 @@ JupyterHub Password: <generated password>
 1. Remove DaskHub.
 
 ```bash
-curl -o remove-daskhub.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/remove-daskhub.sh
+curl -o remove-daskhub.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/remove-daskhub.sh
 
 chmod +x remove-daskhub.sh
 

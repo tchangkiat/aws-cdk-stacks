@@ -117,7 +117,7 @@ then
     echo ""
 
     for script in "${scripts[@]}"; do
-        curl -o $script "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/EKS/${script}"
+        curl -o $script "https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/${script}"
         chmod +x $script
         ./$script
         rm $script
