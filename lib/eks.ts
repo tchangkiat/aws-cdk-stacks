@@ -164,7 +164,10 @@ export class EKS extends Stack {
           "chmod 700 get_helm.sh",
           "./get_helm.sh",
           // eksctl
-          "curl --silent --location 'https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_arm64.tar.gz' | tar xz -C /tmp",
+          "ARCH=arm64",
+          "PLATFORM=$(uname -s)_$ARCH",
+          "curl -sLO https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz",
+          "tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz",
           "sudo mv /tmp/eksctl /usr/local/bin",
           // jq
           "sudo yum install jq -y",
