@@ -164,33 +164,34 @@ Example #3: Remove multiple add-ons
 2. AWS Load Balancer Controller ("load-balancer-controller")
 3. AWS EBS CSI Driver ("ebs-csi-driver")
 4. Amazon CloudWatch Container Insights ("container-insights")
-5. Prometheus and Grafana ("prometheus-grafana")
+5. AWS X-Ray Daemon ("xray")
+6. Prometheus and Grafana ("prometheus-grafana")
 
    - Prerequisite: AWS EBS CSI Driver
 
-6. Ingress NGINX Controller ("ingress-nginx-controller")
+7. Ingress NGINX Controller ("ingress-nginx-controller")
 
    - Also installs cert-manager
 
-7. AWS Gateway API Controller ("gateway-api-controller")
-8. Amazon EMR on EKS ("emr-on-eks")
-9. JupyterHub ("jupyterhub")
+8. AWS Gateway API Controller ("gateway-api-controller")
+9. Amazon EMR on EKS ("emr-on-eks")
+10. JupyterHub ("jupyterhub")
 
-   - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
+    - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
 
-10. Ray ("ray")
+11. Ray ("ray")
 
     - Prerequisites: Karpenter
 
-11. Argo CD ("argo-cd")
+12. Argo CD ("argo-cd")
 
     - Prerequisites: Karpenter, AWS Load Balancer Controller
 
-12. Argo Rollouts ("argo-rollouts")
+13. Argo Rollouts ("argo-rollouts")
 
     - Prerequisites: Karpenter, AWS Load Balancer Controller
 
-13. Open Policy Agent Gatekeeper ("opa-gatekeeper")
+14. Open Policy Agent Gatekeeper ("opa-gatekeeper")
 
     - Includes a constraint template and constraint
 
