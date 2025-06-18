@@ -1,3 +1,5 @@
+#!/bin/bash
+
 kubectl delete -f argo-rollouts-example.yaml
 rm argo-rollouts-example.yaml
 
