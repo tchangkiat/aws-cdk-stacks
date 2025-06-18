@@ -79,8 +79,8 @@ spec:
         kind: EC2NodeClass
         name: default
   limits:
-    cpu: 32
-  weight: 2
+    cpu: 64
+  weight: 50
 ---
 apiVersion: karpenter.sh/v1
 kind: NodePool
@@ -104,8 +104,7 @@ spec:
         kind: EC2NodeClass
         name: default
   limits:
-    cpu: 32
-  weight: 1
+    cpu: 64
 ---
 apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
