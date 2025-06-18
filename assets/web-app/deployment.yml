@@ -93,8 +93,8 @@ spec:
               value: /amd64,/canary
             - name: GIN_MODE
               value: release
-            - name: ENVIRONMENT
-              value: production
+            - name: TRACING
+              value: false
             - name: AWS_XRAY_DAEMON_ADDRESS
               value: xray-daemon.kube-system.svc.cluster.local:2000
       nodeSelector:
@@ -197,8 +197,8 @@ spec:
               value: /arm64,/canary
             - name: GIN_MODE
               value: release
-            - name: ENVIRONMENT
-              value: production
+            - name: TRACING
+              value: false
             - name: AWS_XRAY_DAEMON_ADDRESS
               value: xray-daemon.kube-system.svc.cluster.local:2000
       nodeSelector:
