@@ -93,10 +93,11 @@ spec:
               value: "/amd64,/canary"
             - name: GIN_MODE
               value: "release"
-            - name: TRACING
-              value: "false"
-            - name: AWS_XRAY_DAEMON_ADDRESS
-              value: "xray-daemon.kube-system.svc.cluster.local:2000"
+            - name: AWS_XRAY_SDK_DISABLED
+              value: "TRUE"
+            # Uncomment the next 2 lines if AWS X-Ray SDK is enabled
+            # - name: AWS_XRAY_DAEMON_ADDRESS
+            #   value: "xray-daemon.kube-system.svc.cluster.local:2000"
       nodeSelector:
         karpenter.sh/nodepool: default
         node.kubernetes.io/instance-type: c6i.large
@@ -197,10 +198,11 @@ spec:
               value: "/arm64,/canary"
             - name: GIN_MODE
               value: "release"
-            - name: TRACING
-              value: "false"
-            - name: AWS_XRAY_DAEMON_ADDRESS
-              value: "xray-daemon.kube-system.svc.cluster.local:2000"
+            - name: AWS_XRAY_SDK_DISABLED
+              value: "TRUE"
+            # Uncomment the next 2 lines if AWS X-Ray SDK is enabled
+            # - name: AWS_XRAY_DAEMON_ADDRESS
+            #   value: "xray-daemon.kube-system.svc.cluster.local:2000"
       nodeSelector:
         karpenter.sh/nodepool: default-arm64
         node.kubernetes.io/instance-type: c7g.large
