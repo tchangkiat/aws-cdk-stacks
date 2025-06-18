@@ -90,13 +90,13 @@ spec:
               drop: ["ALL"]
           env:
             - name: PATH_PREFIXES
-              value: /amd64,/canary
+              value: "/amd64,/canary"
             - name: GIN_MODE
-              value: release
+              value: "release"
             - name: TRACING
-              value: false
+              value: "false"
             - name: AWS_XRAY_DAEMON_ADDRESS
-              value: xray-daemon.kube-system.svc.cluster.local:2000
+              value: "xray-daemon.kube-system.svc.cluster.local:2000"
       nodeSelector:
         karpenter.sh/nodepool: default
         node.kubernetes.io/instance-type: c6i.large
@@ -194,13 +194,13 @@ spec:
               drop: ["ALL"]
           env:
             - name: PATH_PREFIXES
-              value: /arm64,/canary
+              value: "/arm64,/canary"
             - name: GIN_MODE
-              value: release
+              value: "release"
             - name: TRACING
-              value: false
+              value: "false"
             - name: AWS_XRAY_DAEMON_ADDRESS
-              value: xray-daemon.kube-system.svc.cluster.local:2000
+              value: "xray-daemon.kube-system.svc.cluster.local:2000"
       nodeSelector:
         karpenter.sh/nodepool: default-arm64
         node.kubernetes.io/instance-type: c7g.large
