@@ -39,10 +39,10 @@ spec:
           resources:
             requests:
               cpu: 256m
-              memory: 32Mi
+              memory: 256Mi
             limits:
-              cpu: 512m
-              memory: 64Mi
+              cpu: 256m
+              memory: 256Mi
           ports:
             - name: xray-ingest
               containerPort: 2000
@@ -59,7 +59,7 @@ spec:
           env:
             # Not setting the region manually will cause this issue: https://github.com/aws/aws-xray-daemon/issues/203
             - name: AWS_REGION
-              value: ap-southeast-1
+              value: ${$AWS_REGION}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -68,7 +68,7 @@ metadata:
   namespace: kube-system
 data:
   config.yaml: |-
-    TotalBufferSizeMB: 24
+    TotalBufferSizeMB: 3
     Socket:
       UDPAddress: "0.0.0.0:2000"
       TCPAddress: "0.0.0.0:2000"
