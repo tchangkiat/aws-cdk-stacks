@@ -45,12 +45,12 @@ spec:
               memory: "256Mi"
           ports:
             - name: xray-ingest
-              containerPort: 2000
-              hostPort: 2000
+              containerPort: 2100
+              hostPort: 2100
               protocol: UDP
             - name: xray-tcp
-              containerPort: 2000
-              hostPort: 2000
+              containerPort: 2100
+              hostPort: 2100
               protocol: TCP
           volumeMounts:
             - name: config-volume
@@ -85,10 +85,10 @@ spec:
   clusterIP: None
   ports:
     - name: xray-ingest
-      port: 2000
+      port: 2100
       protocol: UDP
     - name: xray-tcp
-      port: 2000
+      port: 2100
       protocol: TCP
 EOF
 kubectl apply -f xray-daemon.yaml
