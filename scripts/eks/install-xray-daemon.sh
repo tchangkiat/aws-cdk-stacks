@@ -38,11 +38,11 @@ spec:
           command: ["/usr/bin/xray", "-c", "/aws/xray/config.yaml"]
           resources:
             requests:
-              cpu: 256m
-              memory: 256Mi
+              cpu: "0.25"
+              memory: "256Mi"
             limits:
-              cpu: 256m
-              memory: 256Mi
+              cpu: "0.25"
+              memory: "256Mi"
           ports:
             - name: xray-ingest
               containerPort: 2000
@@ -59,7 +59,7 @@ spec:
           env:
             # Not setting the region manually will cause this issue: https://github.com/aws/aws-xray-daemon/issues/203
             - name: AWS_REGION
-              value: ${$AWS_REGION}
+              value: ${AWS_REGION}
 ---
 apiVersion: v1
 kind: ConfigMap
