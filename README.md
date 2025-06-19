@@ -20,6 +20,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [Add-Ons](#add-ons)
   - [Deploy Application](#deploy-application)
   - [Metrics Server and Horizontal Pod Autoscaler (HPA)](#metrics-server-and-horizontal-pod-autoscaler-hpa)
+  - [AWS X-Ray](#aws-x-ray)
   - [Argo CD](#argo-cd)
   - [Argo Rollouts](#argo-rollouts)
   - [Amazon VPC Lattice](#amazon-vpc-lattice)
@@ -199,18 +200,18 @@ Example #3: Remove multiple add-ons
 
 > Prerequisite 1: Deploy the Multi-Architecture Pipeline. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
 
-> Prerequisite 2: Install AWS Load Balancer Controller.
+> Prerequisite 2: Install [AWS Load Balancer Controller](#add-ons).
 
 ### Setup
 
 1. Deploy the application with one of the following options
 
 ```bash
-curl https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/web-app/deployment.yml -o example-deployment.yml
+curl https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/web-app.yaml -o web-app.yaml
 
-sed -i "s|\[URL\]|${CONTAINER_IMAGE_URL}|g" example-deployment.yml
+sed -i "s|\[URL\]|${CONTAINER_IMAGE_URL}|g" web-app.yaml
 
-kubectl apply -f example-deployment.yml
+kubectl apply -f web-app.yaml
 ```
 
 ### Clean Up
@@ -218,9 +219,9 @@ kubectl apply -f example-deployment.yml
 1. Remove the application.
 
 ```bash
-kubectl delete -f example-deployment.yml
+kubectl delete -f web-app.yaml
 
-rm example-deployment.yml
+rm web-app.yaml
 ```
 
 ## Metrics Server and Horizontal Pod Autoscaler (HPA)
@@ -262,6 +263,63 @@ kubectl get hpa -n example
 kubectl delete hpa web-app -n example
 
 kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
+## AWS X-Ray
+
+> Prerequisite 1: Deploy the Multi-Architecture Pipeline. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
+
+> Prerequisite 2: Install [AWS Load Balancer Controller](#add-ons).
+
+> Prerequisite 3: Install [Deploy Application](#deploy-application).
+
+### Setup
+
+1. Set up AWS X-Ray DaemonSet.
+
+```bash
+./eks-add-ons.sh -i xray
+```
+
+2. Changed the "AWS_XRAY_SDK_DISABLED" environment variables from "TRUE" to "FALSE" (case sensitive) in assets/web-app.yaml.
+
+```bash
+- name: AWS_XRAY_SDK_DISABLED
+  value: "FALSE"
+```
+
+3. Uncomment the following lines in assets/web-app.yaml.
+
+```bash
+- name: AWS_XRAY_DAEMON_ADDRESS
+  value: "xray-daemon.kube-system.svc.cluster.local:2000"
+- name: AWS_XRAY_SEGMENT_NAME_SUFFIX
+  value: "amd64"
+...
+- name: AWS_XRAY_DAEMON_ADDRESS
+  value: "xray-daemon.kube-system.svc.cluster.local:2000"
+- name: AWS_XRAY_SEGMENT_NAME_SUFFIX
+  value: "arm64"
+```
+
+4. Re-deploy the application
+
+```bash
+kubectl apply -f web-app.yaml
+```
+
+### Clean Up
+
+1. Remove the application.
+
+```bash
+kubectl delete -f web-app.yaml
+```
+
+2. Remove AWS X-Ray DaemonSet.
+
+```bash
+./eks-add-ons.sh -r xray
 ```
 
 ## Argo CD
