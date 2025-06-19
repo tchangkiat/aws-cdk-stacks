@@ -70,8 +70,8 @@ data:
   config.yaml: |-
     TotalBufferSizeMB: 3
     Socket:
-      UDPAddress: "0.0.0.0:2000"
-      TCPAddress: "0.0.0.0:2000"
+      UDPAddress: "0.0.0.0:2100"
+      TCPAddress: "0.0.0.0:2100"
     Version: 2
 ---
 apiVersion: v1

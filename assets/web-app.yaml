@@ -97,7 +97,7 @@ spec:
               value: "TRUE"
             # Uncomment the next 4 lines if AWS X-Ray SDK is enabled
             # - name: AWS_XRAY_DAEMON_ADDRESS
-            #   value: "xray-daemon.kube-system.svc.cluster.local:2000"
+            #   value: "xray-daemon.kube-system.svc.cluster.local:2100"
             # - name: AWS_XRAY_SEGMENT_NAME
             #   value: "web-app-amd64"
       nodeSelector:
@@ -204,7 +204,7 @@ spec:
               value: "TRUE"
             # Uncomment the next 4 lines if AWS X-Ray SDK is enabled
             # - name: AWS_XRAY_DAEMON_ADDRESS
-            #   value: "xray-daemon.kube-system.svc.cluster.local:2000"
+            #   value: "xray-daemon.kube-system.svc.cluster.local:2100"
             # - name: AWS_XRAY_SEGMENT_NAME
             #   value: "web-app-arm64"
       nodeSelector:
