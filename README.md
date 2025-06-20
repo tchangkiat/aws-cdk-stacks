@@ -281,7 +281,7 @@ kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/lat
 ./eks-add-ons.sh -i xray
 ```
 
-2. Changed the "AWS_XRAY_SDK_DISABLED" environment variables from "TRUE" to "FALSE" (case sensitive) in [web-app.yaml](./assets/web-app.yaml).
+2. Changed the "AWS_XRAY_SDK_DISABLED" environment variables from "TRUE" to "FALSE" (case sensitive) for 2 "web-app" containers in [web-app.yaml](./assets/web-app.yaml).
 
 ```bash
 - name: AWS_XRAY_SDK_DISABLED
@@ -293,13 +293,13 @@ kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/lat
 ```bash
 - name: AWS_XRAY_DAEMON_ADDRESS
   value: "xray-daemon.kube-system.svc.cluster.local:2100"
-- name: AWS_XRAY_SEGMENT_NAME_SUFFIX
-  value: "amd64"
+- name: AWS_XRAY_TRACING_NAME
+  value: "web-app-amd64"
 ...
 - name: AWS_XRAY_DAEMON_ADDRESS
   value: "xray-daemon.kube-system.svc.cluster.local:2100"
-- name: AWS_XRAY_SEGMENT_NAME_SUFFIX
-  value: "arm64"
+- name: AWS_XRAY_TRACING_NAME
+  value: "web-app-arm64"
 ```
 
 4. Re-deploy the application

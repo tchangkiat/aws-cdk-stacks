@@ -60,28 +60,28 @@ spec:
           imagePullPolicy: Always
           resources:
             limits:
-              cpu: "1"
+              cpu: "0.5"
               memory: "1Gi"
             requests:
-              cpu: "1"
+              cpu: "0.5"
               memory: "1Gi"
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 8000
-            initialDelaySeconds: 10
-            periodSeconds: 30
-            timeoutSeconds: 3
-            successThreshold: 1
-            failureThreshold: 3
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 8000
-            initialDelaySeconds: 10
-            timeoutSeconds: 45
-            periodSeconds: 120
-            failureThreshold: 3
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 8000
+          #   initialDelaySeconds: 10
+          #   periodSeconds: 30
+          #   timeoutSeconds: 3
+          #   successThreshold: 1
+          #   failureThreshold: 3
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 8000
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 45
+          #   periodSeconds: 120
+          #   failureThreshold: 3
           ports:
             - containerPort: 8000
           securityContext:
@@ -98,11 +98,12 @@ spec:
             # Uncomment the next 4 lines if AWS X-Ray SDK is enabled
             # - name: AWS_XRAY_DAEMON_ADDRESS
             #   value: "xray-daemon.kube-system.svc.cluster.local:2100"
-            # - name: AWS_XRAY_SEGMENT_NAME
+            # - name: AWS_XRAY_TRACING_NAME
             #   value: "web-app-amd64"
       nodeSelector:
         karpenter.sh/nodepool: default
-        node.kubernetes.io/instance-type: c6i.large
+        karpenter.sh/capacity-type: on-demand
+        karpenter.k8s.aws/instance-family: c6i
 ---
 apiVersion: v1
 kind: Service
@@ -167,28 +168,28 @@ spec:
           imagePullPolicy: Always
           resources:
             limits:
-              cpu: "1"
+              cpu: "0.5"
               memory: "1Gi"
             requests:
-              cpu: "1"
+              cpu: "0.5"
               memory: "1Gi"
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 8000
-            initialDelaySeconds: 10
-            periodSeconds: 30
-            timeoutSeconds: 3
-            successThreshold: 1
-            failureThreshold: 3
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 8000
-            initialDelaySeconds: 10
-            timeoutSeconds: 45
-            periodSeconds: 120
-            failureThreshold: 3
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 8000
+          #   initialDelaySeconds: 10
+          #   periodSeconds: 30
+          #   timeoutSeconds: 3
+          #   successThreshold: 1
+          #   failureThreshold: 3
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 8000
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 45
+          #   periodSeconds: 120
+          #   failureThreshold: 3
           ports:
             - containerPort: 8000
           securityContext:
@@ -205,11 +206,12 @@ spec:
             # Uncomment the next 4 lines if AWS X-Ray SDK is enabled
             # - name: AWS_XRAY_DAEMON_ADDRESS
             #   value: "xray-daemon.kube-system.svc.cluster.local:2100"
-            # - name: AWS_XRAY_SEGMENT_NAME
+            # - name: AWS_XRAY_TRACING_NAME
             #   value: "web-app-arm64"
       nodeSelector:
         karpenter.sh/nodepool: default-arm64
-        node.kubernetes.io/instance-type: c7g.large
+        karpenter.sh/capacity-type: on-demand
+        karpenter.k8s.aws/instance-family: c7g
 ---
 apiVersion: v1
 kind: Service
