@@ -293,12 +293,12 @@ kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/lat
 ```bash
 - name: AWS_XRAY_DAEMON_ADDRESS
   value: "xray-daemon.kube-system.svc.cluster.local:2100"
-- name: AWS_XRAY_TRACING_NAME
+- name: AWS_XRAY_APP_NAME
   value: "web-app-amd64"
 ...
 - name: AWS_XRAY_DAEMON_ADDRESS
   value: "xray-daemon.kube-system.svc.cluster.local:2100"
-- name: AWS_XRAY_TRACING_NAME
+- name: AWS_XRAY_APP_NAME
   value: "web-app-arm64"
 ```
 
