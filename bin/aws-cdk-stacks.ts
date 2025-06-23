@@ -97,10 +97,11 @@ new EgressVpc(app, "egress-vpc", {
   description: "Deploys an egress VPC with Transit Gateway",
 });
 
-new ApiGateway(app, "api-gateway", {
-  stackName: prefix + "api-gateway",
-  description: "Deploys an API Gateway with a Lambda authorizer",
-});
+// Uncomment to use; commented away to avoid error when the zip file is not built
+// new ApiGateway(app, "api-gateway", {
+//   stackName: prefix + "api-gateway",
+//   description: "Deploys an API Gateway with a Lambda authorizer",
+// });
 
 new PostgresDatabase(app, "postgres-db", common.Vpc, {
   stackName: prefix + "postgresql",
