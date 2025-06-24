@@ -604,15 +604,32 @@ cdk destroy vllm
 
 # API Gateway and Lambda
 
+Deploy a REST API in API Gateway with Lambda Integration and Authorizer.
+
+### Setup
+
+1. Build the zip file for Lambda deployment.
+
 ```bash
 sh assets/api-gateway/lambda-zip.sh
+```
 
+2. Uncomment the stack in [aws-cdk-stacks.ts](./bin/aws-cdk-stacks.ts).
+
+```typescript
+// new ApiGateway(app, "api-gateway", {
+//   stackName: prefix + "api-gateway",
+//   description: "Deploys an API Gateway with a Lambda authorizer",
+// });
+```
+
+3. Deploy the stack.
+
+```bash
 cdk deploy api-gateway
 ```
 
-Deploy a REST API in API Gateway with Lambda Integration and Authorizer.
-
-## Testing the API resources
+### Testing the API resources
 
 ```bash
 # Replace '<...>' with the respective values
@@ -622,6 +639,14 @@ curl https://<API ID>.execute-api.ap-southeast-1.amazonaws.com/v1/auth
 
 # Verify
 curl -H "Authorization: <JWT token retrieved from the previous command>" https://<API ID>.execute-api.ap-southeast-1.amazonaws.com/v1
+```
+
+### Clean Up
+
+1. Destroy the stack.
+
+```bash
+cdk destroy api-gateway
 ```
 
 # Egress VPC
