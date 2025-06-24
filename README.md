@@ -469,8 +469,11 @@ nodeSelector:
 3. Once all the Pods are 'running', run the following command in the terminal on your client machine. Access JupyterHub using `http://localhost:8080` and Ray Dashboard using `http://localhost:8265`. JupyterHub may take a few minutes to initialize after installing. During this time, you will notice a blank page and a loading animation in your browser when you access the URL.
 
 ```bash
+# Change the compute type accordingly: cpu, gpu, gvt
+export rayClusterHeadSvc="cpu"
+
 kubectl port-forward --namespace=jupyter service/proxy-public 8080:http & \
-kubectl port-forward --address 0.0.0.0 service/raycluster-head-svc 8265:8265 &
+kubectl port-forward --address 0.0.0.0 service/raycluster-${rayClusterHeadSvc}-head-svc 8265:8265 &
 ```
 
 4. Use the username and password found in the terminal (example below) to log in to JupyterHub.

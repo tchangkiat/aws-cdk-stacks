@@ -32,7 +32,7 @@ spec:
         spec:
           containers:
             - name: ray-head
-              image: rayproject/ray-ml:2.39.0.5a6c33-py39
+              image: rayproject/ray-ml:2.47.1.b73bb8-py39
               resources:
                 limits:
                   cpu: "2"
@@ -73,7 +73,7 @@ spec:
           spec:
             containers:
               - name: llm
-                image: rayproject/ray-ml:2.39.0.5a6c33-py39
+                image: rayproject/ray-ml:2.47.1.b73bb8-py39
                 env:
                   - name: HUGGING_FACE_HUB_TOKEN
                     valueFrom:
@@ -107,7 +107,7 @@ spec:
     #     spec:
     #       containers:
     #       - name: llm
-    #         image: rayproject/ray-ml:2.39.0.5a6c33-py311
+    #         image: rayproject/ray-ml:2.47.1.b73bb8-py39
     #         env:
     #         - name: HUGGING_FACE_HUB_TOKEN
     #           valueFrom:

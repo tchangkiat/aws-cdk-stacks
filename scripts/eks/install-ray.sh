@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export RAY_VERSION="2.39.0"
+export RAY_VERSION="2.47.1"
 
 cat <<EOF >>ray-node-class.yaml
 apiVersion: karpenter.k8s.aws/v1
@@ -114,7 +114,7 @@ kubectl apply -f ray-worker-gpu-node-pool.yaml
 helm repo add kuberay https://ray-project.github.io/kuberay-helm/
 
 # Install both CRDs and KubeRay operator
-helm install kuberay-operator kuberay/kuberay-operator --version 1.2.2
+helm install kuberay-operator kuberay/kuberay-operator --version 1.4.0
 
 # Visit this link for more sample Ray Cluster configurations: https://github.com/ray-project/kuberay/tree/master/ray-operator/config/samples
 
@@ -128,6 +128,7 @@ spec:
   rayVersion: "${RAY_VERSION}"
   enableInTreeAutoscaling: true
   autoscalerOptions:
+    version: v2
     upscalingMode: Default
     idleTimeoutSeconds: 60
     imagePullPolicy: IfNotPresent
@@ -171,9 +172,6 @@ spec:
             requests:
               cpu: "1"
               memory: "2G"
-          env:
-            - name: RAY_enable_autoscaler_v2 # Pass env var for the autoscaler v2.
-              value: "1"
         restartPolicy: Never # No restart to avoid reuse of pod for different ray nodes.
         nodeSelector:
           karpenter.sh/nodepool: ray-cpu
@@ -227,6 +225,7 @@ spec:
   rayVersion: "${RAY_VERSION}"
   enableInTreeAutoscaling: true
   autoscalerOptions:
+    version: v2
     upscalingMode: Default
     idleTimeoutSeconds: 60
     imagePullPolicy: IfNotPresent
@@ -270,9 +269,6 @@ spec:
             requests:
               cpu: "1"
               memory: "2G"
-          env:
-            - name: RAY_enable_autoscaler_v2 # Pass env var for the autoscaler v2.
-              value: "1"
         restartPolicy: Never # No restart to avoid reuse of pod for different ray nodes.
         nodeSelector:
           karpenter.sh/nodepool: ray-cpu
@@ -323,6 +319,7 @@ spec:
   rayVersion: "${RAY_VERSION}"
   enableInTreeAutoscaling: true
   autoscalerOptions:
+    version: v2
     upscalingMode: Default
     idleTimeoutSeconds: 60
     imagePullPolicy: IfNotPresent
@@ -366,9 +363,6 @@ spec:
             requests:
               cpu: "1"
               memory: "2G"
-          env:
-            - name: RAY_enable_autoscaler_v2 # Pass env var for the autoscaler v2.
-              value: "1"
         restartPolicy: Never # No restart to avoid reuse of pod for different ray nodes.
         nodeSelector:
           karpenter.sh/nodepool: ray-cpu

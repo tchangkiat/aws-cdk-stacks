@@ -122,7 +122,7 @@ helm upgrade --cleanup-on-fail \
   --install jupyter jupyterhub/jupyterhub \
   --namespace jupyter \
   --create-namespace \
-  --version=4.1.0 \
+  --version=4.2.0 \
   --values jupyterhub-config.yaml \
   --timeout=10m
 
