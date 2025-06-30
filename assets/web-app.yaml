@@ -103,7 +103,7 @@ spec:
       nodeSelector:
         karpenter.sh/nodepool: default
         karpenter.sh/capacity-type: on-demand
-        node.kubernetes.io/instance-type: c6i.large # Hard-coding instance type for consistent instance type for demo
+        node.kubernetes.io/instance-type: c6i.large # Hard-coding instance type for consistency during demo
 ---
 apiVersion: v1
 kind: Service
@@ -211,7 +211,7 @@ spec:
       nodeSelector:
         karpenter.sh/nodepool: default-arm64
         karpenter.sh/capacity-type: on-demand
-        node.kubernetes.io/instance-type: c7g.large # Hard-coding instance type for consistent instance type for demo
+        node.kubernetes.io/instance-type: c7g.large # Hard-coding instance type for consistency during demo
 ---
 apiVersion: v1
 kind: Service
