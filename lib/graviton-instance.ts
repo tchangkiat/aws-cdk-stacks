@@ -58,8 +58,8 @@ export class GravitonInstance extends Stack {
 
     const userData = [
       "sudo yum update -y",
-      "curl -o setup.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/setup-graviton-instance.sh",
-      "sh setup.sh",
+      "curl -o /home/ec2-user/setup.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/setup-graviton-instance.sh",
+      "chmod +x /home/ec2-user/setup.sh",
     ];
     instance.addUserData(userData.join("\n"));
 
