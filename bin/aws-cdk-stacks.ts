@@ -10,6 +10,7 @@ import { EcsCicd } from "../lib/ecs-cicd";
 import { EcsAdot } from "../lib/ecs-adot";
 import { ECS } from "../lib/ecs";
 import { EKS } from "../lib/eks";
+import { GravitonInstance } from "../lib/graviton-instance";
 import { MultiArchPipeline } from "../lib/multi-arch-pipeline";
 import { Vllm } from "../lib/vllm";
 import { EgressVpc } from "../lib/egress-vpc";
@@ -89,6 +90,18 @@ new EKS(
     stackName: prefix + "eks-ca",
     description:
       "Deploys an EKS cluster with Cluster Autoscaler and a bastion host to manage the cluster",
+  },
+);
+
+new GravitonInstance(
+  app,
+  "graviton-instance",
+  common.Vpc,
+  common.SSHKeyPairName,
+  {
+    stackName: prefix + "graviton-instance",
+    description:
+      "Deploys an AWS Graviton-based instance that is accessible via SSH",
   },
 );
 
