@@ -64,6 +64,17 @@ export class GravitonInstance extends Stack {
       "sudo yum install perf -y",
       // perl-open; see issue: https://github.com/brendangregg/FlameGraph/issues/245
       "sudo yum install perl-open.noarch -y",
+      // zsh and its dependencies
+      "sudo yum install -y zsh util-linux-user",
+      // Set zsh as default
+      "sudo chsh -s /usr/bin/zsh $USER",
+      "sudo chsh -s /usr/bin/zsh ec2-user",
+      // Install Oh My Zsh
+      "sh -c '$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)'",
+      // Set up Oh My Zsh theme
+      "git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/ec2-user/.powerlevel10k",
+      "curl -o /home/ec2-user/.zshrc https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/zshrc",
+      "curl -o /home/ec2-user/.p10k.zsh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/p10k.zsh",
       // Go
       "wget -O /home/ec2-user/go.tar.gz https://go.dev/dl/go1.24.5.linux-arm64.tar.gz",
       "sudo tar -C /usr/local -xzf /home/ec2-user/go.tar.gz",
