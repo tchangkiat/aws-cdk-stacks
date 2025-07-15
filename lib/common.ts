@@ -33,7 +33,6 @@ export class Common extends Stack {
       // zsh and its dependencies
       "sudo yum install -y zsh util-linux-user",
       // Set zsh as default
-      "sudo chsh -s /usr/bin/zsh $USER",
       "sudo chsh -s /usr/bin/zsh ec2-user",
       // Install Oh My Zsh
       "sh -c '$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)'",

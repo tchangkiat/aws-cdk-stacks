@@ -153,10 +153,10 @@ export class EKS extends Stack {
           "unzip awscliv2.zip",
           "sudo ./aws/install",
           // kubectl
-          "curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.32.0/2024-12-20/bin/linux/arm64/kubectl",
+          "curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.32.3/2025-04-17/bin/linux/arm64/kubectl",
           "chmod +x ./kubectl",
           "mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin",
-          "echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc",
+          "echo 'export PATH=$PATH:$HOME/bin' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
           // helm
           "curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3",
           "chmod 700 get_helm.sh",
@@ -172,25 +172,25 @@ export class EKS extends Stack {
           // Environment Variables
           "echo 'export AWS_ACCOUNT_ID=" +
             this.account +
-            "' >> /home/ec2-user/.bashrc",
+            "' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
           "echo 'export AWS_REGION=" +
             this.region +
-            "' >> /home/ec2-user/.bashrc",
+            "' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
           "echo 'export AWS_EKS_CLUSTER=" +
             cluster.clusterName +
-            "' >> /home/ec2-user/.bashrc",
+            "' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
           "echo 'export AWS_EKS_CLUSTER_MASTER_ROLE=" +
             eksMasterRole.roleArn +
-            "' >> /home/ec2-user/.bashrc",
+            "' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
           "echo 'export CONTAINER_IMAGE_URL=" +
             ecrRepository.repositoryUri +
-            ":latest' >> /home/ec2-user/.bashrc",
+            ":latest' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
           // Download script to set up bastion host
           "curl -o /home/ec2-user/setup-bastion-host.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/setup-bastion-host.sh",
           "chmod +x /home/ec2-user/setup-bastion-host.sh",
           // Alias
-          "echo 'alias k=kubectl' >> /home/ec2-user/.bashrc",
-          "echo 'export KUBE_EDITOR=nano' >> /home/ec2-user/.bashrc",
+          "echo 'alias k=kubectl' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
+          "echo 'export KUBE_EDITOR=nano' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
         ]),
       },
     ) as ec2.Instance;
