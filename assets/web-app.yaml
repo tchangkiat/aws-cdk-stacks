@@ -60,11 +60,11 @@ spec:
           imagePullPolicy: Always
           resources:
             limits:
-              cpu: "0.5"
-              memory: "1Gi"
+              cpu: "2"
+              memory: "4Gi"
             requests:
-              cpu: "0.5"
-              memory: "1Gi"
+              cpu: "2"
+              memory: "4Gi"
           # readinessProbe:
           #   httpGet:
           #     path: /
@@ -103,7 +103,7 @@ spec:
       nodeSelector:
         karpenter.sh/nodepool: default
         karpenter.sh/capacity-type: on-demand
-        node.kubernetes.io/instance-type: c6i.large # Hard-coding instance type for consistency during demo
+        node.kubernetes.io/instance-type: c6i.xlarge # Hard-coding instance type for consistency during demo
 ---
 apiVersion: v1
 kind: Service
@@ -168,11 +168,11 @@ spec:
           imagePullPolicy: Always
           resources:
             limits:
-              cpu: "0.5"
-              memory: "1Gi"
+              cpu: "2"
+              memory: "4Gi"
             requests:
-              cpu: "0.5"
-              memory: "1Gi"
+              cpu: "2"
+              memory: "4Gi"
           # readinessProbe:
           #   httpGet:
           #     path: /
@@ -211,7 +211,7 @@ spec:
       nodeSelector:
         karpenter.sh/nodepool: default-arm64
         karpenter.sh/capacity-type: on-demand
-        node.kubernetes.io/instance-type: c7g.large # Hard-coding instance type for consistency during demo
+        node.kubernetes.io/instance-type: c7g.xlarge # Hard-coding instance type for consistency during demo
 ---
 apiVersion: v1
 kind: Service
