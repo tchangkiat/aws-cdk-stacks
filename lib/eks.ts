@@ -17,6 +17,7 @@ export class EKS extends Stack {
     id: string,
     ecrRepository: ecr.Repository,
     sshKeyPairName: string,
+    ec2UserData: string[],
     autoscaler?: string,
     props?: StackProps,
   ) {
@@ -146,10 +147,7 @@ export class EKS extends Stack {
       {
         instanceName: eksClusterName + "/bastion-host",
         region: this.region,
-        userData: [
-          "sudo yum update -y",
-          // Git
-          "sudo yum install git -y",
+        userData: ec2UserData.concat([
           // AWS CLI
           "curl 'https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip' -o 'awscliv2.zip'",
           "unzip awscliv2.zip",
@@ -193,7 +191,7 @@ export class EKS extends Stack {
           // Alias
           "echo 'alias k=kubectl' >> /home/ec2-user/.bashrc",
           "echo 'export KUBE_EDITOR=nano' >> /home/ec2-user/.bashrc",
-        ],
+        ]),
       },
     ) as ec2.Instance;
 

@@ -72,6 +72,7 @@ new EKS(
   "eks",
   multiArchPipeline.Repository,
   common.SSHKeyPairName,
+  common.EC2UserData,
   Autoscaler.Karpenter,
   {
     stackName: prefix + "eks",
@@ -85,6 +86,7 @@ new EKS(
   "eks-ca",
   multiArchPipeline.Repository,
   common.SSHKeyPairName,
+  common.EC2UserData,
   Autoscaler.ClusterAutoscaler,
   {
     stackName: prefix + "eks-ca",
@@ -98,6 +100,7 @@ new GravitonInstance(
   "graviton-instance",
   common.Vpc,
   common.SSHKeyPairName,
+  common.EC2UserData,
   {
     stackName: prefix + "graviton-instance",
     description:

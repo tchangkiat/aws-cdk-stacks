@@ -66,10 +66,7 @@ export class BastionHost extends Construct {
       vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
     });
 
-    const userData =
-      props?.userData != null
-        ? ["sudo yum update -y"].concat(props.userData)
-        : ["sudo yum update -y"];
+    const userData = props?.userData != null ? props.userData : [];
     instance.addUserData(userData.join("\n"));
 
     return instance;
