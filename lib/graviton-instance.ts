@@ -65,7 +65,7 @@ export class GravitonInstance extends Stack {
       // Go
       "wget -O /home/ec2-user/go.tar.gz https://go.dev/dl/go1.24.5.linux-arm64.tar.gz",
       "sudo tar -C /usr/local -xzf /home/ec2-user/go.tar.gz",
-      "sudo echo 'export PATH=\"$PATH:/usr/local/go/bin\"' >> /home/ec2-user/.bashrc",
+      "sudo echo 'export PATH=\"$PATH:/usr/local/go/bin\"' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
       "sudo rm /home/ec2-user/go.tar.gz",
       // APerf
       "wget -O /home/ec2-user/aperf.tar.gz https://github.com/aws/aperf/releases/download/v0.1.15-alpha/aperf-v0.1.15-alpha-aarch64.tar.gz",
