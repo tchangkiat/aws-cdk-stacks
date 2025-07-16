@@ -17,6 +17,7 @@ import { EgressVpc } from "../lib/egress-vpc";
 import { PostgresDatabase } from "../lib/postgres-db";
 
 import { Autoscaler } from "../constants";
+import { Jenkins } from "../lib/jenkins";
 dotenv.config();
 
 const app = new cdk.App();
@@ -104,6 +105,11 @@ new GravitonPerformanceTest(
       "Deploys an AWS Graviton-based instance that is accessible via SSH and used for performance testing",
   },
 );
+
+new Jenkins(app, "jenkins", common.Vpc, common.SSHKeyPairName, {
+  stackName: prefix + "jenkins",
+  description: "Deploys an AWS Graviton-based instance with Jenkins installed",
+});
 
 new EgressVpc(app, "egress-vpc", {
   stackName: prefix + "egress-vpc",
