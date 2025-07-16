@@ -37,26 +37,8 @@ export class EC2Instance extends Construct {
 
     securityGroup.addIngressRule(
       ec2.Peer.anyIpv4(),
-      ec2.Port.tcp(80),
-      "Enable connection for web application serving on port 80",
-    );
-
-    securityGroup.addIngressRule(
-      ec2.Peer.anyIpv4(),
-      ec2.Port.tcp(443),
-      "Enable connection for web application serving on port 443",
-    );
-
-    securityGroup.addIngressRule(
-      ec2.Peer.anyIpv4(),
       ec2.Port.tcp(8000),
       "Enable connection for web application serving on port 8000",
-    );
-
-    securityGroup.addIngressRule(
-      ec2.Peer.anyIpv4(),
-      ec2.Port.tcp(8080),
-      "Enable connection for web application serving on port 8080",
     );
 
     if (props.instanceAccess == EC2InstanceAccess.InstanceConnect) {
@@ -106,7 +88,7 @@ export class EC2Instance extends Construct {
       vpcSubnets: {
         subnetType:
           props.instanceAccess == EC2InstanceAccess.Private
-            ? ec2.SubnetType.PRIVATE_ISOLATED
+            ? ec2.SubnetType.PRIVATE_WITH_EGRESS
             : ec2.SubnetType.PUBLIC,
       },
     });
