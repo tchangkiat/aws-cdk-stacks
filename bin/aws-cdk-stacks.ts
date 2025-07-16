@@ -10,7 +10,7 @@ import { EcsCicd } from "../lib/ecs-cicd";
 import { EcsAdot } from "../lib/ecs-adot";
 import { ECS } from "../lib/ecs";
 import { EKS } from "../lib/eks";
-import { GravitonInstance } from "../lib/graviton-instance";
+import { GravitonPerformanceTest } from "../lib/gvt-perf-test";
 import { MultiArchPipeline } from "../lib/multi-arch-pipeline";
 import { Vllm } from "../lib/vllm";
 import { EgressVpc } from "../lib/egress-vpc";
@@ -72,7 +72,6 @@ new EKS(
   "eks",
   multiArchPipeline.Repository,
   common.SSHKeyPairName,
-  common.EC2UserData,
   Autoscaler.Karpenter,
   {
     stackName: prefix + "eks",
@@ -86,7 +85,6 @@ new EKS(
   "eks-ca",
   multiArchPipeline.Repository,
   common.SSHKeyPairName,
-  common.EC2UserData,
   Autoscaler.ClusterAutoscaler,
   {
     stackName: prefix + "eks-ca",
@@ -95,16 +93,15 @@ new EKS(
   },
 );
 
-new GravitonInstance(
+new GravitonPerformanceTest(
   app,
-  "graviton-instance",
+  "gvt-perf-test",
   common.Vpc,
   common.SSHKeyPairName,
-  common.EC2UserData,
   {
-    stackName: prefix + "graviton-instance",
+    stackName: prefix + "graviton-performance-test",
     description:
-      "Deploys an AWS Graviton-based instance that is accessible via SSH",
+      "Deploys an AWS Graviton-based instance that is accessible via SSH and used for performance testing",
   },
 );
 

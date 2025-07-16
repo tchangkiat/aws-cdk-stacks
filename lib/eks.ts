@@ -7,8 +7,8 @@ import type * as ecr from "aws-cdk-lib/aws-ecr";
 import { KubectlV32Layer } from "@aws-cdk/lambda-layer-kubectl-v32";
 
 import { ManagedNodeGroup, ClusterAutoscaler } from "../constructs/eks";
-import { BastionHost } from "../constructs/bastion-host";
-import { Autoscaler } from "../constants";
+import { EC2Instance } from "../constructs/ec2-instance";
+import { Autoscaler, EC2InstanceAccess } from "../constants";
 import { StandardVpc } from "../constructs/network";
 
 export class EKS extends Stack {
@@ -17,7 +17,6 @@ export class EKS extends Stack {
     id: string,
     ecrRepository: ecr.Repository,
     sshKeyPairName: string,
-    ec2UserData: string[],
     autoscaler?: string,
     props?: StackProps,
   ) {
@@ -139,61 +138,58 @@ export class EKS extends Stack {
     // Bastion Host
     // ----------------------------
 
-    const bastionHost = new BastionHost(
-      this,
-      "bastion-host",
-      vpc,
+    const bastionHost = new EC2Instance(this, "bastion-host", vpc, {
+      instanceName: eksClusterName + "/bastion-host",
+      instanceType: "t4g.micro",
+      instanceAccess: EC2InstanceAccess.InstanceConnect,
       sshKeyPairName,
-      {
-        instanceName: eksClusterName + "/bastion-host",
-        region: this.region,
-        userData: ec2UserData.concat([
-          // AWS CLI
-          "curl 'https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip' -o 'awscliv2.zip'",
-          "unzip awscliv2.zip",
-          "sudo ./aws/install",
-          // kubectl
-          "curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.32.3/2025-04-17/bin/linux/arm64/kubectl",
-          "chmod +x ./kubectl",
-          "mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin",
-          "echo 'export PATH=$PATH:$HOME/bin' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
-          // helm
-          "curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3",
-          "chmod 700 get_helm.sh",
-          "./get_helm.sh",
-          // eksctl
-          "ARCH=arm64",
-          "PLATFORM=$(uname -s)_$ARCH",
-          "curl -sLO https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz",
-          "tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz",
-          "sudo mv /tmp/eksctl /usr/local/bin",
-          // jq
-          "sudo yum install jq -y",
-          // Environment Variables
-          "echo 'export AWS_ACCOUNT_ID=" +
-            this.account +
-            "' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
-          "echo 'export AWS_REGION=" +
-            this.region +
-            "' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
-          "echo 'export AWS_EKS_CLUSTER=" +
-            cluster.clusterName +
-            "' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
-          "echo 'export AWS_EKS_CLUSTER_MASTER_ROLE=" +
-            eksMasterRole.roleArn +
-            "' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
-          "echo 'export CONTAINER_IMAGE_URL=" +
-            ecrRepository.repositoryUri +
-            ":latest' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
-          // Download script to set up bastion host
-          "curl -o /home/ec2-user/setup-bastion-host.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/setup-bastion-host.sh",
-          "chmod +x /home/ec2-user/setup-bastion-host.sh",
-          // Alias
-          "echo 'alias k=kubectl' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
-          "echo 'export KUBE_EDITOR=nano' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
-        ]),
-      },
-    ) as ec2.Instance;
+      region: this.region,
+      userData: [
+        // AWS CLI
+        "curl 'https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip' -o 'awscliv2.zip'",
+        "unzip awscliv2.zip",
+        "sudo ./aws/install",
+        // kubectl
+        "curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.32.3/2025-04-17/bin/linux/arm64/kubectl",
+        "chmod +x ./kubectl",
+        "mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin",
+        "echo 'export PATH=$PATH:$HOME/bin' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
+        // helm
+        "curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3",
+        "chmod 700 get_helm.sh",
+        "./get_helm.sh",
+        // eksctl
+        "ARCH=arm64",
+        "PLATFORM=$(uname -s)_$ARCH",
+        "curl -sLO https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz",
+        "tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz",
+        "sudo mv /tmp/eksctl /usr/local/bin",
+        // jq
+        "sudo yum install jq -y",
+        // Environment Variables
+        "echo 'export AWS_ACCOUNT_ID=" +
+          this.account +
+          "' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
+        "echo 'export AWS_REGION=" +
+          this.region +
+          "' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
+        "echo 'export AWS_EKS_CLUSTER=" +
+          cluster.clusterName +
+          "' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
+        "echo 'export AWS_EKS_CLUSTER_MASTER_ROLE=" +
+          eksMasterRole.roleArn +
+          "' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
+        "echo 'export CONTAINER_IMAGE_URL=" +
+          ecrRepository.repositoryUri +
+          ":latest' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
+        // Download script to set up bastion host
+        "curl -o /home/ec2-user/setup-bastion-host.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/setup-bastion-host.sh",
+        "chmod +x /home/ec2-user/setup-bastion-host.sh",
+        // Alias
+        "echo 'alias k=kubectl' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
+        "echo 'export KUBE_EDITOR=nano' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
+      ],
+    }) as ec2.Instance;
 
     bastionHost.addSecurityGroup(cluster.clusterSecurityGroup);
     Tags.of(bastionHost).add("eks-cost-cluster", eksClusterName);
