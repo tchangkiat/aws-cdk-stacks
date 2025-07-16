@@ -4,6 +4,7 @@ import { AwsManagedPrefixList } from "../custom-resources/AwsManagedPrefixList";
 import { EC2InstanceAccess } from "../constants";
 
 export interface EC2InstanceProps {
+  vpc: ec2.Vpc;
   instanceName: string;
   instanceType: string;
   instanceAccess: EC2InstanceAccess;
@@ -13,16 +14,11 @@ export interface EC2InstanceProps {
 }
 
 export class EC2Instance extends Construct {
-  constructor(
-    scope: Construct,
-    id: string,
-    vpc: ec2.Vpc,
-    props: EC2InstanceProps,
-  ) {
+  constructor(scope: Construct, id: string, props: EC2InstanceProps) {
     super(scope, id);
 
     const securityGroup = new ec2.SecurityGroup(this, id + "-sg", {
-      vpc,
+      vpc: props.vpc,
       allowAllOutbound: true,
       securityGroupName: props.instanceName,
     });
@@ -84,7 +80,7 @@ export class EC2Instance extends Construct {
             : ec2.AmazonLinuxCpuType.ARM_64,
       }),
       securityGroup,
-      vpc,
+      vpc: props.vpc,
       vpcSubnets: {
         subnetType:
           props.instanceAccess == EC2InstanceAccess.Private

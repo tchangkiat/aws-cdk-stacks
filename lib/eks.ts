@@ -138,17 +138,14 @@ export class EKS extends Stack {
     // Bastion Host
     // ----------------------------
 
-    const bastionHost = new EC2Instance(this, "bastion-host", vpc, {
+    const bastionHost = new EC2Instance(this, "bastion-host", {
+      vpc,
       instanceName: eksClusterName + "/bastion-host",
       instanceType: "t4g.micro",
       instanceAccess: EC2InstanceAccess.InstanceConnect,
       sshKeyPairName,
       region: this.region,
       userData: [
-        // AWS CLI
-        "curl 'https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip' -o 'awscliv2.zip'",
-        "unzip awscliv2.zip",
-        "sudo ./aws/install",
         // kubectl
         "curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.32.3/2025-04-17/bin/linux/arm64/kubectl",
         "chmod +x ./kubectl",

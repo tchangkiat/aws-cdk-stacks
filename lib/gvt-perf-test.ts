@@ -13,7 +13,8 @@ export class GravitonPerformanceTest extends Stack {
   ) {
     super(scope, id, props);
 
-    const gravitonInstance = new EC2Instance(this, "graviton-instance", vpc, {
+    const gravitonInstance = new EC2Instance(this, "graviton-instance", {
+      vpc,
       instanceName: "graviton-performance-test",
       instanceType: "c7g.xlarge",
       instanceAccess: EC2InstanceAccess.InstanceConnect,
