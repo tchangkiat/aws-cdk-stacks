@@ -40,6 +40,27 @@ export class EC2Instance extends Construct {
     ];
     var user = "ec2-user";
     var installer = "dnf";
+    var defaultEC2UserData = [
+      "sudo " + installer + " update -y",
+      // Git
+      "sudo " + installer + " install git -y",
+      // zsh and its dependencies
+      "sudo " + installer + " install -y zsh util-linux-user",
+      // Set zsh as default
+      "sudo chsh -s /usr/bin/zsh " + user,
+      // Install Oh My Zsh
+      "sh -c '$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)'",
+      // Set up Oh My Zsh theme
+      "git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/" +
+        user +
+        "/.powerlevel10k",
+      "curl -o /home/" +
+        user +
+        "/.zshrc https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/zshrc",
+      "curl -o /home/" +
+        user +
+        "/.p10k.zsh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/p10k.zsh",
+    ];
 
     if (props.os == EC2InstanceOS.Ubuntu) {
       machineImage = ec2.MachineImage.genericLinux({
@@ -57,6 +78,7 @@ export class EC2Instance extends Construct {
       ];
       user = "ubuntu";
       installer = "apt-get";
+      defaultEC2UserData = [""];
     }
 
     const securityGroup = new ec2.SecurityGroup(this, id + "-sg", {
@@ -113,32 +135,9 @@ export class EC2Instance extends Construct {
       },
     });
 
-    const defaultEC2UserData = [
-      "sudo " + installer + " update -y",
-      // Git
-      "sudo " + installer + " install git -y",
-      // zsh and its dependencies
-      "sudo " + installer + " install -y zsh util-linux-user",
-      // Set zsh as default
-      "sudo chsh -s /usr/bin/zsh " + user,
-      // Install Oh My Zsh
-      "sh -c '$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)'",
-      // Set up Oh My Zsh theme
-      "git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/" +
-        user +
-        "/.powerlevel10k",
-      "curl -o /home/" +
-        user +
-        "/.zshrc https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/zshrc",
-      "curl -o /home/" +
-        user +
-        "/.p10k.zsh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/p10k.zsh",
-    ];
-
-    const userData =
-      props.userData != null
-        ? defaultEC2UserData.concat(props.userData)
-        : defaultEC2UserData;
+    const userData = props.userData
+      ? defaultEC2UserData.concat(props.userData)
+      : defaultEC2UserData;
     instance.addUserData(userData.join("\n"));
 
     return instance;
