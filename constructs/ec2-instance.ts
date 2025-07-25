@@ -78,7 +78,26 @@ export class EC2Instance extends Construct {
       ];
       user = "ubuntu";
       installer = "apt-get";
-      defaultEC2UserData = [""];
+      defaultEC2UserData = [
+        // zsh and its dependencies
+        "sudo " + installer + " install -y zsh util-linux",
+        // Set zsh as default
+        "sudo chsh -s /usr/bin/zsh " + user,
+        "curl -o /home/" +
+          user +
+          "/omz.sh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh",
+        "su - " + user + " -c '/home/" + user + "/omz.sh'",
+        "git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/" +
+          user +
+          "/.powerlevel10k",
+        "curl -o /home/" +
+          user +
+          "/.zshrc https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/zshrc",
+        "curl -o /home/" +
+          user +
+          "/.p10k.zsh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/assets/p10k.zsh",
+        "rm /home/" + user + "/omz.sh",
+      ];
     }
 
     const securityGroup = new ec2.SecurityGroup(this, id + "-sg", {
