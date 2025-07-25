@@ -11,6 +11,7 @@ import { EcsAdot } from "../lib/ecs-adot";
 import { ECS } from "../lib/ecs";
 import { EKS } from "../lib/eks";
 import { GravitonPerformanceTest } from "../lib/gvt-perf-test";
+import { GravitonVLLM } from "../lib/gvt-vllm";
 import { MultiArchPipeline } from "../lib/multi-arch-pipeline";
 import { Vllm } from "../lib/vllm";
 import { EgressVpc } from "../lib/egress-vpc";
@@ -104,6 +105,12 @@ new GravitonPerformanceTest(
       "Deploys an AWS Graviton-based instance that is accessible via SSH and used for performance testing",
   },
 );
+
+new GravitonVLLM(app, "gvt-vllm", common.Vpc, common.SSHKeyPairName, {
+  stackName: prefix + "graviton-vllm",
+  description:
+    "Deploys an AWS Graviton-based instance that is accessible via SSH and used for model inferencing with vLLM",
+});
 
 new EgressVpc(app, "egress-vpc", {
   stackName: prefix + "egress-vpc",
