@@ -13,10 +13,11 @@ export class Jenkins extends Stack {
   ) {
     super(scope, id, props);
 
-    const jenkinsInstance = new EC2Instance(this, "jenkins-instance", vpc, {
+    const jenkinsInstance = new EC2Instance(this, "jenkins-instance", {
+      vpc,
       instanceName: "jenkins",
       instanceType: "c7g.large",
-      instanceAccess: EC2InstanceAccess.SSH,
+      instanceAccess: EC2InstanceAccess.Private,
       sshKeyPairName,
       region: this.region,
       userData: [
@@ -37,14 +38,6 @@ export class Jenkins extends Stack {
         "sudo yum install git -y",
       ],
     }) as ec2.Instance;
-
-    new CfnOutput(this, "Jenkins Instance SSH Command", {
-      value:
-        "ssh -i " +
-        sshKeyPairName +
-        ".pem ec2-user@" +
-        jenkinsInstance.instancePublicIp,
-    });
 
     new CfnOutput(this, "Jenkins Instance Connect URL", {
       value:
