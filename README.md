@@ -26,6 +26,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [Amazon VPC Lattice](#amazon-vpc-lattice)
   - [Distributed ML with Ray](#distributed-ml-with-ray)
   - [Model Inference with AWS Graviton](#model-inference-with-aws-graviton)
+  - [Jenkins on AWS](#jenkins-on-aws)
 - [API Gateway and Lambda](#api-gateway-and-lambda)
 - [Egress VPC](#egress-vpc)
 
@@ -167,33 +168,26 @@ Example #3: Remove multiple add-ons
 4. Amazon CloudWatch Container Insights ("container-insights")
 5. AWS X-Ray Daemon ("xray")
 6. Prometheus and Grafana ("prometheus-grafana")
-
    - Prerequisite: AWS EBS CSI Driver
 
 7. Ingress NGINX Controller ("ingress-nginx-controller")
-
    - Also installs cert-manager
 
 8. AWS Gateway API Controller ("gateway-api-controller")
 9. Amazon EMR on EKS ("emr-on-eks")
 10. JupyterHub ("jupyterhub")
-
     - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
 
 11. Ray ("ray")
-
     - Prerequisites: Karpenter
 
 12. Argo CD ("argo-cd")
-
     - Prerequisites: Karpenter, AWS Load Balancer Controller
 
 13. Argo Rollouts ("argo-rollouts")
-
     - Prerequisites: Karpenter, AWS Load Balancer Controller
 
 14. Open Policy Agent Gatekeeper ("opa-gatekeeper")
-
     - Includes a constraint template and constraint
 
 ## Deploy Application
@@ -605,6 +599,22 @@ rm remove-vllm.sh
 cdk destroy vllm
 ```
 
+# Jenkins on AWS
+
+1. Provision an EC2 instance and install Jenkins.
+
+```bash
+cdk deploy jenkins
+```
+
+2. [Wait until the Jenkins main instance is initialized] Retrieve the initial Jenkins administrator password with this command on your client machine: `ssh -i <key-filename>.pem -o ProxyCommand='ssh -i <key-filename>.pem -W %h:%p ec2-user@<proxy-instance-public-ip>' -i <key-filename>.pem ec2-user@<jenkins-main-instance-private-ip> 'sudo cat /var/lib/jenkins/secrets/initialAdminPassword'`
+
+3. Proxy to the main Jenkins instance on your client machine: `ssh -i <key-filename>.pem -L 8080:<jenkins-main-instance-private-ip>:8080 ec2-user@<proxy-instance-public-ip>`
+
+4. Access Jenkins using `http://localhost:8080/`
+
+5. Follow the instructions in the "Configuring Jenkins" section of [the documentation](https://www.jenkins.io/doc/tutorials/tutorial-for-installing-jenkins-on-AWS/#configuring-jenkins) to complete the setup.
+
 # API Gateway and Lambda
 
 Deploy a REST API in API Gateway with Lambda Integration and Authorizer.
@@ -665,7 +675,6 @@ Deploy an egress VPC with Transit Gateway. VPN-related resources are deployed fo
 ## Establish VPN connection from the Transit Gateway to a simulated customer on-prem environment
 
 1. Follow section 4 and 5 in the following article to deploy an EC2 instance with strongSwan to establish a Site-to-Site VPN -> [Simulating Site-to-Site VPN Customer Gateways Using strongSwan](https://aws.amazon.com/blogs/networking-and-content-delivery/simulating-site-to-site-vpn-customer-gateways-strongswan/).<br/><br/> Below are the values to fill up some of the parameters of the CloudFormation template used in the article above (for the other parameters, follow the instructions in the section 5 of the article):
-
    - Stack Name: `egress-vpc-vpn`
 
    - Name of secret in AWS Secrets Manager for VPN Tunnel 1 Pre-Shared Key: `egress-vpc-psk1`

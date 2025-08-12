@@ -18,6 +18,7 @@ import { EgressVpc } from "../lib/egress-vpc";
 import { PostgresDatabase } from "../lib/postgres-db";
 
 import { Autoscaler } from "../constants";
+import { Jenkins } from "../lib/jenkins";
 dotenv.config();
 
 const app = new cdk.App();
@@ -126,4 +127,9 @@ new EgressVpc(app, "egress-vpc", {
 new PostgresDatabase(app, "postgres-db", common.Vpc, {
   stackName: prefix + "postgresql",
   description: "Deploys an RDS PostgreSQL database instance",
+});
+
+new Jenkins(app, "jenkins", common.Vpc, common.SSHKeyPairName, {
+  stackName: prefix + "jenkins",
+  description: "Deploys a Jenkins stack",
 });

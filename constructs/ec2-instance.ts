@@ -10,6 +10,7 @@ export interface EC2InstanceProps {
   instanceAccess: EC2InstanceAccess;
   sshKeyPairName: string;
   region: string;
+  srcDestCheck?: boolean;
   os?: EC2InstanceOS;
   userData?: string[];
 }
@@ -117,20 +118,29 @@ export class EC2Instance extends Construct {
     securityGroup.addIngressRule(
       ec2.Peer.anyIpv4(),
       ec2.Port.tcp(8000),
-      "Enable connection for web application serving on port 8000",
+      "Allow connection on port 8000",
+    );
+
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(8080),
+      "Allow connection on port 8080",
     );
 
     if (props.instanceAccess == EC2InstanceAccess.InstanceConnect) {
       securityGroup.addIngressRule(
         ec2.Peer.prefixList(ec2InstanceConnectPrefixList.prefixListId),
         ec2.Port.tcp(22),
-        "Enable EC2 Instance Connect",
+        "Allow EC2 Instance Connect",
       );
-    } else if (props.instanceAccess == EC2InstanceAccess.SSH) {
+    } else if (
+      props.instanceAccess == EC2InstanceAccess.SSH ||
+      props.instanceAccess == EC2InstanceAccess.Private
+    ) {
       securityGroup.addIngressRule(
         ec2.Peer.anyIpv4(),
         ec2.Port.tcp(22),
-        "Enable SSH",
+        "Allow SSH from all IP addresses",
       );
     }
 
@@ -152,6 +162,7 @@ export class EC2Instance extends Construct {
             ? ec2.SubnetType.PRIVATE_WITH_EGRESS
             : ec2.SubnetType.PUBLIC,
       },
+      sourceDestCheck: props.srcDestCheck ? props.srcDestCheck : true,
     });
 
     const userData = props.userData
