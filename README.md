@@ -615,6 +615,37 @@ cdk deploy jenkins
 
 5. Follow the instructions in the "Configuring Jenkins" section of [the documentation](https://www.jenkins.io/doc/tutorials/tutorial-for-installing-jenkins-on-AWS/#configuring-jenkins) to complete the setup.
 
+6. When configuring a new Cloud, add 2 AMIs for amd64 and arm64 respectively. Here are the values to fill up for selected parameters (leave the rest as default).
+   - **Description**: amd64 / arm64
+   - **AMI ID**: (retrieve from EC2 console)
+   - **Instance Type**: m5.large / m6g.large
+   - **Availability Zone**: ap-southeast-1a (or other AZ)
+   - **Security group names**: default (or other security group; need to allow port 22 for Jenkins to communicate with its agents)
+   - **Remote FS root**: /var/jenkins
+   - **Remote user**: ec2-user
+   - **AMI Type**: unix
+   - **Labels**: amd64 / arm64
+   - **Usage**: Only build jobs with label expressions matching this node
+   - **Idle termination time**: 10 (in minutes)
+   - **Init script**:
+     ```bash
+     sudo yum update -y
+     sudo yum install -y java-17-amazon-corretto git docker
+     sudo mkdir -p /var/jenkins
+     sudo chown ec2-user:ec2-user /var/jenkins
+     sudo chmod 755 /var/jenkins
+     sudo systemctl start docker
+     sudo systemctl enable docker
+     sudo usermod -a -G docker ec2-user
+     ```
+   - **Advanced > Number of Executors**: 2
+   - **Advanced > Subnet IDs for VPC**: (subnet ID of the VPC that you want the instances to be placed in. The Jenkins instance and agents should be placed in the same subnets)
+   - **Advanced > Tags**: (add a tag with key "Name" and value "jenkins/amd64-runner" or "jenkins/arm64-runner" for easy identification)
+   - **Advanced > Minimum number of instances**: 0
+   - **Advanced > Minimum number of spare instances**: 0
+
+7. Set up a Jenkins pipeline by using the script in [assets/Jenkinsfile](assets/Jenkinsfile).
+
 # API Gateway and Lambda
 
 Deploy a REST API in API Gateway with Lambda Integration and Authorizer.

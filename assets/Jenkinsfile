@@ -1,0 +1,106 @@
+pipeline {
+    agent none
+    environment {
+        AWS_ACCOUNT_ID        = "<AWS account ID>"
+        AWS_REGION            = "ap-southeast-1"
+        IMAGE_TAG             = "latest"
+        GITHUB_USERNAME       = "<GitHub username>"
+        REPO_NAME             = "<GitHub repository name>"
+        IMAGE_REPO_URL        = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_REGION}.amazonaws.com/${env.REPO_NAME}"
+    }
+    stages {
+        stage('Build Container Images') {
+            parallel {
+                stage('Build amd64 Image') {
+                    agent { label 'amd64' }
+                    steps {
+                        withCredentials([[ $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'jenkins-user']]){
+                            script {
+                                sh '''
+                                aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                                aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                                aws sts get-caller-identity
+
+                                rm $REPO_NAME -rf
+                                git clone "https://github.com/$GITHUB_USERNAME/$REPO_NAME.git"
+                
+                                # Logging in to Amazon ECR
+                                aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+                                
+                                cd $REPO_NAME
+
+                                # Build and tag container image
+                                docker buildx build -t $REPO_NAME:$IMAGE_TAG-amd64 --platform linux/amd64 .
+                
+                                docker tag $REPO_NAME:$IMAGE_TAG-amd64 $IMAGE_REPO_URL:$IMAGE_TAG-amd64
+                
+                                # Push the container image to Amazon ECR
+                                docker push $IMAGE_REPO_URL:$IMAGE_TAG-amd64
+                                '''
+                            }
+                        }
+                    }
+                }
+                stage('Build arm64 Image') {
+                    agent { label 'arm64' }
+                    steps {
+                        withCredentials([[ $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'jenkins-user']]){
+                            script {
+                                sh '''
+                                aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                                aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                                aws sts get-caller-identity
+
+                                rm $REPO_NAME -rf
+                                git clone "https://github.com/$GITHUB_USERNAME/$REPO_NAME.git"
+                
+                                # Logging in to Amazon ECR
+                                aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+                                
+                                cd $REPO_NAME
+
+                                # Build and tag container image
+                                docker build -t $REPO_NAME:$IMAGE_TAG-arm64 .
+                
+                                docker tag $REPO_NAME:$IMAGE_TAG-arm64 $IMAGE_REPO_URL:$IMAGE_TAG-arm64
+                
+                                # Push the container image to Amazon ECR
+                                docker push $IMAGE_REPO_URL:$IMAGE_TAG-arm64
+                                '''
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage('Build Image Manifest') {
+            agent { label 'arm64' }
+            steps {
+                withCredentials([[ $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'jenkins-user']]){
+                    script {
+                        sh '''
+                        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                        aws sts get-caller-identity
+        
+                        # Logging in to Amazon ECR
+                        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+                        
+                        # Create the image manifest
+                        docker manifest create --amend $IMAGE_REPO_URL:$IMAGE_TAG $IMAGE_REPO_URL:$IMAGE_TAG-amd64 $IMAGE_REPO_URL:$IMAGE_TAG-arm64
+        
+                        # Annotate for amd64 container image
+                        docker manifest annotate --arch amd64 $IMAGE_REPO_URL:$IMAGE_TAG $IMAGE_REPO_URL:$IMAGE_TAG-amd64
+
+                        # Annotate for arm64 container image
+                        docker manifest annotate --arch arm64 $IMAGE_REPO_URL:$IMAGE_TAG $IMAGE_REPO_URL:$IMAGE_TAG-arm64
+
+                        # Push the image manifest to Amazon ECR
+                        docker manifest push $IMAGE_REPO_URL:$IMAGE_TAG
+                        '''
+                    }
+                }
+            }
+        }
+    }
+}
