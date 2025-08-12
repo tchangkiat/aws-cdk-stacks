@@ -30,7 +30,7 @@ pipeline {
                                 cd $REPO_NAME
 
                                 # Build and tag container image
-                                docker buildx build -t $REPO_NAME:$IMAGE_TAG-amd64 --platform linux/amd64 .
+                                docker build -t $REPO_NAME:$IMAGE_TAG-amd64 .
                 
                                 docker tag $REPO_NAME:$IMAGE_TAG-amd64 $IMAGE_REPO_URL:$IMAGE_TAG-amd64
                 
