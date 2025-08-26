@@ -34,7 +34,7 @@ This repository contains stacks for various solutions in AWS. These stacks are u
 
 1. Install npm packages with `npm install`.
 
-2. Configure AWS CLI in order to bootstrap your AWS account for the CDK.
+2. Configure AWS CLI in order to bootstrap your AWS account for the CDK. Replace `{{...}}` with actual values.
 
 ```bash
 aws configure set aws_access_key_id {{ACCESS_KEY_ID}}
@@ -45,7 +45,7 @@ aws configure set output json
 
 3. Bootstrap AWS account for CDK with `cdk bootstrap`.
 
-4. Create an EC2 Key Pair named "EC2DefaultKeyPair" (leave other settings as default).
+4. Create an EC2 Key Pair named "EC2DefaultKeyPair" (leave other settings as default) in the [EC2 console](https://console.aws.amazon.com/ec2/home#KeyPairs:).
 
 5. Rename 'example.env' to '.env' and fill up all the values.
 
@@ -108,7 +108,7 @@ Access the bastion host with 'ec2-user' using SSH or EC2 Instance Connect.
 
 > ❗ The commands listed in the sections under EKS should be executed in the bastion host. Some environment variables (e.g. AWS_REGION, AWS_ACCOUNT_ID, AWS_EKS_CLUSTER) are already populated in the bastion host.
 
-### 3. Configure the AWS CLI and execute a script to setup the bastion host:
+### 3. Configure the AWS CLI and execute a script to setup the bastion host. Replace `{{...}}` with actual values.
 
 ```bash
 aws configure set aws_access_key_id {{ACCESS_KEY_ID}}
