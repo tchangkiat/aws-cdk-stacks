@@ -144,7 +144,7 @@ export class ClusterAutoscaler extends Construct {
     super(scope, id);
 
     // Best practice: Cluster Autoscaler version must match the Kubernetes control plane version
-    const eksClusterAutoscalerVersion = "v1.32.0";
+    const eksClusterAutoscalerVersion = "v1.33.1";
 
     new eks.KubernetesManifest(this, "cluster-autoscaler", {
       cluster,

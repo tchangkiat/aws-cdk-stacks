@@ -4,7 +4,7 @@ import type * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as eks from "aws-cdk-lib/aws-eks";
 import type * as ecr from "aws-cdk-lib/aws-ecr";
-import { KubectlV32Layer } from "@aws-cdk/lambda-layer-kubectl-v32";
+import { KubectlV33Layer } from "@aws-cdk/lambda-layer-kubectl-v33";
 
 import { ManagedNodeGroup, ClusterAutoscaler } from "../constructs/eks";
 import { EC2Instance } from "../constructs/ec2-instance";
@@ -26,7 +26,7 @@ export class EKS extends Stack {
     // Configuration
     // ----------------------------
 
-    const eksClusterKubernetesVersion = eks.KubernetesVersion.V1_32;
+    const eksClusterKubernetesVersion = eks.KubernetesVersion.V1_33;
 
     const eksClusterName = id + "-demo";
 
@@ -87,7 +87,7 @@ export class EKS extends Stack {
       defaultCapacity: 0,
       endpointAccess:
         eks.EndpointAccess.PUBLIC_AND_PRIVATE.onlyFrom("0.0.0.0/0"),
-      kubectlLayer: new KubectlV32Layer(this, "kubectl-layer"),
+      kubectlLayer: new KubectlV33Layer(this, "kubectl-layer"),
       mastersRole: eksMasterRole,
       version: eksClusterKubernetesVersion,
       vpc,
@@ -109,7 +109,7 @@ export class EKS extends Stack {
     new eks.Addon(this, "Addon", {
       cluster,
       addonName: "eks-pod-identity-agent",
-      addonVersion: "v1.3.0-eksbuild.1",
+      addonVersion: "v1.3.8-eksbuild.2",
     });
 
     // Equivalent to executing `eksctl utils associate-iam-oidc-provider`
@@ -147,7 +147,7 @@ export class EKS extends Stack {
       region: this.region,
       userData: [
         // kubectl
-        "curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.32.3/2025-04-17/bin/linux/arm64/kubectl",
+        "curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.33.5/2025-09-19/bin/linux/arm64/kubectl",
         "chmod +x ./kubectl",
         "mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin",
         "echo 'export PATH=$PATH:$HOME/bin' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
