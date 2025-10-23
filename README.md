@@ -20,7 +20,6 @@ This repository contains stacks for various solutions in AWS. These stacks are u
   - [Add-Ons](#add-ons)
   - [Deploy Application](#deploy-application)
   - [Metrics Server and Horizontal Pod Autoscaler (HPA)](#metrics-server-and-horizontal-pod-autoscaler-hpa)
-  - [AWS X-Ray](#aws-x-ray)
   - [Argo CD](#argo-cd)
   - [Argo Rollouts](#argo-rollouts)
   - [Amazon VPC Lattice](#amazon-vpc-lattice)
@@ -166,28 +165,27 @@ Example #3: Remove multiple add-ons
 2. AWS Load Balancer Controller ("load-balancer-controller")
 3. AWS EBS CSI Driver ("ebs-csi-driver")
 4. Amazon CloudWatch Container Insights ("container-insights")
-5. AWS X-Ray Daemon ("xray")
-6. Prometheus and Grafana ("prometheus-grafana")
+5. Prometheus and Grafana ("prometheus-grafana")
    - Prerequisite: AWS EBS CSI Driver
 
-7. Ingress NGINX Controller ("ingress-nginx-controller")
+6. Ingress NGINX Controller ("ingress-nginx-controller")
    - Also installs cert-manager
 
-8. AWS Gateway API Controller ("gateway-api-controller")
-9. Amazon EMR on EKS ("emr-on-eks")
-10. JupyterHub ("jupyterhub")
-    - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
+7. AWS Gateway API Controller ("gateway-api-controller")
+8. Amazon EMR on EKS ("emr-on-eks")
+9. JupyterHub ("jupyterhub")
+   - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
 
-11. Ray ("ray")
+10. Ray ("ray")
     - Prerequisites: Karpenter
 
-12. Argo CD ("argo-cd")
+11. Argo CD ("argo-cd")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
 
-13. Argo Rollouts ("argo-rollouts")
+12. Argo Rollouts ("argo-rollouts")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
 
-14. Open Policy Agent Gatekeeper ("opa-gatekeeper")
+13. Open Policy Agent Gatekeeper ("opa-gatekeeper")
     - Includes a constraint template and constraint
 
 ## Deploy Application
@@ -257,63 +255,6 @@ kubectl get hpa -n example
 kubectl delete hpa web-app -n example
 
 kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-```
-
-## AWS X-Ray
-
-> Prerequisite 1: Deploy the Multi-Architecture Pipeline. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.
-
-> Prerequisite 2: Install [AWS Load Balancer Controller](#add-ons).
-
-> Prerequisite 3: Install [Deploy Application](#deploy-application).
-
-### Setup
-
-1. Set up AWS X-Ray DaemonSet.
-
-```bash
-./eks-add-ons.sh -i xray
-```
-
-2. Changed the "AWS_XRAY_SDK_DISABLED" environment variables from "TRUE" to "FALSE" (case sensitive) for 2 "web-app" containers in [web-app.yaml](./assets/web-app.yaml).
-
-```bash
-- name: AWS_XRAY_SDK_DISABLED
-  value: "FALSE"
-```
-
-3. Uncomment the following lines in [web-app.yaml](./assets/web-app.yaml).
-
-```bash
-- name: AWS_XRAY_DAEMON_ADDRESS
-  value: "xray-daemon.kube-system.svc.cluster.local:2100"
-- name: AWS_XRAY_APP_NAME
-  value: "web-app-amd64"
-...
-- name: AWS_XRAY_DAEMON_ADDRESS
-  value: "xray-daemon.kube-system.svc.cluster.local:2100"
-- name: AWS_XRAY_APP_NAME
-  value: "web-app-arm64"
-```
-
-4. Re-deploy the application
-
-```bash
-kubectl apply -f web-app.yaml
-```
-
-### Clean Up
-
-1. Remove the application.
-
-```bash
-kubectl delete -f web-app.yaml
-```
-
-2. Remove AWS X-Ray DaemonSet.
-
-```bash
-./eks-add-ons.sh -r xray
 ```
 
 ## Argo CD

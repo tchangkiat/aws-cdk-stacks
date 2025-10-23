@@ -231,16 +231,6 @@ export class ECS extends Stack {
       }),
     });
 
-    fgTaskDef.addContainer("xray-daemon", {
-      image: ecs.ContainerImage.fromRegistry(
-        "public.ecr.aws/xray/aws-xray-daemon:3.x",
-      ),
-      containerName: "xray-daemon",
-      portMappings: [{ containerPort: 2000, protocol: ecs.Protocol.UDP }],
-      cpu: 32,
-      memoryReservationMiB: 256,
-    });
-
     // fgTaskDef.addFirelensLogRouter('firelens', {
     //   essential: true,
     //   image: ecs.ContainerImage.fromRegistry(

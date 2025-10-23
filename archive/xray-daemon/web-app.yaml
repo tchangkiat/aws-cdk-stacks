@@ -93,6 +93,13 @@ spec:
               value: "/amd64,/canary"
             - name: GIN_MODE
               value: "release"
+            - name: AWS_XRAY_SDK_DISABLED
+              value: "TRUE"
+            # Uncomment the next 4 lines if AWS X-Ray SDK is enabled
+            # - name: AWS_XRAY_DAEMON_ADDRESS
+            #   value: "xray-daemon.kube-system.svc.cluster.local:2100"
+            # - name: AWS_XRAY_APP_NAME
+            #   value: "web-app-amd64"
       nodeSelector:
         karpenter.sh/nodepool: default
         karpenter.sh/capacity-type: on-demand
@@ -194,6 +201,13 @@ spec:
               value: "/arm64,/canary"
             - name: GIN_MODE
               value: "release"
+            - name: AWS_XRAY_SDK_DISABLED
+              value: "TRUE"
+            # Uncomment the next 4 lines if AWS X-Ray SDK is enabled
+            # - name: AWS_XRAY_DAEMON_ADDRESS
+            #   value: "xray-daemon.kube-system.svc.cluster.local:2100"
+            # - name: AWS_XRAY_APP_NAME
+            #   value: "web-app-arm64"
       nodeSelector:
         karpenter.sh/nodepool: default-arm64
         karpenter.sh/capacity-type: on-demand
