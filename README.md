@@ -105,7 +105,7 @@ These resources will be created:
 
 Access the bastion host with 'ec2-user' using SSH or EC2 Instance Connect.
 
-> ❗ The commands listed in the sections under EKS should be executed in the bastion host. Some environment variables (e.g. AWS_REGION, AWS_ACCOUNT_ID, AWS_EKS_CLUSTER) are already populated in the bastion host.
+> ❗ The commands listed in the EKS sections should be executed in the bastion host. Some environment variables (e.g. AWS_REGION, AWS_ACCOUNT_ID, AWS_EKS_CLUSTER) are already populated in the bastion host.
 
 ### 3. Configure the AWS CLI and execute a script to setup the bastion host. Replace `{{...}}` with actual values.
 
@@ -126,16 +126,9 @@ kubectl get svc
 
 ## Add-Ons
 
-1. Download the bash script to install / remove add-ons.
+Install add-ons with `-i` argument or remove add-ons with `-r` argument. Both ID and alias of the add-ons can be used.
 
-```bash
-curl -o eks-add-ons.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/eks-add-ons.sh
-chmod +x eks-add-ons.sh
-```
-
-2. Install add-ons with `-i` argument or remove add-ons with `-r` argument. Both ID and alias of the add-ons can be used.
-
-Example #1: Install Karpenter
+### Example #1: Install Karpenter
 
 ```bash
 ./eks-add-ons.sh -i karpenter
@@ -143,7 +136,7 @@ Example #1: Install Karpenter
 ./eks-add-ons.sh -i 1
 ```
 
-Example #2: Install multiple add-ons
+### Example #2: Install multiple add-ons
 
 ```bash
 ./eks-add-ons.sh -i "karpenter load-balancer-controller"
@@ -151,7 +144,7 @@ Example #2: Install multiple add-ons
 ./eks-add-ons.sh -i "1 2"
 ```
 
-Example #3: Remove multiple add-ons
+### Example #3: Remove multiple add-ons
 
 ```bash
 ./eks-add-ons.sh -r "karpenter load-balancer-controller"

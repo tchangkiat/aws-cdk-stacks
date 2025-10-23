@@ -185,6 +185,9 @@ export class EKS extends Stack {
         // Alias
         "echo 'alias k=kubectl' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
         "echo 'export KUBE_EDITOR=nano' | tee -a /home/ec2-user/.bashrc /home/ec2-user/.zshrc",
+        // Download addons script
+        "curl -o /home/ec2-user/eks-add-ons.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/eks/eks-add-ons.sh",
+        "chmod +x /home/ec2-user/eks-add-ons.sh",
       ],
     }) as ec2.Instance;
 
