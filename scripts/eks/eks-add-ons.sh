@@ -119,22 +119,18 @@ then
     echo "Done!"
 else
 cat << EndOfMessage
---------------------------------------
-
-Install / Remove EKS Add-Ons
-
---------------------------------------
-Command Format:
+----------------------------------------------------------------------
+⚙️  Install / Remove EKS Add-Ons
+----------------------------------------------------------------------
+⬇️  Install:
+        ./eks-add-ons.sh -i "<alias 1> <alias 2>"
+        ./eks-add-ons.sh -i "<id 1> <id 2>"
     
-    Install:
-    ./eks-add-ons -i "<alias 1> <alias 2>"
-    ./eks-add-ons -i "<id 1> <id 2>"
-    
-    Remove:
-    ./eks-add-ons -r "<alias 1> <alias 2>"
-    ./eks-add-ons -r "<id 1> <id 2>"
---------------------------------------
-List of Add-Ons (alias are in brackets):
+❌ Remove:
+        ./eks-add-ons.sh -r "<alias 1> <alias 2>"
+        ./eks-add-ons.sh -r "<id 1> <id 2>"
+----------------------------------------------------------------------
+Add-Ons (alias are in brackets):
 
 1.  Karpenter ("karpenter")
 2.  AWS Load Balancer Controller ("load-balancer-controller")
@@ -146,7 +142,7 @@ List of Add-Ons (alias are in brackets):
     - Also installs cert-manager
 7.  AWS Gateway API Controller ("gateway-api-controller")
 8.  Amazon EMR on EKS ("emr-on-eks")
-9. JupyterHub ("jupyterhub")
+9.  JupyterHub ("jupyterhub")
     - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
 10. Ray ("ray")
     - Prerequisites: Karpenter
@@ -154,6 +150,7 @@ List of Add-Ons (alias are in brackets):
     - Prerequisites: Karpenter, AWS Load Balancer Controller
 12. Argo Rollouts ("argo-rollouts")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
+----------------------------------------------------------------------
 
 EndOfMessage
 fi
