@@ -120,13 +120,13 @@ then
 else
 cat << EndOfMessage
 ----------------------------------------------------------------------
-⚙️  Install / Remove EKS Add-Ons
+EKS Add-Ons Script
 ----------------------------------------------------------------------
-⬇️  Install:
+Install:
         ./eks-add-ons.sh -i "<alias 1> <alias 2>"
         ./eks-add-ons.sh -i "<id 1> <id 2>"
     
-❌ Remove:
+Remove:
         ./eks-add-ons.sh -r "<alias 1> <alias 2>"
         ./eks-add-ons.sh -r "<id 1> <id 2>"
 ----------------------------------------------------------------------
