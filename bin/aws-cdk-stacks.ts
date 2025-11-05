@@ -16,8 +16,6 @@ import { MultiArchPipeline } from "../lib/multi-arch-pipeline";
 import { Vllm } from "../lib/vllm";
 import { EgressVpc } from "../lib/egress-vpc";
 import { PostgresDatabase } from "../lib/postgres-db";
-
-import { Autoscaler } from "../constants";
 import { Jenkins } from "../lib/jenkins";
 dotenv.config();
 
@@ -69,31 +67,11 @@ new EcsAdot(app, "ecs-adot", common.Vpc, {
   description: "Deploys an ECS cluster with ADOT as sidecar running on Fargate",
 });
 
-new EKS(
-  app,
-  "eks",
-  multiArchPipeline.Repository,
-  common.SSHKeyPairName,
-  Autoscaler.Karpenter,
-  {
-    stackName: prefix + "eks",
-    description:
-      "Deploys an EKS cluster and a bastion host to manage the cluster",
-  },
-);
-
-new EKS(
-  app,
-  "eks-ca",
-  multiArchPipeline.Repository,
-  common.SSHKeyPairName,
-  Autoscaler.ClusterAutoscaler,
-  {
-    stackName: prefix + "eks-ca",
-    description:
-      "Deploys an EKS cluster with Cluster Autoscaler and a bastion host to manage the cluster",
-  },
-);
+new EKS(app, "eks", multiArchPipeline.Repository, common.SSHKeyPairName, {
+  stackName: prefix + "eks",
+  description:
+    "Deploys an EKS cluster and a bastion host to manage the cluster",
+});
 
 new GravitonPerformanceTest(
   app,

@@ -89,15 +89,12 @@ Creates a new CodePipeline, ECR repository, and S3 bucket to build and deploy a 
 ```bash
 # Deploy a cluster
 cdk deploy eks
-
-# Deploy a cluster with Cluster Autoscaler installed
-cdk deploy eks-ca
 ```
 
 These resources will be created:
 
 - A VPC with public and private subnets and a NAT gateway
-- An EKS cluster with 1 managed node group (or 2 if Cluster Autoscaler is installed)
+- An EKS cluster with 1 managed node group
 - A bastion host to manage the EKS cluster
 - The necessary IAM roles and policies
 

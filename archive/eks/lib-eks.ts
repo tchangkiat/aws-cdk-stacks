@@ -6,9 +6,9 @@ import * as eks from "aws-cdk-lib/aws-eks";
 import type * as ecr from "aws-cdk-lib/aws-ecr";
 import { KubectlV33Layer } from "@aws-cdk/lambda-layer-kubectl-v33";
 
-import { ManagedNodeGroup } from "../constructs/eks";
+import { ManagedNodeGroup, ClusterAutoscaler } from "../constructs/eks";
 import { EC2Instance } from "../constructs/ec2-instance";
-import { EC2InstanceAccess } from "../constants";
+import { Autoscaler, EC2InstanceAccess } from "../constants";
 import { StandardVpc } from "../constructs/network";
 
 export class EKS extends Stack {
@@ -17,6 +17,7 @@ export class EKS extends Stack {
     id: string,
     ecrRepository: ecr.Repository,
     sshKeyPairName: string,
+    autoscaler?: string,
     props?: StackProps,
   ) {
     super(scope, id, props);
@@ -26,6 +27,7 @@ export class EKS extends Stack {
     // ----------------------------
 
     const eksClusterKubernetesVersion = eks.KubernetesVersion.V1_33;
+
     const eksClusterName = id + "-demo";
 
     // ----------------------------
@@ -33,7 +35,7 @@ export class EKS extends Stack {
     // ----------------------------
 
     const vpc = new StandardVpc(this, "vpc", {
-      vpcName: eksClusterName,
+      vpcName: id,
     }) as ec2.Vpc;
 
     for (const subnet of vpc.publicSubnets) {
@@ -46,7 +48,9 @@ export class EKS extends Stack {
       Tags.of(subnet).add("kubernetes.io/cluster/" + eksClusterName, "owned");
       Tags.of(subnet).add("kubernetes.io/role/internal-elb", "1");
       // Tag for Karpenter
-      Tags.of(subnet).add("karpenter.sh/discovery", eksClusterName);
+      if (autoscaler === Autoscaler.Karpenter) {
+        Tags.of(subnet).add("karpenter.sh/discovery", eksClusterName);
+      }
     }
 
     // ----------------------------
@@ -101,20 +105,26 @@ export class EKS extends Stack {
       }),
     );
 
-    // Install Add-Ons
-    new eks.Addon(this, "eks-pod-identity-agent", {
+    // Install EKS Pod Identity Agent addon
+    new eks.Addon(this, "Addon", {
       cluster,
       addonName: "eks-pod-identity-agent",
-      addonVersion: "v1.3.9-eksbuild.5",
+      addonVersion: "v1.3.8-eksbuild.2",
     });
+
+    // Equivalent to executing `eksctl utils associate-iam-oidc-provider`
+    /* new iam.OpenIdConnectProvider(this, "iam-oidc-provider", {
+			clientIds: ["sts.amazonaws.com"],
+			url: cluster.clusterOpenIdConnectIssuerUrl,
+		}); */
 
     // ----------------------------
     // Addons NodeGroup
     // ----------------------------
 
-    new ManagedNodeGroup(this, "add-ons-mng", {
+    const addonsMng = new ManagedNodeGroup(this, "addons-mng", {
       cluster,
-      nodeGroupName: "add-ons",
+      nodeGroupName: "addons",
       taints: [
         {
           effect: eks.TaintEffect.NO_SCHEDULE,
@@ -214,5 +224,58 @@ export class EKS extends Stack {
         "#ConnectToInstance:instanceId=" +
         bastionHost.instanceId,
     });
+
+    // ----------------------------
+    // Autoscaler
+    // ----------------------------
+
+    if (autoscaler === Autoscaler.ClusterAutoscaler) {
+      const nodeGroupName = "spot";
+
+      // Create a NodeGroup to run workloads on spot instances
+      const spotMng = new ManagedNodeGroup(this, "spot-mng", {
+        cluster,
+        amiType: eks.NodegroupAmiType.BOTTLEROCKET_X86_64,
+        capacityType: eks.CapacityType.SPOT,
+        instanceType: "t3.medium",
+        nodeGroupName,
+      }) as eks.Nodegroup;
+
+      // Grant Cluster Autoscaler permissions to modify Auto Scaling Groups via the node role.
+      const caPolicy = new iam.Policy(this, "cluster-autoscaler-policy", {
+        policyName: eksClusterName + "-ca-policy",
+        statements: [
+          new iam.PolicyStatement({
+            resources: ["*"], // This should be '*'
+            actions: [
+              "autoscaling:DescribeAutoScalingGroups",
+              "autoscaling:DescribeAutoScalingInstances",
+              "autoscaling:DescribeLaunchConfigurations",
+              "autoscaling:DescribeScalingActivities",
+              "autoscaling:DescribeTags",
+              "ec2:DescribeInstanceTypes",
+              "ec2:DescribeLaunchTemplateVersions",
+            ],
+          }),
+          // Only this policy statement should be updated to restrict the resources / add conditions
+          new iam.PolicyStatement({
+            resources: ["*"],
+            actions: [
+              "autoscaling:SetDesiredCapacity",
+              "autoscaling:TerminateInstanceInAutoScalingGroup",
+              "ec2:DescribeImages",
+              "ec2:GetInstanceTypesFromInstanceRequirements",
+              "eks:DescribeNodegroup",
+            ],
+          }),
+        ],
+      });
+
+      const ca = new ClusterAutoscaler(this, "cluster-autoscaler", cluster);
+
+      caPolicy.attachToRole(addonsMng.role);
+
+      ca.tagNodeGroups(eksClusterName, [spotMng]);
+    }
   }
 }
