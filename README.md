@@ -175,9 +175,6 @@ Install add-ons with `-i` argument or remove add-ons with `-r` argument. Both ID
 12. Argo Rollouts ("argo-rollouts")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
 
-13. Open Policy Agent Gatekeeper ("opa-gatekeeper")
-    - Includes a constraint template and constraint
-
 ## Deploy Application
 
 > Prerequisite 1: Deploy the Multi-Architecture Pipeline. To use your own container image from a registry, replace \<URL\> and execute `export CONTAINER_IMAGE_URL=<URL>`.

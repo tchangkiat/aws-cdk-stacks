@@ -50,9 +50,6 @@ for install in "${installs[@]}"; do
             "12"|"argo-rollouts")
                 scripts+=("install-argo-rollouts.sh")
                 ;;
-            "13"|"opa-gatekeeper")
-                scripts+=("install-opa-gatekeeper.sh")
-                ;;
             *) echo "Invalid option $REPLY"
         esac
     done
@@ -98,9 +95,6 @@ for removal in "${removals[@]}"; do
             "12"|"argo-rollouts")
                 scripts+=("remove-argo-rollouts.sh")
                 ;;
-            "13"|"opa-gatekeeper")
-                scripts+=("remove-opa-gatekeeper.sh")
-                ;;
             *) echo "Invalid option $REPLY"
         esac
     done
@@ -140,7 +134,7 @@ Command Format:
     ./eks-add-ons -r "<alias 1> <alias 2>"
     ./eks-add-ons -r "<id 1> <id 2>"
 --------------------------------------
-List of add-ons (alias are in brackets):
+List of Add-Ons (alias are in brackets):
 
 1.  Karpenter ("karpenter")
 2.  AWS Load Balancer Controller ("load-balancer-controller")
@@ -160,8 +154,6 @@ List of add-ons (alias are in brackets):
     - Prerequisites: Karpenter, AWS Load Balancer Controller
 12. Argo Rollouts ("argo-rollouts")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
-13. Open Policy Agent Gatekeeper ("opa-gatekeeper")
-    - Includes a constraint template and constraint
 
 EndOfMessage
 fi
