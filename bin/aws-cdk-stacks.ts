@@ -15,7 +15,6 @@ import { GravitonVLLM } from "../lib/gvt-vllm";
 import { MultiArchPipeline } from "../lib/multi-arch-pipeline";
 import { Vllm } from "../lib/vllm";
 import { EgressVpc } from "../lib/egress-vpc";
-import { PostgresDatabase } from "../lib/postgres-db";
 import { Jenkins } from "../lib/jenkins";
 dotenv.config();
 
@@ -101,11 +100,6 @@ new EgressVpc(app, "egress-vpc", {
 //   stackName: prefix + "api-gateway",
 //   description: "Deploys an API Gateway with a Lambda authorizer",
 // });
-
-new PostgresDatabase(app, "postgres-db", common.Vpc, {
-  stackName: prefix + "postgresql",
-  description: "Deploys an RDS PostgreSQL database instance",
-});
 
 new Jenkins(app, "jenkins", common.Vpc, common.SSHKeyPairName, {
   stackName: prefix + "jenkins",

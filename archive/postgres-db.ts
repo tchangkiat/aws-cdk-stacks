@@ -32,7 +32,7 @@ export class PostgresDatabase extends Stack {
     // Creates the database. Engine version must be supported by DMS version
     this.Database = new rds.DatabaseInstance(this, "database", {
       engine: rds.DatabaseInstanceEngine.postgres({
-        version: rds.PostgresEngineVersion.VER_15_5,
+        version: rds.PostgresEngineVersion.VER_17_6,
       }),
       // Generate the secret with admin username `postgres` and random password
       credentials: rds.Credentials.fromGeneratedSecret("postgres", {
@@ -40,7 +40,7 @@ export class PostgresDatabase extends Stack {
       }),
       allocatedStorage: 50,
       backupRetention: Duration.days(0),
-      caCertificate: rds.CaCertificate.RDS_CA_RDS2048_G1,
+      caCertificate: rds.CaCertificate.RDS_CA_RSA2048_G1,
       cloudwatchLogsRetention: RetentionDays.ONE_DAY,
       deleteAutomatedBackups: true,
       instanceIdentifier: id,
