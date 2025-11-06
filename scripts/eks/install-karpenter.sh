@@ -124,13 +124,13 @@ spec:
     # Root device
     - deviceName: /dev/xvda
       ebs:
-        volumeSize: 10Gi
+        volumeSize: 5Gi
         volumeType: gp3
         encrypted: true
     # Data device: Container resources such as images and logs
     - deviceName: /dev/xvdb
       ebs:
-        volumeSize: 40Gi
+        volumeSize: 45Gi
         volumeType: gp3
         encrypted: true
   tags:
@@ -146,7 +146,7 @@ cat <<EOF >>gpu-nodepools.yaml
 apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
-  name: gpu-g
+  name: gpu
 spec:
   template:
     spec:
@@ -185,13 +185,13 @@ spec:
     # Root device
     - deviceName: /dev/xvda
       ebs:
-        volumeSize: 10Gi
+        volumeSize: 5Gi
         volumeType: gp3
         encrypted: true
     # Data device: Container resources such as images and logs
     - deviceName: /dev/xvdb
       ebs:
-        volumeSize: 90Gi
+        volumeSize: 95Gi
         volumeType: gp3
         encrypted: true
   tags:
