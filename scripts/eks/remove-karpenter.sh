@@ -2,8 +2,8 @@
 
 export KARPENTER_NAMESPACE=kube-system
 
-kubectl delete -f default-node-pool.yaml
-rm default-node-pool.yaml
+kubectl delete -f cpu-node-pool.yaml
+rm cpu-node-pool.yaml
 
 helm uninstall karpenter --namespace ${KARPENTER_NAMESPACE}
 
