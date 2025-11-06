@@ -56,7 +56,7 @@ helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --vers
   --set replicas=1 \
   --wait
 
-cat <<EOF >>cpu-node-pool.yaml
+cat <<EOF >>cpu-nodepools.yaml
 apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
@@ -111,7 +111,6 @@ kind: EC2NodeClass
 metadata:
   name: cpu
 spec:
-  amiFamily: Bottlerocket
   role: "${CLUSTER_NAME}-${AWS_DEFAULT_REGION}-karpenter-node"
   subnetSelectorTerms:
     - tags:
@@ -141,4 +140,65 @@ spec:
     eks-cost-team: tck
 EOF
 
-kubectl apply -f cpu-node-pool.yaml
+kubectl apply -f cpu-nodepools.yaml
+
+cat <<EOF >>gpu-nodepools.yaml
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: gpu-g
+spec:
+  template:
+    spec:
+      requirements:
+      - key: karpenter.k8s.aws/instance-category
+        operator: In
+        values: ["g"]
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: gpu
+      taints:
+      - key: "nvidia.com/gpu"
+        effect: "NoSchedule"
+  disruption:
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 30s
+  limits:
+    cpu: 64
+---
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: gpu
+spec:
+  role: "${CLUSTER_NAME}-${AWS_DEFAULT_REGION}-karpenter-node"
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: ${CLUSTER_NAME}
+  securityGroupSelectorTerms:
+    - tags:
+        "aws:eks:cluster-name": ${CLUSTER_NAME}
+  amiSelectorTerms:
+    - alias: bottlerocket@latest
+  blockDeviceMappings:
+    # Root device
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 10Gi
+        volumeType: gp3
+        encrypted: true
+    # Data device: Container resources such as images and logs
+    - deviceName: /dev/xvdb
+      ebs:
+        volumeSize: 90Gi
+        volumeType: gp3
+        encrypted: true
+  tags:
+    Name: ${CLUSTER_NAME}/gpu
+    eks-cost-cluster: ${CLUSTER_NAME}
+    eks-cost-workload: gpu
+    eks-cost-team: tck
+EOF
+
+kubectl apply -f gpu-nodepools.yaml
