@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export KARPENTER_NAMESPACE="kube-system"
-export KARPENTER_VERSION="1.7.1"
+export KARPENTER_VERSION="1.8.0"
 export K8S_VERSION=$(kubectl version -o json | jq -r ".serverVersion.major")
 K8S_VERSION+="."
 K8S_VERSION+=$(kubectl version -o json | jq -r ".serverVersion.minor")
@@ -56,11 +56,11 @@ helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --vers
   --set replicas=1 \
   --wait
 
-cat <<EOF >>default-node-pool.yaml
+cat <<EOF >>cpu-node-pool.yaml
 apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
-  name: default
+  name: x86
 spec:
   template:
     spec:
@@ -73,11 +73,11 @@ spec:
           values: ["t"]
         - key: "karpenter.k8s.aws/instance-generation"
           operator: Gt
-          values: ["5"]
+          values: ["4"]
       nodeClassRef:
         group: karpenter.k8s.aws
         kind: EC2NodeClass
-        name: default
+        name: cpu
   limits:
     cpu: 64
   weight: 50
@@ -85,7 +85,7 @@ spec:
 apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
-  name: default-arm64
+  name: graviton
 spec:
   template:
     spec:
@@ -102,16 +102,16 @@ spec:
       nodeClassRef:
         group: karpenter.k8s.aws
         kind: EC2NodeClass
-        name: default
+        name: cpu
   limits:
     cpu: 64
 ---
 apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
 metadata:
-  name: default
+  name: cpu
 spec:
-  amiFamily: "Bottlerocket"
+  amiFamily: Bottlerocket
   role: "${CLUSTER_NAME}-${AWS_DEFAULT_REGION}-karpenter-node"
   subnetSelectorTerms:
     - tags:
@@ -121,11 +121,24 @@ spec:
         "aws:eks:cluster-name": ${CLUSTER_NAME}
   amiSelectorTerms:
     - alias: bottlerocket@latest
+  blockDeviceMappings:
+    # Root device
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 10Gi
+        volumeType: gp3
+        encrypted: true
+    # Data device: Container resources such as images and logs
+    - deviceName: /dev/xvdb
+      ebs:
+        volumeSize: 40Gi
+        volumeType: gp3
+        encrypted: true
   tags:
-    Name: ${CLUSTER_NAME}/karpenter/default
+    Name: ${CLUSTER_NAME}/cpu
     eks-cost-cluster: ${CLUSTER_NAME}
-    eks-cost-workload: Proof-of-Concept
+    eks-cost-workload: cpu
     eks-cost-team: tck
 EOF
 
-kubectl apply -f default-node-pool.yaml
+kubectl apply -f cpu-node-pool.yaml

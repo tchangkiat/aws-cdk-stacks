@@ -60,4 +60,4 @@ spec:
           configMap:
             name: scripts-cm
       nodeSelector:
-        karpenter.sh/nodepool: default-arm64
+        karpenter.sh/nodepool: graviton

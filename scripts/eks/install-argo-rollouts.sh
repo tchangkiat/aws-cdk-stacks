@@ -45,7 +45,7 @@ spec:
           ports:
             - containerPort: 8000
       nodeSelector:
-        karpenter.sh/nodepool: default
+        karpenter.sh/nodepool: x86
         karpenter.k8s.aws/instance-family: c6i
 ---
 apiVersion: v1

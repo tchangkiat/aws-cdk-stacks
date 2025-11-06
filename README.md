@@ -328,7 +328,7 @@ kubectl delete ns nginx
 ...
 nodeSelector:
   karpenter.k8s.aws/instance-family: c7g
-  karpenter.sh/nodepool: default-arm64
+  karpenter.sh/nodepool: graviton
 ...
 ```
 

@@ -94,7 +94,7 @@ spec:
             - name: GIN_MODE
               value: "release"
       nodeSelector:
-        karpenter.sh/nodepool: default
+        karpenter.sh/nodepool: x86
         karpenter.sh/capacity-type: on-demand
         node.kubernetes.io/instance-type: c6i.xlarge # Hard-coding instance type for consistency during demo
 ---
@@ -195,7 +195,7 @@ spec:
             - name: GIN_MODE
               value: "release"
       nodeSelector:
-        karpenter.sh/nodepool: default-arm64
+        karpenter.sh/nodepool: graviton
         karpenter.sh/capacity-type: on-demand
         node.kubernetes.io/instance-type: c7g.xlarge # Hard-coding instance type for consistency during demo
 ---
