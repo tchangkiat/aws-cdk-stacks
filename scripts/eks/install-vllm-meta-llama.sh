@@ -33,7 +33,7 @@ spec:
         image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/vllm:arm64
         command: ["/bin/sh", "-c"]
         args: [
-          "vllm serve meta-llama/Llama-3.2-1B-Instruct --dtype=float16"
+          "vllm serve meta-llama/Llama-3.2-1B-Instruct --dtype=bfloat16 --max_num_batched_tokens 131072"
         ]
         env:
         - name: HUGGING_FACE_HUB_TOKEN
@@ -49,14 +49,14 @@ spec:
         resources:
           requests:
             cpu: 24
-            memory: 48Gi
+            memory: 96Gi
       volumes:
       - name: llama-storage
         persistentVolumeClaim:
           claimName: vllm-meta-llama
       nodeSelector:
-        karpenter.sh/nodepool: vllm
-        karpenter.k8s.aws/instance-family: c6g
+        karpenter.sh/nodepool: graviton
+        karpenter.k8s.aws/instance-family: m8g
 ---
 apiVersion: v1
 kind: Service

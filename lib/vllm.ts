@@ -90,8 +90,8 @@ export class Vllm extends Stack {
               "git clone $SOURCE_REPO_URL",
               "cd vllm",
               // Use Amazon ECR Public Gallery instead of Docker Hub for the base image
-              "sed -i 's|FROM ubuntu|FROM public.ecr.aws/ubuntu/ubuntu|g' docker/Dockerfile.arm",
-              "docker build -f docker/Dockerfile.arm -t $IMAGE_REPO:$IMAGE_TAG_PREFIX --shm-size=4g .",
+              "sed -i 's|FROM ubuntu|FROM public.ecr.aws/ubuntu/ubuntu|g' docker/Dockerfile.cpu",
+              "docker build -f docker/Dockerfile.cpu -t $IMAGE_REPO:$IMAGE_TAG_PREFIX .",
             ],
           },
           post_build: {
@@ -107,7 +107,7 @@ export class Vllm extends Stack {
       projectName: id + "-arm64",
       environment: {
         buildImage: codebuild.LinuxArmBuildImage.AMAZON_LINUX_2023_STANDARD_3_0,
-        computeType: codebuild.ComputeType.LARGE, //Required to avoid running out of memory when building the container image
+        computeType: codebuild.ComputeType.X_LARGE, //Required to avoid running out of memory when building the container image
         privileged: true,
         environmentVariables: {
           AWS_DEFAULT_REGION: {

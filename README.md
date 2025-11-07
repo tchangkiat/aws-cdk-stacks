@@ -434,7 +434,7 @@ JupyterHub Password: <generated password>
 cdk deploy vllm
 ```
 
-2. Start the CodeBuild project. The build process takes about 6 minutes to complete.
+2. Start the CodeBuild project. The build process takes about 13 minutes to complete.
 
 ```bash
 aws codebuild start-build --project-name vllm-arm64
