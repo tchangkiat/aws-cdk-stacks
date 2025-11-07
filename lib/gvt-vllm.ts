@@ -23,6 +23,7 @@ export class GravitonVLLM extends Stack {
       os: EC2InstanceOS.Ubuntu,
       userData: [
         "curl -o /home/ubuntu/setup-gvt-vllm.sh https://raw.githubusercontent.com/tchangkiat/aws-cdk-stacks/main/scripts/setup-gvt-vllm.sh",
+        "chmod +x /home/ubuntu/setup-gvt-vllm.sh",
       ],
     }) as ec2.Instance;
 
