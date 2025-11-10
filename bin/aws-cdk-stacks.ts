@@ -13,7 +13,6 @@ import { EKS } from "../lib/eks";
 import { GravitonPerformanceTest } from "../lib/gvt-perf-test";
 import { GravitonVLLM } from "../lib/gvt-vllm";
 import { MultiArchPipeline } from "../lib/multi-arch-pipeline";
-import { Vllm } from "../lib/vllm";
 import { EgressVpc } from "../lib/egress-vpc";
 import { Jenkins } from "../lib/jenkins";
 dotenv.config();
@@ -36,12 +35,6 @@ const multiArchPipeline = new MultiArchPipeline(
       "Deploys a multi-architecture pipeline to create amd64 and arm64 container images and store them in an ECR repository",
   },
 );
-
-new Vllm(app, "vllm", {
-  stackName: prefix + "vllm",
-  description:
-    "Builds container images for vLLM and store them in an ECR repository",
-});
 
 const ecs = new ECS(app, "ecs", common.Vpc, multiArchPipeline.Repository, {
   stackName: prefix + "ecs",

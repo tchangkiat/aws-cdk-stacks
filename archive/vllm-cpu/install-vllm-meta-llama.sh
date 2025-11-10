@@ -30,10 +30,10 @@ spec:
     spec:
       containers:
       - name: vllm-meta-llama
-        image: vllm/vllm-openai:nightly
+        image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/vllm:arm64
         command: ["/bin/sh", "-c"]
         args: [
-          "vllm serve meta-llama/Llama-3.2-1B-Instruct"
+          "vllm serve meta-llama/Llama-3.2-1B-Instruct --max_num_batched_tokens 2048 --max_model_len 2048"
         ]
         env:
         - name: HUGGING_FACE_HUB_TOKEN
@@ -46,33 +46,17 @@ spec:
         volumeMounts:
           - name: llama-storage
             mountPath: /root/.cache/huggingface
-          - name: shm
-            mountPath: /dev/shm
         resources:
-          limits:
-            cpu: "10"
-            memory: 20G
-            nvidia.com/gpu: "1"
           requests:
-            cpu: "2"
-            memory: 6G
-            nvidia.com/gpu: "1"
+            cpu: 24
+            memory: 96Gi
       volumes:
       - name: llama-storage
         persistentVolumeClaim:
           claimName: vllm-meta-llama
-      # vLLM needs to access the host's shared memory for tensor parallel inference.
-      - name: shm
-        emptyDir:
-          medium: Memory
-          sizeLimit: "2Gi"
       nodeSelector:
-        karpenter.sh/nodepool: gpu
-        karpenter.k8s.aws/instance-family: g4dn
-      tolerations:
-        - key: "nvidia.com/gpu"
-          effect: "NoSchedule"
-          operator: "Exists"
+        karpenter.sh/nodepool: graviton
+        karpenter.k8s.aws/instance-family: m8g
 ---
 apiVersion: v1
 kind: Service
