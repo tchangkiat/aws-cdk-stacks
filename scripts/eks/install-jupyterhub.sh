@@ -31,7 +31,7 @@ proxy:
 singleuser:
   image:
     name: jupyter/scipy-notebook
-    tag: python-3.9
+    tag: python-3.11
   cpu:
     limit: 2
     guarantee: 2
