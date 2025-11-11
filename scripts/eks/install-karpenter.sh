@@ -158,8 +158,8 @@ spec:
     spec:
       requirements:
       - key: karpenter.sh/capacity-type
-          operator: In
-          values: ["on-demand", "spot"]
+        operator: In
+        values: ["on-demand", "spot"]
       - key: karpenter.k8s.aws/instance-category
         operator: In
         values: ["g"]
