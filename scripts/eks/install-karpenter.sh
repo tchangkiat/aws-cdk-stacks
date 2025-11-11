@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export KARPENTER_NAMESPACE="kube-system"
-export KARPENTER_VERSION="1.7.1"
+export KARPENTER_VERSION="1.8.2"
 export K8S_VERSION=$(kubectl version -o json | jq -r ".serverVersion.major")
 K8S_VERSION+="."
 K8S_VERSION+=$(kubectl version -o json | jq -r ".serverVersion.minor")
@@ -130,7 +130,7 @@ spec:
     # Data device: Container resources such as images and logs
     - deviceName: /dev/xvdb
       ebs:
-        volumeSize: 45Gi
+        volumeSize: 100Gi
         volumeType: gp3
         encrypted: true
   tags:
@@ -191,7 +191,7 @@ spec:
     # Data device: Container resources such as images and logs
     - deviceName: /dev/xvdb
       ebs:
-        volumeSize: 95Gi
+        volumeSize: 100Gi
         volumeType: gp3
         encrypted: true
   tags:
