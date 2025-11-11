@@ -68,6 +68,9 @@ spec:
         - key: kubernetes.io/arch
           operator: In
           values: ["amd64"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand", "spot"]
         - key: "karpenter.k8s.aws/instance-category"
           operator: NotIn
           values: ["t"]
@@ -93,6 +96,9 @@ spec:
         - key: kubernetes.io/arch
           operator: In
           values: ["arm64"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand", "spot"]
         - key: "karpenter.k8s.aws/instance-category"
           operator: NotIn
           values: ["t"]
@@ -151,6 +157,9 @@ spec:
   template:
     spec:
       requirements:
+      - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand", "spot"]
       - key: karpenter.k8s.aws/instance-category
         operator: In
         values: ["g"]
