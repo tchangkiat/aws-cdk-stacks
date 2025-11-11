@@ -169,7 +169,6 @@ spec:
         restartPolicy: Never # Never restart a pod to avoid pod reuse
         nodeSelector:
           karpenter.sh/nodepool: gpu
-          karpenter.sh/capacity-type: on-demand
         tolerations:
         - key: "nvidia.com/gpu"
           effect: "NoSchedule"
@@ -208,7 +207,7 @@ spec:
       spec:
         containers:
         # The Ray head container
-        - name: ray-head-aarch64
+        - name: ray-head
           image: rayproject/ray:${RAY_VERSION}-py311-aarch64
           ports:
           - containerPort: 6379
