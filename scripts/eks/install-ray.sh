@@ -62,7 +62,6 @@ spec:
         restartPolicy: Never # No restart to avoid reuse of pod for different ray nodes.
         nodeSelector:
           karpenter.sh/nodepool: x86
-          karpenter.sh/capacity-type: on-demand
   workerGroupSpecs:
   - replicas: 0
     minReplicas: 0
@@ -85,8 +84,8 @@ spec:
               memory: "20Gi"
         restartPolicy: Never # Never restart a pod to avoid pod reuse
         nodeSelector:
-          karpenter.sh/nodepool: x86
-          karpenter.sh/capacity-type: spot
+          karpenter.sh/nodepool: spot
+          kubernetes.io/arch: amd64
 EOF
 
 kubectl apply -f ray-cluster-x86-config.yaml
@@ -144,7 +143,6 @@ spec:
         restartPolicy: Never # No restart to avoid reuse of pod for different ray nodes.
         nodeSelector:
           karpenter.sh/nodepool: x86
-          karpenter.sh/capacity-type: on-demand
   workerGroupSpecs:
   - replicas: 0
     minReplicas: 0
@@ -230,7 +228,6 @@ spec:
         restartPolicy: Never # No restart to avoid reuse of pod for different ray nodes.
         nodeSelector:
           karpenter.sh/nodepool: graviton
-          karpenter.sh/capacity-type: on-demand
   workerGroupSpecs:
   - replicas: 0
     minReplicas: 0
@@ -253,8 +250,8 @@ spec:
               memory: "20Gi"
         restartPolicy: Never # Never restart a pod to avoid pod reuse
         nodeSelector:
-          karpenter.sh/nodepool: graviton
-          karpenter.sh/capacity-type: spot
+          karpenter.sh/nodepool: spot
+          kubernetes.io/arch: arm64
 EOF
 
 kubectl apply -f ray-cluster-gvt-config.yaml
