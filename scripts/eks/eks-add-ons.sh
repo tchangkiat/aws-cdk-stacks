@@ -50,6 +50,9 @@ for install in "${installs[@]}"; do
             "12"|"argo-rollouts")
                 scripts+=("install-argo-rollouts.sh")
                 ;;
+            "13"|"locust")
+                scripts+=("install-locust.sh")
+                ;;
             *) echo "Invalid option $REPLY"
         esac
     done
@@ -94,6 +97,9 @@ for removal in "${removals[@]}"; do
                 ;;
             "12"|"argo-rollouts")
                 scripts+=("remove-argo-rollouts.sh")
+                ;;
+            "13"|"locust")
+                scripts+=("remove-locust.sh")
                 ;;
             *) echo "Invalid option $REPLY"
         esac
@@ -150,6 +156,8 @@ Add-Ons (alias are in brackets):
     - Prerequisites: Karpenter, AWS Load Balancer Controller
 12. Argo Rollouts ("argo-rollouts")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
+13. Locust ("locust")
+    - Prerequisites: Karpenter
 ----------------------------------------------------------------------
 
 EndOfMessage
