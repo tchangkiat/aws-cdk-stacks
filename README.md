@@ -157,19 +157,17 @@ Install add-ons with `-i` argument or remove add-ons with `-r` argument. Both ID
 4. Amazon CloudWatch Container Insights ("container-insights")
 5. Prometheus and Grafana ("prometheus-grafana")
    - Prerequisite: AWS EBS CSI Driver
-6. Ingress NGINX Controller ("ingress-nginx-controller")
-   - Also installs cert-manager
-7. AWS Gateway API Controller ("gateway-api-controller")
-8. Amazon EMR on EKS ("emr-on-eks")
-9. JupyterHub ("jupyterhub")
+6. AWS Gateway API Controller ("gateway-api-controller")
+7. Amazon EMR on EKS ("emr-on-eks")
+8. JupyterHub ("jupyterhub")
    - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
-10. Ray ("ray")
-    - Prerequisites: Karpenter
-11. Argo CD ("argo-cd")
+9. Ray ("ray")
+   - Prerequisites: Karpenter
+10. Argo CD ("argo-cd")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
-12. Argo Rollouts ("argo-rollouts")
+11. Argo Rollouts ("argo-rollouts")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
-13. Locust ("locust")
+12. Locust ("locust")
     - Prerequisites: Karpenter
 
 ## Deploy Application

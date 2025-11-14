@@ -29,28 +29,25 @@ for install in "${installs[@]}"; do
             "5"|"prometheus-grafana")
                 scripts+=("install-prometheus-grafana.sh")
                 ;;
-            "6"|"ingress-nginx-controller")
-                scripts+=("install-ingress-nginx-controller.sh")
-                ;;
-            "7"|"gateway-api-controller")
+            "6"|"gateway-api-controller")
                 scripts+=("install-gateway-api-controller.sh")
                 ;;
-            "8"|"emr-on-eks")
+            "7"|"emr-on-eks")
                 scripts+=("setup-emr-on-eks.sh")
                 ;;
-            "9"|"jupyterhub")
+            "8"|"jupyterhub")
                 scripts+=("install-jupyterhub.sh")
                 ;;
-            "10"|"ray")
+            "9"|"ray")
                 scripts+=("install-ray.sh")
                 ;;
-            "11"|"argo-cd")
+            "10"|"argo-cd")
                 scripts+=("install-argo-cd.sh")
                 ;;
-            "12"|"argo-rollouts")
+            "11"|"argo-rollouts")
                 scripts+=("install-argo-rollouts.sh")
                 ;;
-            "13"|"locust")
+            "12"|"locust")
                 scripts+=("install-locust.sh")
                 ;;
             *) echo "Invalid option $REPLY"
@@ -77,28 +74,25 @@ for removal in "${removals[@]}"; do
             "5"|"prometheus-grafana")
                 scripts+=("remove-prometheus-grafana.sh")
                 ;;
-            "6"|"ingress-nginx-controller")
-                scripts+=("remove-ingress-nginx-controller.sh")
-                ;;
-            "7"|"gateway-api-controller")
+            "6"|"gateway-api-controller")
                 scripts+=("remove-gateway-api-controller.sh")
                 ;;
-            "8"|"emr-on-eks")
+            "7"|"emr-on-eks")
                 scripts+=("remove-emr-on-eks.sh")
                 ;;
-            "9"|"jupyterhub")
+            "8"|"jupyterhub")
                 scripts+=("remove-jupyterhub.sh")
                 ;;
-            "10"|"ray")
+            "9"|"ray")
                 scripts+=("remove-ray.sh")
                 ;;
-            "11"|"argo-cd")
+            "10"|"argo-cd")
                 scripts+=("remove-argo-cd.sh")
                 ;;
-            "12"|"argo-rollouts")
+            "11"|"argo-rollouts")
                 scripts+=("remove-argo-rollouts.sh")
                 ;;
-            "13"|"locust")
+            "12"|"locust")
                 scripts+=("remove-locust.sh")
                 ;;
             *) echo "Invalid option $REPLY"
@@ -144,19 +138,17 @@ Add-Ons (alias are in brackets):
 4.  Amazon CloudWatch Container Insights ("container-insights")
 5.  Prometheus and Grafana ("prometheus-grafana")
     - Prerequisite: AWS EBS CSI Driver
-6.  Ingress NGINX Controller ("ingress-nginx-controller")
-    - Also installs cert-manager
-7.  AWS Gateway API Controller ("gateway-api-controller")
-8.  Amazon EMR on EKS ("emr-on-eks")
-9.  JupyterHub ("jupyterhub")
+6.  AWS Gateway API Controller ("gateway-api-controller")
+7.  Amazon EMR on EKS ("emr-on-eks")
+8.  JupyterHub ("jupyterhub")
     - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
-10. Ray ("ray")
+9. Ray ("ray")
     - Prerequisites: Karpenter
-11. Argo CD ("argo-cd")
+10. Argo CD ("argo-cd")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
-12. Argo Rollouts ("argo-rollouts")
+11. Argo Rollouts ("argo-rollouts")
     - Prerequisites: Karpenter, AWS Load Balancer Controller
-13. Locust ("locust")
+12. Locust ("locust")
     - Prerequisites: Karpenter
 ----------------------------------------------------------------------
 
