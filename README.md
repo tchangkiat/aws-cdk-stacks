@@ -125,6 +125,14 @@ kubectl get svc
 
 Install add-ons with `-i` argument or remove add-ons with `-r` argument. Both ID and alias of the add-ons can be used.
 
+### Supported Add-Ons
+
+Run the following command to see the list of add-ons.
+
+```bash
+./eks-add-ons.sh
+```
+
 ### Example #1: Install Karpenter
 
 ```bash
@@ -148,27 +156,6 @@ Install add-ons with `-i` argument or remove add-ons with `-r` argument. Both ID
 # OR
 ./eks-add-ons.sh -r "1 2"
 ```
-
-### Supported Add-Ons (alias in brackets)
-
-1. Karpenter ("karpenter")
-2. AWS Load Balancer Controller ("load-balancer-controller")
-3. AWS EBS CSI Driver ("ebs-csi-driver")
-4. Amazon CloudWatch Container Insights ("container-insights")
-5. Prometheus and Grafana ("prometheus-grafana")
-   - Prerequisite: AWS EBS CSI Driver
-6. AWS Gateway API Controller ("gateway-api-controller")
-7. Amazon EMR on EKS ("emr-on-eks")
-8. JupyterHub ("jupyterhub")
-   - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
-9. Ray ("ray")
-   - Prerequisites: Karpenter
-10. Argo CD ("argo-cd")
-    - Prerequisites: Karpenter, AWS Load Balancer Controller
-11. Argo Rollouts ("argo-rollouts")
-    - Prerequisites: Karpenter, AWS Load Balancer Controller
-12. Locust ("locust")
-    - Prerequisites: Karpenter
 
 ## Deploy Application
 

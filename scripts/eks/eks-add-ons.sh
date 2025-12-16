@@ -50,6 +50,9 @@ for install in "${installs[@]}"; do
             "12"|"locust")
                 scripts+=("install-locust.sh")
                 ;;
+            "13"|"kafka")
+                scripts+=("install-kafka.sh")
+                ;;
             *) echo "Invalid option $REPLY"
         esac
     done
@@ -95,6 +98,9 @@ for removal in "${removals[@]}"; do
             "12"|"locust")
                 scripts+=("remove-locust.sh")
                 ;;
+            "13"|"kafka")
+                scripts+=("remove-kafka.sh")
+                ;;
             *) echo "Invalid option $REPLY"
         esac
     done
@@ -130,7 +136,7 @@ Remove:
         ./eks-add-ons.sh -r "<alias 1> <alias 2>"
         ./eks-add-ons.sh -r "<id 1> <id 2>"
 ----------------------------------------------------------------------
-Add-Ons (alias are in brackets):
+Add-Ons (aliases are in brackets):
 
 1.  Karpenter ("karpenter")
 2.  AWS Load Balancer Controller ("load-balancer-controller")
@@ -150,6 +156,8 @@ Add-Ons (alias are in brackets):
     - Prerequisites: Karpenter, AWS Load Balancer Controller
 12. Locust ("locust")
     - Prerequisites: Karpenter
+13. Kafka ("kafka")
+    - Prerequisites: Karpenter, AWS Load Balancer Controller, and AWS EBS CSI Driver
 ----------------------------------------------------------------------
 
 EndOfMessage
